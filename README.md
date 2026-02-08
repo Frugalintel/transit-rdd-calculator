@@ -1,99 +1,36 @@
-# Transit Guide Calculator
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A sleek, terminal-themed web application for calculating transit times and Required Delivery Dates (RDD) for shipments. Built with HTML, CSS, and JavaScript, featuring a Fallout terminal-inspired boot sequence.
+## Getting Started
 
-## Features
+First, run the development server:
 
-- Calculate Required Delivery Dates (RDD) based on pickup date, weight, and distance
-- Automatic peak season detection
-- Fallout terminal-inspired design with authentic boot sequence
-- Realistic typewriter text effect with blinking square cursor
-- Customizable terminal color schemes
-- Radiation mode toggle for Fallout Pip-Boy aesthetics
-- Mobile-responsive interface
-- Easy date copying functionality with cross-platform support
-- Multiple copy templates including OSNP format
-- Spreadsheet integration support
-- Pack Date
-- Pickup Date
-
-## Boot Sequence
-
-The application features an authentic Fallout-style boot sequence:
-- Character-by-character typing animation
-- Authentic square cursor that blinks at the end of each line
-- Variable typing speeds to simulate human typing
-- Random pauses for an authentic terminal experience
-
-## Usage
-
-1. Watch the boot sequence initialize the application
-2. Enter the required information:
-   - Pack Date (optional)
-   - Pickup Date
-   - Shipment Weight (lbs)
-   - Distance (miles)
-
-3. Click "Calculate RDD" to see the results
-
-4. Use the copy dropdown to select your preferred format:
-   - DATES ONLY: Simple date format for general use
-   - OSNP: Pre-formatted message for date change confirmations
-
-5. Click the copy button to copy the formatted text to your clipboard
-
-## Copy Templates
-
-The app includes multiple copy templates for different use cases:
-
-### DATES ONLY
-Simple format showing just the dates:
-```
-Pack: MM/DD/YYYY
-Load: MM/DD/YYYY
-RDD: MM/DD/YYYY
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-### OSNP Template
-Complete message for date change confirmations:
-```
-Hello,
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-The agent(s) can accommodate your requested date change. Your new dates are as follows-
- 
-Pack: MM/DD/YYYY
-Load: MM/DD/YYYY
-RDD: MM/DD/YYYY
- 
-JPPSO, please update DPS and GBL to reflect the newly agreed on dates that are within spread.
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Spreadsheet Integration
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-To use this calculator from your spreadsheet:
+## Learn More
 
-1. Create a hyperlink with this format:
-   ```
-   https://frugalintel.github.io/transit-guide-calc/?loadDate=YYYY-MM-DD&weight=1000&distance=500
-   ```
+To learn more about Next.js, take a look at the following resources:
 
-2. Replace the values with cell references in your spreadsheet
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-3. Click the copy button to copy the dates back to your spreadsheet
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Live Demo
+## Deploy on Vercel
 
-Visit [https://frugalintel.github.io/transit-guide-calc/](https://frugalintel.github.io/transit-guide-calc/) to try the calculator.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/frugalintel/transit-guide-calc.git
-   ```
-
-2. Open `index.html` in your web browser
-
-## License
-
-MIT License - feel free to use this project for your own purposes. 
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

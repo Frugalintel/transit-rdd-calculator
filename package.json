@@ -1,0 +1,47 @@
+{
+  "name": "temp-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "dev:tunnel": "npx lt --port 3003",
+    "tunnel": "npx lt --port 3003",
+    "tunnel:ngrok": "npx ngrok@latest http 3003",
+    "tunnel:cf": "npx cloudflared@latest tunnel --url http://localhost:3003 --http-host-header localhost",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.86.0",
+    "@xyflow/react": "^12.10.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.555.0",
+    "next": "^15.5.12",
+    "next-themes": "^0.4.6",
+    "react": "^18.3.1",
+    "react-day-picker": "^9.11.3",
+    "react-dom": "^18.3.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
