@@ -60,7 +60,7 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
             ])
             
             if (modulesResult.data) {
-                setModules(modulesResult.data.map(m => ({
+                setModules(modulesResult.data.map((m: any) => ({
                     id: m.id,
                     title: m.title,
                     description: m.description,
@@ -71,7 +71,7 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
             }
             
             if (scenariosResult.data) {
-                setScenarios(scenariosResult.data.map(s => ({
+                setScenarios(scenariosResult.data.map((s: any) => ({
                     id: s.id,
                     moduleId: s.module_id,
                     title: s.title,
@@ -86,7 +86,7 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
             
             if (stepsResult.data) {
                 const stepsMap: Record<string, TrainingStep> = { ...TRAINING_STEPS }
-                stepsResult.data.forEach(row => {
+                stepsResult.data.forEach((row: any) => {
                     stepsMap[row.id] = {
                         id: row.id,
                         title: row.title,

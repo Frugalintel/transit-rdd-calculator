@@ -94,7 +94,7 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
             
             if (stepsError) throw stepsError
             
-            const loadedSteps: TrainingStep[] = (stepsData || []).map(row => ({
+            const loadedSteps: TrainingStep[] = (stepsData || []).map((row: any) => ({
                 id: row.id,
                 title: row.title,
                 content: row.content,

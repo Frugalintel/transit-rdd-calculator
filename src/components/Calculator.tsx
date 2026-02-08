@@ -84,14 +84,15 @@ export function Calculator() {
             // Check admin status if user exists (with timeout)
             if (currentUser) {
                 try {
+                    const query = supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', currentUser.id)
+                        .single()
                     const { data: profile, error } = await withTimeout(
-                        supabase
-                            .from('profiles')
-                            .select('role')
-                            .eq('id', currentUser.id)
-                            .single(),
+                        query as unknown as Promise<any>,
                         15000 // 15s timeout
-                    )
+                    ) as any
                     if (mounted) {
                         if (error) {
                             console.warn('Initial admin check failed:', error.message)
@@ -120,14 +121,15 @@ export function Calculator() {
             // Check admin status on auth change (with timeout)
             if (session?.user) {
                 try {
+                    const query = supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', session.user.id)
+                        .single()
                     const { data: profile, error } = await withTimeout(
-                        supabase
-                            .from('profiles')
-                            .select('role')
-                            .eq('id', session.user.id)
-                            .single(),
+                        query as unknown as Promise<any>,
                         15000
-                    )
+                    ) as any
                     if (mounted) {
                         if (error) {
                             console.warn('Admin check failed:', error.message)

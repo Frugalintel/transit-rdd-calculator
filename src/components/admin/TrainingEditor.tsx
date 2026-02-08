@@ -106,7 +106,7 @@ export function TrainingEditor() {
             if (scenariosResult.error) throw scenariosResult.error
             if (stepsResult.error) throw stepsResult.error
             
-            setModules(modulesResult.data?.map(m => ({
+            setModules(modulesResult.data?.map((m: any) => ({
                 id: m.id,
                 title: m.title,
                 description: m.description,
@@ -115,7 +115,7 @@ export function TrainingEditor() {
                 isPublished: m.is_published,
             })) || [])
             
-            setScenarios(scenariosResult.data?.map(s => ({
+            setScenarios(scenariosResult.data?.map((s: any) => ({
                 id: s.id,
                 moduleId: s.module_id,
                 title: s.title,
@@ -128,7 +128,7 @@ export function TrainingEditor() {
             })) || [])
             
             const stepsMap: Record<string, TrainingStep> = {}
-            stepsResult.data?.forEach(row => {
+            stepsResult.data?.forEach((row: any) => {
                 stepsMap[row.id] = {
                     id: row.id,
                     title: row.title,

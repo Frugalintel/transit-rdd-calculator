@@ -987,7 +987,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <div className="p-5 sm:p-6 space-y-6">
                                 <div className="flex items-center gap-3 border-b border-[var(--fo-primary-dim)] pb-3 mb-5">
-                                    <PipBoyIcon type="stats" size={24} />
+                                    <PipBoyIcon type="cog" size={24} />
                                     <h3 className="fo-heading text-xl sm:text-2xl border-none mb-0 tracking-widest">
                                         SYSTEM DIAGNOSTICS
                                     </h3>
@@ -1001,7 +1001,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <PipBoyIcon type="users" />
+                                            <PipBoyIcon type="user" />
                                             <span className="fo-subheading text-lg tracking-widest">PERSONNEL</span>
                                         </div>
                                         <div className="fo-title text-4xl mb-1 text-right">
@@ -1012,7 +1012,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
 
                                     <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <PipBoyIcon type="data" />
+                                            <PipBoyIcon type="terminal" />
                                             <span className="fo-subheading text-lg tracking-widest">OPERATIONS</span>
                                         </div>
                                         <div className="fo-title text-4xl mb-1 text-right">
@@ -1023,7 +1023,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
 
                                     <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <PipBoyIcon type="logs" />
+                                            <PipBoyIcon type="book" />
                                             <span className="fo-subheading text-lg tracking-widest">EVENTS</span>
                                         </div>
                                         <div className="fo-title text-4xl mb-1 text-right">

@@ -1,5 +1,5 @@
 import React from 'react'
-import { ThemeColors } from '@/context/ThemeContext'
+import { ThemeColors } from '@/utils/themeConstants'
 import { ItemIcon } from '@/components/minecraft/ItemIcon'
 
 interface ThemePreviewProps {

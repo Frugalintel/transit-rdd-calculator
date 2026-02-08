@@ -1,6 +1,6 @@
 "use client"
 
-import { FalloutColors } from '@/context/ThemeContext'
+import { FalloutColors } from '@/utils/themeConstants'
 
 interface FalloutThemePreviewProps {
     colors: FalloutColors
