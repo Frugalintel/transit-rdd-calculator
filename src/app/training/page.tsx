@@ -36,7 +36,7 @@ export default function TrainingPage() {
 
             if (modulesError) throw modulesError
 
-            setModules(modulesData?.map(m => ({
+            setModules(modulesData?.map((m: any) => ({
                 id: m.id,
                 title: m.title,
                 description: m.description,
@@ -54,7 +54,7 @@ export default function TrainingPage() {
 
             if (scenariosError) throw scenariosError
 
-            setScenarios(scenariosData?.map(s => ({
+            setScenarios(scenariosData?.map((s: any) => ({
                 id: s.id,
                 moduleId: s.module_id,
                 title: s.title,
