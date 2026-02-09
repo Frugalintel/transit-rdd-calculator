@@ -133,7 +133,8 @@ export default function TrainingPage() {
     }, [modules, filteredScenarios])
 
     // Check if coming soon is enabled and user is not admin
-    const showComingSoon = comingSoonSettings?.enabled && !isAdmin
+    // Default to showing coming soon if settings aren't loaded (null) or if explicitly enabled
+    const showComingSoon = !isAdmin && (comingSoonSettings === null || comingSoonSettings?.enabled !== false)
 
     if (showComingSoon) {
         const isFallout = settings.themeMode === 'fallout'
