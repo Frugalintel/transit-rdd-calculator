@@ -346,7 +346,7 @@ export function Calculator() {
             style={{ touchAction: 'pan-y' }}
         >
             {/* Title */}
-            <div className="mb-8 relative text-center z-10 w-full max-w-4xl border-b-2 border-[var(--fo-primary)] pb-4">
+            <div className={`mb-8 relative text-center z-10 w-full max-w-4xl pb-4 ${isFallout ? 'border-b-2 border-[var(--fo-primary)]' : ''}`}>
                 {isFallout ? (
                     <div className="text-left w-full font-mono">
                         <div className="fo-text text-sm mb-2">STATUS: ONLINE SETTINGS VER 1.0.8</div>
