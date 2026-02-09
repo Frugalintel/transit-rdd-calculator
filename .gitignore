@@ -32,6 +32,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.example
+
+# Local documentation and setup scripts
+DEVELOPMENT.md
+README.md
+.env.local.example
+scripts/setup-local-dev.sh
 
 # vercel
 .vercel
