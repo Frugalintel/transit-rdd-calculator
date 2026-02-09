@@ -3,6 +3,7 @@
 import { use } from 'react'
 import { useRouter } from 'next/navigation'
 import { ScenarioPlayer } from '@/components/training/ScenarioPlayer'
+import { TrainingAccessCheck } from '@/components/training/TrainingAccessCheck'
 
 interface ScenarioPageProps {
     params: Promise<{ moduleId: string; scenarioId: string }>
@@ -22,11 +23,13 @@ export default function ScenarioPage({ params }: ScenarioPageProps) {
     }
 
     return (
-        <ScenarioPlayer
-            scenarioId={scenarioId}
-            moduleId={moduleId}
-            onComplete={handleComplete}
-            onExit={handleExit}
-        />
+        <TrainingAccessCheck>
+            <ScenarioPlayer
+                scenarioId={scenarioId}
+                moduleId={moduleId}
+                onComplete={handleComplete}
+                onExit={handleExit}
+            />
+        </TrainingAccessCheck>
     )
 }

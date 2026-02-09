@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { TrainingAccessCheck } from '@/components/training/TrainingAccessCheck'
 
 interface ModulePageProps {
     params: Promise<{ moduleId: string }>
@@ -100,17 +101,18 @@ export default function ModulePage({ params }: ModulePageProps) {
     }
 
     return (
-        <div className="min-h-screen p-4 md:p-8">
-            <div className="max-w-4xl mx-auto">
-                {/* Breadcrumb */}
-                <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-                    <Link href="/training" className="hover:text-white">Training</Link>
-                    <span>/</span>
-                    <span className="text-white">{module.title}</span>
-                </div>
+        <TrainingAccessCheck>
+            <div className="min-h-screen p-4 md:p-8">
+                <div className="max-w-4xl mx-auto">
+                    {/* Breadcrumb */}
+                    <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
+                        <Link href="/training" className="hover:text-white">Training</Link>
+                        <span>/</span>
+                        <span className="text-white">{module.title}</span>
+                    </div>
 
-                {/* Module Header */}
-                <div className="mc-panel mb-6">
+                    {/* Module Header */}
+                    <div className="mc-panel mb-6">
                     <div className="p-6">
                         <div className="flex items-center gap-4 mb-4">
                             <ThemeIcon type={module.icon} scale={2} />
@@ -185,6 +187,6 @@ export default function ModulePage({ params }: ModulePageProps) {
                     </Link>
                 </div>
             </div>
-        </div>
+        </TrainingAccessCheck>
     )
 }
