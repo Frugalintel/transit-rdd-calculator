@@ -281,15 +281,20 @@
 .mc-button-primary {
   background-color: var(--mc-success) !important;
   color: #ffffff;
-  border-color: #000;
+  border-color: #000 !important;
   box-shadow: 
-    inset 2px 2px 0 0 #77ff77,
+    inset 2px 2px 0 0 #66dd66,
     inset -2px -2px 0 0 var(--mc-success-shadow);
   text-shadow: 2px 2px 0px #1a3a1a;
+  outline: none !important;
 }
 
 .mc-button-primary:hover:not(:disabled) {
   background-color: #66bb66 !important;
+}
+
+.mc-button-primary:focus {
+  outline: none !important;
 }
 
 /* Destructive - Red (Delete/Danger actions) */
