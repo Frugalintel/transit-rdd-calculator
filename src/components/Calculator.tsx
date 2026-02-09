@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { useTransitData } from '@/hooks/useTransitData'
 import { useCalculator, CalculationResult } from '@/hooks/useCalculator'
 import { useTheme } from '@/context/ThemeContext'
-import { useTraining } from '@/components/training/TrainingContext'
+import { useRouter } from 'next/navigation'
 import { SettingsMenu } from './SettingsMenu'
 import { AuthForm } from './AuthForm'
 import { generateCopyText, CopyFormat, FORMAT_LABELS } from '@/utils/textHelpers'
@@ -42,7 +42,7 @@ export function Calculator() {
     const { data, loading, error: dataError } = useTransitData()
     const { calculate } = useCalculator(data)
     const { settings, mounted } = useTheme()
-    const { openTraining } = useTraining()
+    const router = useRouter()
     const sounds = useSounds()
     
     // Inputs
@@ -338,15 +338,13 @@ export function Calculator() {
         setIsAuthOpen(true)
     }
 
-    // settings.themeMode is initialised from the server cookie (SSR) and from
-    // localStorage (client), so server & client agree. The mounted guard is a
-    // safety net: if the cookie is missing but localStorage has a value, we
-    // still avoid a hydration mismatch by deferring to the server default
-    // until the client has mounted.
     const isFallout = settings.themeMode === 'fallout'
 
     return (
-        <div className={`min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative ${isFallout ? 'fo-scanlines' : ''}`} style={{ touchAction: 'pan-y' }}>
+        <div 
+            className={`min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative ${isFallout ? 'fo-scanlines' : ''}`} 
+            style={{ touchAction: 'pan-y' }}
+        >
             {/* Title */}
             <div className="mb-8 relative text-center z-10 w-full max-w-4xl border-b-2 border-[var(--fo-primary)] pb-4">
                 {isFallout ? (
@@ -357,12 +355,12 @@ export function Calculator() {
                         <h1 className="text-4xl fo-title mt-8 mb-4">RDD CALCULATOR</h1>
                     </div>
                 ) : (
-                    <>
+                    <div>
                         <h1 className="text-2xl sm:text-4xl md:text-6xl drop-shadow-xl relative z-10 mc-title">
                             RDD Calculator
                         </h1>
                         <SplashText />
-                    </>
+                    </div>
                 )}
             </div>
 
@@ -376,7 +374,7 @@ export function Calculator() {
                                 <span className="text-base sm:text-xl mc-heading">Transit Guide</span>
                             </div>
                             <div className="flex flex-wrap gap-1 sm:gap-2 w-full sm:w-auto">
-                                <Button size="sm" variant="primary" onClick={openTraining} className="text-xs sm:text-sm flex-1 sm:flex-initial">
+                                <Button size="sm" variant="primary" onClick={() => router.push('/training')} className="text-xs sm:text-sm flex-1 sm:flex-initial">
                                     <ItemIcon type="book" className="mr-1 sm:mr-2" />
                                     Training
                                 </Button>
@@ -407,7 +405,7 @@ export function Calculator() {
                     {isFallout && (
                         <div className="flex flex-wrap gap-1 sm:gap-4 w-full mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
                             <button onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ SETTINGS ]</button>
-                            <button onClick={openTraining} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ GUIDE ]</button>
+                            <button onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ GUIDE ]</button>
                             {user && <button onClick={() => setIsHistoryOpen(true)} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ LOGS ]</button>}
                             {user ? (
                                 <button onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ LOGOUT ]</button>
