@@ -9,13 +9,22 @@ import { Input } from '@/components/ui/input'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useTheme } from '@/context/ThemeContext'
+import { PipBoyIcon } from '@/components/fallout/PipBoyIcon'
 
 export default function TrainingPage() {
+    const { settings } = useTheme()
     const [modules, setModules] = useState<TrainingModule[]>([])
     const [scenarios, setScenarios] = useState<TrainingScenario[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedComplexity, setSelectedComplexity] = useState<string | null>(null)
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [comingSoonSettings, setComingSoonSettings] = useState<{
+        enabled: boolean
+        minecraft_message: string
+        fallout_message: string
+    } | null>(null)
     const router = useRouter()
     const supabase = createClient()
 
@@ -26,6 +35,32 @@ export default function TrainingPage() {
     const loadData = async () => {
         try {
             setIsLoading(true)
+            
+            // Check current user and admin status
+            const { data: { session } } = await supabase.auth.getSession()
+            let userIsAdmin = false
+            
+            if (session?.user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single()
+                
+                userIsAdmin = profile?.role === 'admin'
+                setIsAdmin(userIsAdmin)
+            }
+
+            // Load system settings
+            const { data: settingsData } = await supabase
+                .from('system_settings')
+                .select('value')
+                .eq('key', 'training_coming_soon')
+                .single()
+            
+            if (settingsData?.value) {
+                setComingSoonSettings(settingsData.value)
+            }
 
             // Load published modules
             const { data: modulesData, error: modulesError } = await supabase
@@ -96,6 +131,105 @@ export default function TrainingPage() {
         grouped['__ungrouped__'] = filteredScenarios.filter(s => !s.moduleId)
         return grouped
     }, [modules, filteredScenarios])
+
+    // Check if coming soon is enabled and user is not admin
+    const showComingSoon = comingSoonSettings?.enabled && !isAdmin
+
+    if (showComingSoon) {
+        const isFallout = settings.themeMode === 'fallout'
+
+        return (
+            <div className={`min-h-screen p-4 md:p-8 ${isFallout ? 'fo-scanlines' : ''}`}>
+                <div className="max-w-6xl mx-auto">
+                    {/* Header */}
+                    <div className={`${isFallout ? 'mb-8' : 'mc-panel mb-6'}`}>
+                        <div className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${isFallout ? 'border-b-2 border-[var(--fo-primary)] pb-4' : 'p-4'}`}>
+                            <div className="flex items-center gap-3">
+                                {isFallout ? (
+                                    <PipBoyIcon type="book" size={32} />
+                                ) : (
+                                    <ThemeIcon type="book" scale={2} />
+                                )}
+                                <div>
+                                    <h1 className={`${isFallout ? 'fo-title text-3xl' : 'mc-title text-3xl'}`}>
+                                        {isFallout ? 'TRAINING CENTER' : 'Training Center'}
+                                    </h1>
+                                    <p className={`${isFallout ? 'fo-text text-sm' : 'mc-body text-sm text-gray-400'}`}>
+                                        {isFallout ? 'STATUS: OFFLINE' : 'Master the date change process'}
+                                    </p>
+                                </div>
+                            </div>
+                            <Link href="/">
+                                <Button variant={isFallout ? "ghost" : "default"} className={isFallout ? "fo-button" : ""}>
+                                    {isFallout ? (
+                                        <span className="fo-text">[ RETURN TO CALCULATOR ]</span>
+                                    ) : (
+                                        <>
+                                            <ThemeIcon type="compass" className="mr-2" />
+                                            Back to Calculator
+                                        </>
+                                    )}
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Coming Soon Message */}
+                    <div className="flex flex-col items-center justify-center min-h-[400px]">
+                        {isFallout ? (
+                            <div className="w-full max-w-2xl fo-panel p-8 text-center relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-[var(--fo-primary)] opacity-50"></div>
+                                <div className="mb-8">
+                                    <div className="inline-block border-2 border-[var(--fo-primary)] p-4 mb-4 bg-[var(--fo-bg)] relative z-10">
+                                        <PipBoyIcon type="radiation" size={48} />
+                                    </div>
+                                    <h2 className="fo-heading text-2xl mb-4 tracking-widest">[ TRAINING MODULE STATUS ]</h2>
+                                    
+                                    <div className="fo-text space-y-2 mb-8 text-left max-w-md mx-auto border-l-2 border-[var(--fo-primary-dim)] pl-4">
+                                        <div className="flex justify-between">
+                                            <span className="fo-text-dim">SYSTEM STATUS:</span>
+                                            <span className="text-red-500 font-bold blinking">OFFLINE</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="fo-text-dim">CONTENT:</span>
+                                            <span>UNDER DEVELOPMENT</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="fo-text-dim">ESTIMATED AVAILABILITY:</span>
+                                            <span className="text-yellow-500">PENDING</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="fo-text text-sm border-t border-[var(--fo-primary-dim)] pt-4 mt-4">
+                                        {comingSoonSettings?.fallout_message?.split('\n').map((line, i) => (
+                                            <p key={i} className="mb-2 uppercase tracking-wide">
+                                                <span className="mr-2">{'>'}</span>
+                                                {line}
+                                            </p>
+                                        )) || (
+                                            <>
+                                                <p className="mb-2">{'>'} SYSTEM INITIALIZATION IN PROGRESS...</p>
+                                                <p>{'>'} CHECK BACK LATER FOR UPDATES</p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[var(--fo-primary)] opacity-50"></div>
+                            </div>
+                        ) : (
+                            <div className="mc-panel p-12 text-center max-w-2xl">
+                                <ThemeIcon type="chest" scale={3} className="mx-auto mb-6 opacity-50" />
+                                <h2 className="mc-heading text-2xl mb-4">No Training Available</h2>
+                                <p className="mc-body text-gray-400 text-lg">
+                                    {comingSoonSettings?.minecraft_message || 'Training modules are being prepared. Check back soon!'}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     if (isLoading) {
         return (
