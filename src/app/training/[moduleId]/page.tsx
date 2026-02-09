@@ -187,6 +187,7 @@ export default function ModulePage({ params }: ModulePageProps) {
                     </Link>
                 </div>
             </div>
+        </div>
         </TrainingAccessCheck>
     )
 }
