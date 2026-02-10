@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
 import { useTheme } from "@/context/ThemeContext"
 
 import { cn } from "@/lib/utils"
@@ -32,11 +31,14 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 // Minecraft close button
 const MinecraftCloseButton = () => (
-  <DialogPrimitive.Close className="absolute right-3 top-3 sm:right-4 sm:top-4 focus:outline-none disabled:pointer-events-none flex-shrink-0">
-    <div className="h-8 w-8 sm:h-9 sm:w-9 bg-[var(--mc-bg)] border-2 border-black flex items-center justify-center shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border)] hover:brightness-110 active:shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-light-border)] transition-all cursor-pointer group">
-       <span className="text-2xl sm:text-3xl leading-none mc-text-gray group-hover:text-black pb-1">x</span>
+  <DialogPrimitive.Close
+    className="absolute right-3 top-3 sm:right-4 sm:top-4 focus:outline-none disabled:pointer-events-none shrink-0"
+    aria-label="Close"
+    title="Close"
+  >
+    <div className="mc-button mc-button-destructive w-14 h-12 flex items-center justify-center p-0">
+      <span className="text-2xl font-bold leading-none">×</span>
     </div>
-    <span className="sr-only">Close</span>
   </DialogPrimitive.Close>
 )
 

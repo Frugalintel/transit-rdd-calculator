@@ -1,24 +1,43 @@
+"use client"
+
+import { useMemo, useState } from 'react'
 import { StatsCard } from '@/components/admin/StatsCard'
 import { ThemeIcon } from '@/components/ThemeIcon'
 import { MinecraftBarChart } from '@/components/minecraft/MinecraftBarChart'
 import { DashboardData } from '@/types/dashboard'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { CalculationDrilldown } from '@/components/admin/CalculationDrilldown'
+import { AdminActivityDrilldown } from '@/components/admin/AdminActivityDrilldown'
+import { formatEasternDateTime, getEasternHour } from '@/utils/timezone'
+
+interface DrillSelection {
+    bucketLabel: string
+    view: string
+    startIso: string
+    endIso: string
+    hourStart?: number
+    hourEnd?: number
+    calculationId?: string
+}
 
 export function MinecraftDashboard({ data }: { data: DashboardData }) {
+    const [drillSelection, setDrillSelection] = useState<DrillSelection | null>(null)
+    const [activitySelection, setActivitySelection] = useState<DashboardData['recentAdminLogs'][number] | null>(null)
     const {
         userCount,
         calcCount,
         logCount,
         calculationEventTimestamps,
-        topRoutes,
-        recentCalcs,
-        recentLogs,
-        thisWeekCalcs,
-        dbLatency,
+        calculationEventRows,
+        recentAdminLogs,
         weeklyTrend
     } = data
 
     const calculationEvents = calculationEventTimestamps || []
+    const analyticsWindowStart = new Date()
+    analyticsWindowStart.setDate(analyticsWindowStart.getDate() - 7)
+    analyticsWindowStart.setHours(0, 0, 0, 0)
+    const analyticsWindowEnd = new Date()
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const chartData = Array.from({ length: 7 }, (_, i) => {
@@ -36,30 +55,55 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
 
         return {
             label: dayNames[dayStart.getDay()],
-            value
+            value,
+            startIso: dayStart.toISOString(),
+            endIso: dayEnd.toISOString(),
         }
     })
 
     const timeOfDayCounts = new Array(24).fill(0)
-    calculationEvents.forEach(ts => {
-        const hour = new Date(ts).getHours()
+    calculationEvents.forEach((ts) => {
+        const hour = getEasternHour(ts)
+        if (hour === null) return
         timeOfDayCounts[hour]++
     })
 
-    // Prepare Time of Day chart data (grouped into 4-hour blocks for cleaner visualization)
-    const timeBlocks = [
-        { label: 'Night (0-6)', value: 0 },
-        { label: 'Morning (6-12)', value: 0 },
-        { label: 'Afternoon (12-18)', value: 0 },
-        { label: 'Evening (18-24)', value: 0 },
-    ]
-    
-    timeOfDayCounts.forEach((value, hour) => {
-        if (hour < 6) timeBlocks[0].value += value
-        else if (hour < 12) timeBlocks[1].value += value
-        else if (hour < 18) timeBlocks[2].value += value
-        else timeBlocks[3].value += value
-    })
+    const formatHour = (h: number) => {
+        if (h === 0) return '12AM'
+        if (h === 12) return '12PM'
+        return h < 12 ? `${h}AM` : `${h - 12}PM`
+    }
+
+    const timeBuckets = Array.from({ length: 24 }, (_, hour) => ({
+        label: formatHour(hour),
+        value: timeOfDayCounts[hour],
+        hourStart: hour,
+        hourEnd: hour + 1,
+        startIso: analyticsWindowStart.toISOString(),
+        endIso: analyticsWindowEnd.toISOString(),
+    }))
+
+    const drillRows = useMemo(() => {
+        if (!drillSelection) return []
+
+        if (drillSelection.calculationId) {
+            return (calculationEventRows || []).filter((row) => row.id === drillSelection.calculationId)
+        }
+
+        const startMs = new Date(drillSelection.startIso).getTime()
+        const endMs = new Date(drillSelection.endIso).getTime()
+
+        return (calculationEventRows || []).filter((row) => {
+            const rowMs = new Date(row.created_at).getTime()
+            return rowMs >= startMs && rowMs <= endMs
+        })
+    }, [drillSelection, calculationEventRows])
+
+    const recentActivityCalcs = useMemo(() => {
+        return [...(calculationEventRows || [])]
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .slice(0, 5)
+    }, [calculationEventRows])
 
     return (
         <div className="space-y-6">
@@ -110,6 +154,16 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                         height={220}
                         barColor="#55aa55"
                         showValues={true}
+                        onBarClick={(item) => {
+                            if (!item.startIso || !item.endIso) return
+                            setActivitySelection(null)
+                            setDrillSelection({
+                                bucketLabel: item.label,
+                                view: 'daily',
+                                startIso: item.startIso,
+                                endIso: item.endIso,
+                            })
+                        }}
                     />
                 </div>
 
@@ -120,45 +174,61 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                         <span className="mc-admin-heading text-2xl">Peak Hours</span>
                     </div>
                     <MinecraftBarChart 
-                        data={timeBlocks}
-                        subtitle="Activity distribution by time of day"
+                        data={timeBuckets}
+                        subtitle="Activity distribution by hour (ET)"
                         height={220}
                         barColor="#ffaa00"
                         showValues={true}
+                        onBarClick={(item) => {
+                            if (!item.startIso || !item.endIso) return
+                            if (typeof item.hourStart !== 'number' || typeof item.hourEnd !== 'number') return
+                            setActivitySelection(null)
+                            setDrillSelection({
+                                bucketLabel: item.label,
+                                view: 'time-of-day',
+                                startIso: item.startIso,
+                                endIso: item.endIso,
+                                hourStart: item.hourStart,
+                                hourEnd: item.hourEnd,
+                            })
+                        }}
                     />
                 </div>
             </div>
 
-            {/* Detailed Stats Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Top Date Changes */}
+            {drillSelection && (
                 <div className="mc-panel p-5">
-                    <div className="flex items-center gap-2 mb-4">
-                        <ThemeIcon type="compass" />
-                        <span className="mc-admin-heading text-2xl">Top Date Changes</span>
+                    <div className="flex items-center gap-2 mb-3">
+                        <ThemeIcon type="book" />
+                        <span className="mc-admin-heading text-2xl">Calculation Drilldown</span>
                     </div>
-                    <div className="space-y-2">
-                        {topRoutes.map((route, i) => (
-                            <div key={i} className="flex justify-between items-center p-3 mc-slot-dark">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-6 h-6 flex items-center justify-center bg-[var(--mc-button-bg)] border border-[var(--mc-dark-border)] font-bold text-sm">
-                                        {i + 1}
-                                    </span>
-                                    <span className="mc-admin-text text-lg truncate max-w-[250px]" title={route.route}>
-                                        {route.route}
-                                    </span>
-                                </div>
-                                <span className="mc-text-green font-bold">{route.count} runs</span>
-                            </div>
-                        ))}
-                        {topRoutes.length === 0 && (
-                            <div className="text-center mc-text-muted py-8 text-lg">
-                                No Date Change data available
-                            </div>
-                        )}
-                    </div>
+                    <CalculationDrilldown
+                        rows={drillRows}
+                        bucketLabel={drillSelection.bucketLabel}
+                        view={drillSelection.view}
+                        hourStart={drillSelection.hourStart}
+                        hourEnd={drillSelection.hourEnd}
+                        embedded={true}
+                        onClose={() => setDrillSelection(null)}
+                    />
                 </div>
+            )}
 
+            {activitySelection && (
+                <div className="mc-panel p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                        <ThemeIcon type="paper" />
+                        <span className="mc-admin-heading text-2xl">Admin Activity Drilldown</span>
+                    </div>
+                    <AdminActivityDrilldown
+                        log={activitySelection}
+                        onClose={() => setActivitySelection(null)}
+                    />
+                </div>
+            )}
+
+            {/* Detailed Stats Row */}
+            <div className="grid grid-cols-1 gap-6">
                 {/* Recent Activity Log */}
                 <div className="mc-panel p-5">
                     <div className="flex items-center gap-2 mb-4">
@@ -166,39 +236,69 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                         <span className="mc-admin-heading text-2xl">Recent Activity</span>
                     </div>
                     <div className="space-y-2">
-                        {recentCalcs?.map((calc) => (
-                            <div key={calc.id} className="flex justify-between items-center p-3 mc-slot-dark">
+                        {recentActivityCalcs.map((calc) => (
+                            <button
+                                key={calc.id}
+                                type="button"
+                                className="w-full text-left flex justify-between items-center p-3 mc-slot-dark hover:brightness-110 transition"
+                                onClick={() => {
+                                    setActivitySelection(null)
+                                    setDrillSelection({
+                                        bucketLabel: calc.identifier || 'Calculation',
+                                        view: 'calculation',
+                                        startIso: calc.created_at,
+                                        endIso: calc.created_at,
+                                        calculationId: calc.id,
+                                    })
+                                }}
+                            >
                                 <div className="flex items-center gap-3">
                                     <ThemeIcon type="compass" />
                                     <div>
                                         <span className="mc-admin-text text-lg font-bold">
-                                            {calc.name || 'Calculation'}
+                                            {calc.identifier || 'Calculation'}
                                         </span>
                                         <span className="mc-text-muted ml-2">
-                                            {calc.origin_date ? new Date(calc.origin_date).toLocaleDateString() : 'N/A'}
+                                            {calc.loadDate ? new Date(calc.loadDate).toLocaleDateString() : 'N/A'}
                                         </span>
                                     </div>
                                 </div>
                                 <span className="mc-text-muted">
-                                    {new Date(calc.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {formatEasternDateTime(calc.created_at)}
                                 </span>
-                            </div>
+                            </button>
                         ))}
-                        {recentLogs?.slice(0, 3).map((log) => (
-                            <div key={log.id} className="flex justify-between items-center p-3 mc-slot-dark">
+                        {recentAdminLogs?.slice(0, 5).map((log) => (
+                            <button
+                                key={log.id}
+                                type="button"
+                                className="w-full text-left flex justify-between items-center p-3 mc-slot-dark hover:brightness-110 transition"
+                                onClick={() => {
+                                    setDrillSelection(null)
+                                    setActivitySelection(log)
+                                }}
+                            >
                                 <div className="flex items-center gap-3">
                                     <ThemeIcon type="paper" />
                                     <div>
                                         <span className="mc-admin-text text-lg font-bold capitalize">
                                             {log.action_type?.replace(/_/g, ' ') || 'System Event'}
                                         </span>
+                                        <span className="mc-text-muted ml-2">
+                                            {log.userEmail || (log.user_id ? `User ${log.user_id.slice(0, 8)}` : 'Admin')}
+                                        </span>
                                     </div>
                                 </div>
                                 <span className="mc-text-muted">
-                                    {new Date(log.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {formatEasternDateTime(log.created_at)}
                                 </span>
-                            </div>
+                            </button>
                         ))}
+                        {recentActivityCalcs.length === 0 && (!recentAdminLogs || recentAdminLogs.length === 0) && (
+                            <div className="text-center mc-text-muted py-8 text-lg">
+                                No recent activity available
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

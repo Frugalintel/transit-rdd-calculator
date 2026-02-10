@@ -7,6 +7,10 @@ interface ChartData {
     label: string
     value: number
     color?: string
+    startIso?: string
+    endIso?: string
+    hourStart?: number
+    hourEnd?: number
 }
 
 interface MinecraftBarChartProps {
@@ -17,6 +21,8 @@ interface MinecraftBarChartProps {
     barColor?: string
     className?: string
     showValues?: boolean
+    onBarClick?: (item: ChartData) => void
+    xAxisLabelStep?: number
 }
 
 export function MinecraftBarChart({ 
@@ -26,11 +32,15 @@ export function MinecraftBarChart({
     height = 200, 
     barColor = '#55aa55',
     className = '',
-    showValues = true
+    showValues = true,
+    onBarClick,
+    xAxisLabelStep
 }: MinecraftBarChartProps) {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const isDenseXAxis = data.length > 12
+    const resolvedLabelStep = xAxisLabelStep ?? (isDenseXAxis ? 2 : 1)
 
     const maxValue = useMemo(() => {
         return Math.max(...data.map(d => d.value), 1)
@@ -59,7 +69,7 @@ export function MinecraftBarChart({
             )}
             
             <div 
-                className="relative flex items-end gap-2 w-full pl-10 pb-8"
+                className={`relative flex items-end w-full pl-10 ${isDenseXAxis ? 'gap-1 pb-10' : 'gap-2 pb-8'}`}
                 style={{ height: `${height}px` }}
             >
                 {/* Y-Axis Labels */}
@@ -104,6 +114,16 @@ export function MinecraftBarChart({
                             {/* Bar */}
                             <div 
                                 className="w-full relative cursor-pointer transition-all duration-200"
+                                onClick={() => onBarClick?.(item)}
+                                role={onBarClick ? 'button' : undefined}
+                                tabIndex={onBarClick ? 0 : undefined}
+                                onKeyDown={(event) => {
+                                    if (!onBarClick) return
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault()
+                                        onBarClick(item)
+                                    }
+                                }}
                                 style={isFallout ? {
                                     // Fallout terminal-style bars
                                     height: getBarHeight(item.value),
@@ -142,12 +162,12 @@ export function MinecraftBarChart({
                             </div>
                             
                             {/* X-Axis Label */}
-                            <div className="absolute -bottom-7 left-0 right-0 text-center">
+                            <div className={`absolute left-0 right-0 text-center ${isDenseXAxis ? '-bottom-9' : '-bottom-7'}`}>
                                 <span 
-                                    className="mc-admin-text text-sm block"
+                                    className={`mc-admin-text block ${isDenseXAxis ? 'text-[10px]' : 'text-sm'}`}
                                     style={{ opacity: isHovered ? 1 : 0.8 }}
                                 >
-                                    {item.label}
+                                    {(index % resolvedLabelStep === 0 || isHovered) ? item.label : ''}
                                 </span>
                             </div>
                         </div>

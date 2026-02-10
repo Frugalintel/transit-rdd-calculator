@@ -31,7 +31,7 @@ export function SplashText() {
 
   return (
     <div 
-      className="absolute top-0 right-0 -mr-20 mt-8 transform -rotate-12 animate-bounce-splash pointer-events-none select-none z-20"
+      className="absolute bottom-0 right-0 -mr-10 -mb-1 pointer-events-none select-none z-20"
       style={{
         animation: 'minecraft-splash 0.8s infinite alternate ease-in-out'
       }}

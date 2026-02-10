@@ -45,60 +45,60 @@ export const THEMES: Record<ThemePreset, ThemeColors> = {
         accent: '#55FF55'
     },
     nether: {
-        panelBg: '#8B4545',       // Lighter crimson wood tone
-        borderDark: '#5C2E2E',    // Nether brick dark
-        borderLight: '#C47272',   // Crimson highlight
-        shadow: '#4A1E1E',        // Deep nether shadow
-        textShadow: '#2A0E0E',    // Very dark shadow
-        textDark: '#2A1515',      // Dark readable text
-        textGray: '#FFE8E8',      // Cream white for light text
-        slotBg: '#6B3535',        // Darker crimson for slots
-        buttonBg: '#7A4040',      // Medium crimson button
-        inputBg: '#2A0505',       // Very dark red input
-        inputText: '#FFD4D4',     // Light pink text
-        accent: '#FFAA00'         // Gold/fire orange
+        panelBg: '#A56A62',       // Warmer crimson-netherrack base
+        borderDark: '#452525',    // Deep nether border edge
+        borderLight: '#EFD1C8',   // Heated ash highlight
+        shadow: '#6A3935',        // Lava-lit shadow tone
+        textShadow: '#261313',    // Deep warm text shadow
+        textDark: '#331E1A',      // Dark warm readable text
+        textGray: '#FFF0EA',      // Bright warm UI text
+        slotBg: '#885149',        // Richer nether slot tone
+        buttonBg: '#9A5E54',      // Warmer button surface
+        inputBg: '#120808',       // Very dark ember input
+        inputText: '#FFE6DC',     // Warm high-contrast input text
+        accent: '#FF8A2A'         // Hot lava accent
     },
     ocean: {
-        panelBg: '#6BB5B5',       // Bright prismarine
-        borderDark: '#3D7A7A',    // Dark prismarine
-        borderLight: '#A8E0E0',   // Sea lantern glow
-        shadow: '#3D7A7E',        // Prismarine shadow
-        textShadow: '#1E4447',    // Deep ocean shadow
-        textDark: '#1A4545',      // Dark teal text
-        textGray: '#E8FFFF',      // Bright cyan-white
-        slotBg: '#4A9595',        // Darker prismarine for slots
-        buttonBg: '#5AA5A5',      // Medium prismarine button
-        inputBg: '#0A1A2A',       // Deep ocean input
-        inputText: '#D0F5F7',     // Light cyan text
-        accent: '#55FFFF'         // Cyan (diamond/water)
+        panelBg: '#7AB8C2',       // Balanced prismarine tone
+        borderDark: '#2D5560',    // Deep ocean border
+        borderLight: '#DDF6FA',   // Sea-lantern-like highlight
+        shadow: '#4A7D86',        // Mid ocean shadow
+        textShadow: '#1C353A',    // Dark cyan text shadow
+        textDark: '#1F3135',      // Neutralized deep text
+        textGray: '#F0FCFF',      // Bright readable light text
+        slotBg: '#649DA6',        // Sub-panel contrast
+        buttonBg: '#6FAAB4',      // Button surface
+        inputBg: '#0C1820',       // Dark input field
+        inputText: '#E2F7FF',     // Soft cyan input text
+        accent: '#66F2FF'         // Ocean accent
     },
     forest: {
-        panelBg: '#B5A57A',       // Warm oak/birch tone
-        borderDark: '#6B5A3D',    // Dark oak border
-        borderLight: '#E0D4B0',   // Birch highlight
-        shadow: '#5A7842',        // Leafy shadow
-        textShadow: '#2D3D20',    // Dark green shadow
-        textDark: '#3D3520',      // Dark brown text
-        textGray: '#FFF8E8',      // Cream white
-        slotBg: '#8B7A55',        // Darker wood for slots
-        buttonBg: '#A08A5A',      // Medium wood button
-        inputBg: '#1A2A10',       // Dark forest input
-        inputText: '#E8FFE8',     // Light green text
-        accent: '#55FF55'         // Minecraft green
+        panelBg: '#A8B08A',       // Mossy green base (less beige)
+        borderDark: '#3E442D',    // Deep bark-green border
+        borderLight: '#E6EED0',   // Soft leaf-light bevel
+        shadow: '#616A49',        // Woodland shadow depth
+        textShadow: '#202416',    // Dark green-brown text shadow
+        textDark: '#243020',      // Forest-readable primary text
+        textGray: '#F2F8E8',      // Light foliage-tinted UI text
+        slotBg: '#7D8760',        // Rich olive slot tone
+        buttonBg: '#8E9A6A',      // Greened button tone
+        inputBg: '#0E160D',       // Deep forest input background
+        inputText: '#E6FFE0',     // Bright soft-green input text
+        accent: '#6FCD54'         // Vivid leaf accent
     },
     redstone: {
-        panelBg: '#B8B8B8',       // Lighter smooth stone
-        borderDark: '#606060',    // Stone brick dark
-        borderLight: '#E8E8E8',   // Iron highlight
-        shadow: '#707070',        // Stone shadow
-        textShadow: '#404040',    // Dark gray shadow
-        textDark: '#CC0000',      // Bright redstone red
-        textGray: '#404040',      // Dark gray for button text
-        slotBg: '#8A8A8A',        // Darker stone slots
-        buttonBg: '#A0A0A0',      // Stone button
-        inputBg: '#2A2A2A',       // Dark stone input
-        inputText: '#FF5555',     // Redstone light text
-        accent: '#FF3333'         // Bright redstone glow
+        panelBg: '#BDAEAA',       // Stone-forward base with subtle warmth
+        borderDark: '#4A3431',    // Brown-red dark border
+        borderLight: '#EFE8E6',   // Neutral light bevel (less pink)
+        shadow: '#6B5A57',        // Warm stone shadow
+        textShadow: '#2A1A1A',    // Dark text shadow
+        textDark: '#5C1212',      // Deep redstone label color
+        textGray: '#FFF7F7',      // Bright readable UI text
+        slotBg: '#8C6F6A',        // Redstone-tinged slot tone
+        buttonBg: '#9A7A74',      // Warm button tone
+        inputBg: '#140C0C',       // Deep dark input
+        inputText: '#FFE1E1',     // High-contrast light text
+        accent: '#FF2F2F'         // Strong true redstone accent
     },
     custom: {
         panelBg: '#C6C6C6',

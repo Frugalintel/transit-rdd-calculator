@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useTransitData } from '@/hooks/useTransitData'
 import { useCalculator, CalculationResult } from '@/hooks/useCalculator'
@@ -9,7 +10,7 @@ import { SettingsMenu } from './SettingsMenu'
 import { AuthForm } from './AuthForm'
 import { generateCopyText, CopyFormat, FORMAT_LABELS } from '@/utils/textHelpers'
 import { formatDateForCopy } from '@/utils/dateHelpers'
-import { createClient, getSessionSafe, withTimeout } from '@/utils/supabase/client'
+import { createClient, withTimeout } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { useSounds } from '@/utils/sounds'
 
@@ -17,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Scale, MapPin } from 'lucide-react'
+import { Scale, MapPin, RotateCw } from 'lucide-react'
 import { 
     Select, 
     SelectContent, 
@@ -69,84 +70,106 @@ export function Calculator() {
     const searchParams = useSearchParams()
     const supabase = createClient()
 
+    const isAbortLikeError = (err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err || '')
+        return msg.includes('AbortError') || msg.includes('signal is aborted')
+    }
+
+    const getCurrentUserSafe = async (): Promise<any | undefined> => {
+        // undefined => unable to determine (transient failure)
+        try {
+            const authResult = await withTimeout(supabase.auth.getUser(), 10000) as any
+            if (authResult?.error) {
+                if (isAbortLikeError(authResult.error)) return undefined
+                return null
+            }
+            return authResult?.data?.user ?? null
+        } catch (err) {
+            if (!isAbortLikeError(err)) {
+                console.warn('getUser failed, attempting getSession fallback:', err)
+            }
+            try {
+                const sessionResult = await withTimeout(supabase.auth.getSession(), 8000) as any
+                return sessionResult?.data?.session?.user ?? null
+            } catch (fallbackErr) {
+                if (!isAbortLikeError(fallbackErr)) {
+                    console.warn('getSession fallback failed:', fallbackErr)
+                }
+                return undefined
+            }
+        }
+    }
+
     // Check auth state and admin status
     useEffect(() => {
         let mounted = true
+
+        const resolveAdminStatus = async (currentUser: any): Promise<void> => {
+            if (!currentUser) {
+                if (mounted) setAdminStatus('user')
+                return
+            }
+
+            try {
+                const query = supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', currentUser.id)
+                    .single()
+                const { data: profile, error } = await withTimeout(
+                    query as unknown as Promise<any>,
+                    15000 // 15s timeout
+                ) as any
+                if (!mounted) return
+
+                if (error) {
+                    if (!isAbortLikeError(error)) {
+                        console.warn('Admin check failed:', error.message)
+                    }
+                    // Preserve current admin status on transient errors.
+                    return
+                }
+
+                setAdminStatus(profile?.role === 'admin' ? 'admin' : 'user')
+            } catch (err) {
+                if (!isAbortLikeError(err)) {
+                    console.warn('Admin check timed out or threw:', err)
+                }
+                // Preserve current admin status on timeouts/transient failures.
+            }
+        }
         
         const checkUser = async (): Promise<void> => {
-            // Use the retry-safe helper
-            const { session } = await getSessionSafe(1)
+            const currentUser = await getCurrentUserSafe()
             
             if (!mounted) return
-            
-            const currentUser = session?.user ?? null
+
+            // Do not mutate UI state if auth state is temporarily indeterminate.
+            if (typeof currentUser === 'undefined') return
+
             setUser(currentUser)
-            
-            // Check admin status if user exists (with timeout)
-            if (currentUser) {
-                try {
-                    const query = supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', currentUser.id)
-                        .single()
-                    const { data: profile, error } = await withTimeout(
-                        query as unknown as Promise<any>,
-                        15000 // 15s timeout
-                    ) as any
-                    if (mounted) {
-                        if (error) {
-                            console.warn('Initial admin check failed:', error.message)
-                            // Preserve current admin status on transient errors.
-                            // We only demote after a successful profile read.
-                        } else {
-                            console.log('Profile role:', profile?.role)
-                            setAdminStatus(profile?.role === 'admin' ? 'admin' : 'user')
-                        }
-                    }
-                } catch (err) {
-                    console.warn('Initial admin check timed out or threw:', err)
-                    // Preserve current admin status on timeouts/transient failures.
-                }
-            } else {
-                if (mounted) setAdminStatus('user')
-            }
+            await resolveAdminStatus(currentUser)
         }
         
         // Check auth immediately
         checkUser()
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
             if (!mounted) return
-            setUser(session?.user ?? null)
-            
-            // Check admin status on auth change (with timeout)
-            if (session?.user) {
-                try {
-                    const query = supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', session.user.id)
-                        .single()
-                    const { data: profile, error } = await withTimeout(
-                        query as unknown as Promise<any>,
-                        15000
-                    ) as any
-                    if (mounted) {
-                        if (error) {
-                            console.warn('Admin check failed:', error.message)
-                            // Preserve current admin status on transient errors.
-                        } else {
-                            setAdminStatus(profile?.role === 'admin' ? 'admin' : 'user')
-                        }
-                    }
-                } catch (err) {
-                    console.warn('Admin check timed out or threw:', err)
-                    // Preserve current admin status on timeouts/transient failures.
-                }
-            } else {
-                if (mounted) setAdminStatus('user')
+
+            // Token refresh can fire frequently; avoid repeated profile lookups.
+            if (event === 'TOKEN_REFRESHED') return
+
+            if (event === 'SIGNED_OUT') {
+                setUser(null)
+                setAdminStatus('user')
+                return
             }
+
+            const eventUser = session?.user ?? null
+            setUser(eventUser)
+
+            await resolveAdminStatus(eventUser)
         })
 
         return () => {
@@ -245,6 +268,7 @@ export function Calculator() {
                     action_type: 'calculation',
                     details: {
                         authenticated: Boolean(user),
+                        user_email: user?.email ?? null,
                         successful: !res?.error,
                         name: calculationName || null,
                         input_data: {
@@ -388,10 +412,15 @@ export function Calculator() {
                         <h1 className="text-4xl fo-title mt-8 mb-4">RDD CALCULATOR</h1>
                     </div>
                 ) : (
-                    <div>
-                        <h1 className="text-2xl sm:text-4xl md:text-6xl drop-shadow-xl relative z-10 mc-title">
-                            RDD Calculator
-                        </h1>
+                    <div className="relative w-fit mx-auto">
+                        <Image
+                            src="/backgrounds/minecraft/DATE-CHANGE-TOOL-V3.svg"
+                            alt="RDD Calculator"
+                            width={1200}
+                            height={220}
+                            priority
+                            className="h-14 sm:h-20 md:h-28 w-auto drop-shadow-xl relative z-10"
+                        />
                         <SplashText />
                     </div>
                 )}
@@ -561,7 +590,7 @@ export function Calculator() {
                                             title="Clear and Reset"
                                             className="w-14 h-12 flex items-center justify-center p-0"
                                         >
-                                            <div className="text-2xl font-bold">×</div>
+                                            <RotateCw className="h-5 w-5" aria-hidden="true" />
                                         </Button>
                                     )}
                                     {isFallout && (

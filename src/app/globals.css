@@ -160,6 +160,29 @@
     font-family: 'VT323', monospace;
     image-rendering: pixelated;
   }
+
+.mc-pan-bg {
+  position: absolute;
+  width: 130vw;
+  height: 130vh;
+  left: -15vw;
+  top: -15vh;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  transform: translate3d(0, 0, 0) scale(1.08);
+  animation: mc-pan-slow 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes mc-pan-slow {
+  0% {
+    transform: translate3d(-4vw, -2vh, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(4vw, 2vh, 0) scale(1.08);
+  }
+}
   
   .theme-minecraft h1, .theme-minecraft h2, .theme-minecraft h3,
   .theme-minecraft h4, .theme-minecraft h5, .theme-minecraft h6,
@@ -857,7 +880,7 @@
 /* ============================================
    DISABLE ANIMATIONS
    ============================================ */
-.disable-animations *:not(.switch-thumb) {
+.disable-animations *:not(.switch-thumb):not(.mc-pan-bg) {
   transition: none !important;
   animation: none !important;
 }
@@ -1530,7 +1553,7 @@
 /* ============================================
    DISABLE ANIMATIONS FOR FALLOUT
    ============================================ */
-.theme-fallout.disable-animations *:not(.switch-thumb):not(.fo-cursor) {
+.theme-fallout.disable-animations *:not(.switch-thumb):not(.fo-cursor):not(.mc-pan-bg) {
   transition: none !important;
   animation: none !important;
 }

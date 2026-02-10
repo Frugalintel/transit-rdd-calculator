@@ -19,10 +19,10 @@ export function StatsCard({ title, value, icon, description, trend }: StatsCardP
                 </div>
                 {trend && (
                     <span className={`
-                        text-sm px-3 py-1 font-bold
+                        mc-button h-8 px-3 text-base font-bold leading-none
                         ${isPositiveTrend 
-                            ? 'mc-text-green bg-[#2a552a] border-2 border-[#55aa55]' 
-                            : 'mc-text-red bg-[#551a1a] border-2 border-[#aa3333]'
+                            ? 'mc-button-primary' 
+                            : 'mc-button-destructive'
                         }
                     `}>
                         {trend}

@@ -1,20 +1,39 @@
+"use client"
+
+import { useMemo, useState } from 'react'
 import { DashboardData } from '@/types/dashboard'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { CalculationDrilldown } from '@/components/admin/CalculationDrilldown'
+import { formatEasternDateTime, getEasternHour } from '@/utils/timezone'
+
+interface DrillSelection {
+    bucketLabel: string
+    view: string
+    startIso: string
+    endIso: string
+    hourStart?: number
+    hourEnd?: number
+}
 
 export function FalloutDashboard({ data }: { data: DashboardData }) {
+    const [drillSelection, setDrillSelection] = useState<DrillSelection | null>(null)
     const {
         userCount,
         calcCount,
         logCount,
         calculationEventTimestamps,
+        calculationEventRows,
         recentCalcs,
-        recentLogs,
         dbLatency,
         weeklyTrend,
         uniqueRouteCount
     } = data
 
     const calculationEvents = calculationEventTimestamps || []
+    const analyticsWindowStart = new Date()
+    analyticsWindowStart.setDate(analyticsWindowStart.getDate() - 7)
+    analyticsWindowStart.setHours(0, 0, 0, 0)
+    const analyticsWindowEnd = new Date()
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const chartData = Array.from({ length: 7 }, (_, i) => {
@@ -32,29 +51,45 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
 
         return {
             label: dayNames[dayStart.getDay()],
-            value
+            value,
+            startIso: dayStart.toISOString(),
+            endIso: dayEnd.toISOString(),
         }
     })
 
     const timeOfDayCounts = new Array(24).fill(0)
-    calculationEvents.forEach(ts => {
-        const hour = new Date(ts).getHours()
+    calculationEvents.forEach((ts) => {
+        const hour = getEasternHour(ts)
+        if (hour === null) return
         timeOfDayCounts[hour]++
     })
-
-    // Group into 2-hour blocks to fit width
-    const buckets = new Array(12).fill(0)
-    timeOfDayCounts.forEach((value, hour) => {
-        const bucketIdx = Math.floor(hour / 2)
-        buckets[bucketIdx] += value
-    })
-    const maxBucketVal = Math.max(...buckets, 1)
 
     const formatHour = (h: number) => {
         if (h === 0) return '12AM'
         if (h === 12) return '12PM'
         return h < 12 ? `${h}AM` : `${h - 12}PM`
     }
+
+    const timeBuckets = Array.from({ length: 24 }, (_, hour) => ({
+        label: formatHour(hour),
+        value: timeOfDayCounts[hour],
+        hourStart: hour,
+        hourEnd: hour + 1,
+        startIso: analyticsWindowStart.toISOString(),
+        endIso: analyticsWindowEnd.toISOString(),
+    }))
+    const maxBucketVal = Math.max(...timeBuckets.map((bucket) => bucket.value), 1)
+
+    const drillRows = useMemo(() => {
+        if (!drillSelection) return []
+        const startMs = new Date(drillSelection.startIso).getTime()
+        const endMs = new Date(drillSelection.endIso).getTime()
+
+        return (calculationEventRows || []).filter((row) => {
+            const rowMs = new Date(row.created_at).getTime()
+            return rowMs >= startMs && rowMs <= endMs
+        })
+    }, [drillSelection, calculationEventRows])
 
     return (
         <div className="relative text-[var(--fo-primary)] font-mono w-full">
@@ -99,7 +134,29 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
                                         {d.value}
                                     </div>
                                     <div 
-                                        className="w-full bg-[var(--fo-primary-dim)] group-hover:bg-[var(--fo-primary)] transition-all relative"
+                                        className="w-full bg-[var(--fo-primary-dim)] group-hover:bg-[var(--fo-primary)] transition-all relative cursor-pointer"
+                                        onClick={() => {
+                                            if (!d.startIso || !d.endIso) return
+                                            setDrillSelection({
+                                                bucketLabel: d.label,
+                                                view: 'daily',
+                                                startIso: d.startIso,
+                                                endIso: d.endIso,
+                                            })
+                                        }}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(event) => {
+                                            if (event.key !== 'Enter' && event.key !== ' ') return
+                                            event.preventDefault()
+                                            if (!d.startIso || !d.endIso) return
+                                            setDrillSelection({
+                                                bucketLabel: d.label,
+                                                view: 'daily',
+                                                startIso: d.startIso,
+                                                endIso: d.endIso,
+                                            })
+                                        }}
                                         style={{ height: `${Math.max((d.value / Math.max(...chartData.map(c => c.value), 1)) * 100, 2)}%` }}
                                     >
                                         {/* Scanline effect on bars */}
@@ -116,21 +173,60 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
                         <h3 className="fo-heading text-lg mb-6 border-none p-0 m-0">Temporal Analysis</h3>
                         
                         <div className="flex items-end justify-between h-32 gap-2">
-                            {buckets.map((val, i) => (
+                            {timeBuckets.map((bucket, i) => (
                                 <div key={i} className="flex flex-col items-center flex-1 h-full justify-end group cursor-crosshair">
                                     <div className="text-xs mb-1 opacity-0 group-hover:opacity-100 transition-opacity absolute -mt-6 bg-[var(--fo-primary)] text-black px-1">
-                                        {val}
+                                        {bucket.value}
                                     </div>
                                     <div 
-                                        className="w-full bg-[var(--fo-primary)] opacity-80 hover:opacity-100 transition-all"
-                                        style={{ height: `${Math.max((val / maxBucketVal) * 100, 5)}%` }}
+                                        className="w-full bg-[var(--fo-primary)] opacity-80 hover:opacity-100 transition-all cursor-pointer"
+                                        onClick={() => {
+                                            setDrillSelection({
+                                                bucketLabel: bucket.label,
+                                                view: 'time-of-day',
+                                                startIso: bucket.startIso,
+                                                endIso: bucket.endIso,
+                                                hourStart: bucket.hourStart,
+                                                hourEnd: bucket.hourEnd,
+                                            })
+                                        }}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(event) => {
+                                            if (event.key !== 'Enter' && event.key !== ' ') return
+                                            event.preventDefault()
+                                            setDrillSelection({
+                                                bucketLabel: bucket.label,
+                                                view: 'time-of-day',
+                                                startIso: bucket.startIso,
+                                                endIso: bucket.endIso,
+                                                hourStart: bucket.hourStart,
+                                                hourEnd: bucket.hourEnd,
+                                            })
+                                        }}
+                                        style={{ height: `${Math.max((bucket.value / maxBucketVal) * 100, 5)}%` }}
                                     ></div>
-                                    <div className="text-[10px] mt-1 opacity-70">{formatHour(i * 2)}</div>
+                                    <div className="text-[10px] mt-1 opacity-70">{bucket.label}</div>
                                 </div>
                             ))}
                         </div>
-                        <div className="text-center text-xs opacity-50 mt-4 uppercase tracking-widest">--- Calculation Frequency / 24H Cycle ---</div>
+                        <div className="text-center text-xs opacity-50 mt-4 uppercase tracking-widest">--- Calculation Frequency / 24H ET Cycle ---</div>
                     </div>
+
+                    {drillSelection && (
+                        <div className="border border-[var(--fo-primary-dim)] p-6 relative hover:border-[var(--fo-primary)] transition-colors duration-300">
+                            <h3 className="fo-heading text-lg mb-4 border-none p-0 m-0">Calculation Drilldown</h3>
+                            <CalculationDrilldown
+                                rows={drillRows}
+                                bucketLabel={drillSelection.bucketLabel}
+                                view={drillSelection.view}
+                                hourStart={drillSelection.hourStart}
+                                hourEnd={drillSelection.hourEnd}
+                                embedded={true}
+                                onClose={() => setDrillSelection(null)}
+                            />
+                        </div>
+                    )}
 
                     {/* Recent Activity Stream */}
                     <div className="border border-[var(--fo-primary-dim)] p-6 relative hover:border-[var(--fo-primary)] transition-colors duration-300">
@@ -141,7 +237,7 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
                                 <div key={calc.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--fo-primary-dim)] border-dotted pb-2 hover:bg-[rgba(26,255,128,0.05)] p-2 transition-colors">
                                     <div className="flex flex-col">
                                         <span className="font-bold text-[var(--fo-primary)]">CALC_EXEC: {calc.name}</span>
-                                        <span className="text-xs opacity-70">{new Date(calc.created_at).toLocaleString()}</span>
+                                        <span className="text-xs opacity-70">{formatEasternDateTime(calc.created_at)}</span>
                                     </div>
                                     <span className="text-xs border border-[var(--fo-primary)] px-2 py-0.5 mt-2 sm:mt-0 self-start sm:self-auto">STATUS: OK</span>
                                 </div>
