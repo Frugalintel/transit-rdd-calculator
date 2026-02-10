@@ -14,6 +14,8 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
         uniqueRouteCount
     } = data
 
+    const calculationEvents = calculationEventTimestamps || []
+
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const chartData = Array.from({ length: 7 }, (_, i) => {
         const baseDate = new Date()
@@ -23,7 +25,7 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
         const dayEnd = new Date(baseDate)
         dayEnd.setHours(23, 59, 59, 999)
 
-        const value = calculationEventTimestamps.filter(ts => {
+        const value = calculationEvents.filter(ts => {
             const eventDate = new Date(ts)
             return eventDate >= dayStart && eventDate <= dayEnd
         }).length
@@ -35,7 +37,7 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
     })
 
     const timeOfDayCounts = new Array(24).fill(0)
-    calculationEventTimestamps.forEach(ts => {
+    calculationEvents.forEach(ts => {
         const hour = new Date(ts).getHours()
         timeOfDayCounts[hour]++
     })
