@@ -9,8 +9,7 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
         userCount,
         calcCount,
         logCount,
-        chartData,
-        timeOfDayData,
+        calculationEventTimestamps,
         topRoutes,
         recentCalcs,
         recentLogs,
@@ -18,6 +17,32 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
         dbLatency,
         weeklyTrend
     } = data
+
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const chartData = Array.from({ length: 7 }, (_, i) => {
+        const baseDate = new Date()
+        baseDate.setDate(baseDate.getDate() - (6 - i))
+        const dayStart = new Date(baseDate)
+        dayStart.setHours(0, 0, 0, 0)
+        const dayEnd = new Date(baseDate)
+        dayEnd.setHours(23, 59, 59, 999)
+
+        const value = calculationEventTimestamps.filter(ts => {
+            const eventDate = new Date(ts)
+            return eventDate >= dayStart && eventDate <= dayEnd
+        }).length
+
+        return {
+            label: dayNames[dayStart.getDay()],
+            value
+        }
+    })
+
+    const timeOfDayCounts = new Array(24).fill(0)
+    calculationEventTimestamps.forEach(ts => {
+        const hour = new Date(ts).getHours()
+        timeOfDayCounts[hour]++
+    })
 
     // Prepare Time of Day chart data (grouped into 4-hour blocks for cleaner visualization)
     const timeBlocks = [
@@ -27,11 +52,11 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
         { label: 'Evening (18-24)', value: 0 },
     ]
     
-    timeOfDayData.forEach(d => {
-        if (d.hour < 6) timeBlocks[0].value += d.value
-        else if (d.hour < 12) timeBlocks[1].value += d.value
-        else if (d.hour < 18) timeBlocks[2].value += d.value
-        else timeBlocks[3].value += d.value
+    timeOfDayCounts.forEach((value, hour) => {
+        if (hour < 6) timeBlocks[0].value += value
+        else if (hour < 12) timeBlocks[1].value += value
+        else if (hour < 18) timeBlocks[2].value += value
+        else timeBlocks[3].value += value
     })
 
     return (

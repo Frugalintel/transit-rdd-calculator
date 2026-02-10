@@ -14,8 +14,10 @@
     "setup": "./scripts/setup-local-dev.sh",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
-    "supabase:reset": "supabase db reset",
-    "supabase:studio": "supabase studio"
+    "supabase:make-admin": "./scripts/make-local-admin.sh",
+    "supabase:reset": "supabase db reset && npm run supabase:make-admin",
+    "supabase:studio": "supabase studio",
+    "dev:sync": "./scripts/dev-sync.sh"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

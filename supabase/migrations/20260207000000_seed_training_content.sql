@@ -3,6 +3,9 @@
 -- Converts the full date change flowchart into interactive training scenarios
 -- ============================================================================
 
+-- Temporarily disable FK so steps can reference rows inserted later in file
+ALTER TABLE public.training_steps DROP CONSTRAINT IF EXISTS training_steps_next_step_fkey;
+
 -- Module: Date Change Process
 INSERT INTO public.training_modules (id, title, description, icon, display_order, is_published)
 VALUES (
@@ -908,3 +911,8 @@ Verify all entries are accurate. This completes the agent-requested date change 
     'b1b2c3d4-0002-4000-8000-000000000001',
     19
 );
+
+-- Re-enable FK after all steps are inserted
+ALTER TABLE public.training_steps
+ADD CONSTRAINT training_steps_next_step_fkey
+FOREIGN KEY (next_step) REFERENCES public.training_steps(id) ON DELETE SET NULL;

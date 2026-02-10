@@ -6,20 +6,45 @@ export function FalloutDashboard({ data }: { data: DashboardData }) {
         userCount,
         calcCount,
         logCount,
+        calculationEventTimestamps,
         recentCalcs,
         recentLogs,
         dbLatency,
         weeklyTrend,
-        timeOfDayData,
-        uniqueRouteCount,
-        chartData
+        uniqueRouteCount
     } = data
+
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const chartData = Array.from({ length: 7 }, (_, i) => {
+        const baseDate = new Date()
+        baseDate.setDate(baseDate.getDate() - (6 - i))
+        const dayStart = new Date(baseDate)
+        dayStart.setHours(0, 0, 0, 0)
+        const dayEnd = new Date(baseDate)
+        dayEnd.setHours(23, 59, 59, 999)
+
+        const value = calculationEventTimestamps.filter(ts => {
+            const eventDate = new Date(ts)
+            return eventDate >= dayStart && eventDate <= dayEnd
+        }).length
+
+        return {
+            label: dayNames[dayStart.getDay()],
+            value
+        }
+    })
+
+    const timeOfDayCounts = new Array(24).fill(0)
+    calculationEventTimestamps.forEach(ts => {
+        const hour = new Date(ts).getHours()
+        timeOfDayCounts[hour]++
+    })
 
     // Group into 2-hour blocks to fit width
     const buckets = new Array(12).fill(0)
-    timeOfDayData.forEach(d => {
-        const bucketIdx = Math.floor(d.hour / 2)
-        buckets[bucketIdx] += d.value
+    timeOfDayCounts.forEach((value, hour) => {
+        const bucketIdx = Math.floor(hour / 2)
+        buckets[bucketIdx] += value
     })
     const maxBucketVal = Math.max(...buckets, 1)
 

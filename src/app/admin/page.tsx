@@ -24,18 +24,20 @@ export default async function AdminDashboard() {
         { count: userCount },
         { count: calcCount },
         { count: logCount },
-        { data: recentCalcsForChart },
+        { data: calcEventsForAnalytics },
         { data: recentCalcs },
         { data: recentLogs },
         { count: lastWeekCalcs },
         { count: thisWeekCalcs },
-        { data: routeAnalysisData } 
+        { data: routeAnalysisData }
     ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('calculations').select('*', { count: 'exact', head: true }),
+        // Total calculation runs, including anonymous usage.
+        supabase.from('usage_logs').select('*', { count: 'exact', head: true }).eq('action_type', 'calculation'),
         supabase.from('usage_logs').select('*', { count: 'exact', head: true }),
-        supabase.from('calculations')
+        supabase.from('usage_logs')
             .select('created_at')
+            .eq('action_type', 'calculation')
             .gte('created_at', sevenDaysAgo.toISOString())
             .order('created_at', { ascending: true }),
         supabase.from('calculations')
@@ -46,12 +48,14 @@ export default async function AdminDashboard() {
             .select('id, created_at, action_type, details')
             .order('created_at', { ascending: false })
             .limit(5),
-        supabase.from('calculations')
+        supabase.from('usage_logs')
             .select('*', { count: 'exact', head: true })
+            .eq('action_type', 'calculation')
             .gte('created_at', twoWeeksAgo.toISOString())
             .lt('created_at', oneWeekAgo.toISOString()),
-        supabase.from('calculations')
+        supabase.from('usage_logs')
             .select('*', { count: 'exact', head: true })
+            .eq('action_type', 'calculation')
             .gte('created_at', oneWeekAgo.toISOString()),
         supabase.from('calculations')
             .select('name, input_data')
@@ -61,37 +65,6 @@ export default async function AdminDashboard() {
 
     const dbLatency = Date.now() - startTime
     
-    // Aggregate calculations by day for chart
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    const chartData = Array.from({ length: 7 }, (_, i) => {
-        const date = new Date()
-        date.setDate(date.getDate() - (6 - i))
-        const dayStart = new Date(date.setHours(0, 0, 0, 0))
-        const dayEnd = new Date(date.setHours(23, 59, 59, 999))
-        
-        const count = recentCalcsForChart?.filter(calc => {
-            const calcDate = new Date(calc.created_at)
-            return calcDate >= dayStart && calcDate <= dayEnd
-        }).length || 0
-        
-        return {
-            label: dayNames[dayStart.getDay()],
-            value: count
-        }
-    })
-
-    // Calculate Time of Day Distribution (0-23h)
-    const timeOfDayCounts = new Array(24).fill(0)
-    recentCalcsForChart?.forEach(calc => {
-        const hour = new Date(calc.created_at).getHours()
-        timeOfDayCounts[hour]++
-    })
-    
-    const timeOfDayData = timeOfDayCounts.map((count, hour) => ({
-        hour,
-        value: count
-    }))
-
     // Calculate Top Date Changes / Unique Calculations
     const routeCounts: Record<string, number> = {}
     routeAnalysisData?.forEach(calc => {
@@ -125,8 +98,7 @@ export default async function AdminDashboard() {
         userCount: userCount || 0,
         calcCount: calcCount || 0,
         logCount: logCount || 0,
-        chartData,
-        timeOfDayData,
+        calculationEventTimestamps: (calcEventsForAnalytics || []).map((row: any) => row.created_at),
         topRoutes,
         recentCalcs: recentCalcs || [],
         recentLogs: recentLogs || [],

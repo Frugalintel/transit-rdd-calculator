@@ -62,7 +62,8 @@ export function Calculator() {
     const [submittedName, setSubmittedName] = useState('')
     const [isHistoryOpen, setIsHistoryOpen] = useState(false)
     const [refreshHistory, setRefreshHistory] = useState(0)
-    const [isAdmin, setIsAdmin] = useState(false)
+    type AdminStatus = 'unknown' | 'admin' | 'user'
+    const [adminStatus, setAdminStatus] = useState<AdminStatus>('unknown')
 
     // URL Params
     const searchParams = useSearchParams()
@@ -96,18 +97,19 @@ export function Calculator() {
                     if (mounted) {
                         if (error) {
                             console.warn('Initial admin check failed:', error.message)
-                            setIsAdmin(false)
+                            // Preserve current admin status on transient errors.
+                            // We only demote after a successful profile read.
                         } else {
                             console.log('Profile role:', profile?.role)
-                            setIsAdmin(profile?.role === 'admin')
+                            setAdminStatus(profile?.role === 'admin' ? 'admin' : 'user')
                         }
                     }
                 } catch (err) {
                     console.warn('Initial admin check timed out or threw:', err)
-                    if (mounted) setIsAdmin(false)
+                    // Preserve current admin status on timeouts/transient failures.
                 }
             } else {
-                if (mounted) setIsAdmin(false)
+                if (mounted) setAdminStatus('user')
             }
         }
         
@@ -133,17 +135,17 @@ export function Calculator() {
                     if (mounted) {
                         if (error) {
                             console.warn('Admin check failed:', error.message)
-                            setIsAdmin(false)
+                            // Preserve current admin status on transient errors.
                         } else {
-                            setIsAdmin(profile?.role === 'admin')
+                            setAdminStatus(profile?.role === 'admin' ? 'admin' : 'user')
                         }
                     }
                 } catch (err) {
                     console.warn('Admin check timed out or threw:', err)
-                    if (mounted) setIsAdmin(false)
+                    // Preserve current admin status on timeouts/transient failures.
                 }
             } else {
-                if (mounted) setIsAdmin(false)
+                if (mounted) setAdminStatus('user')
             }
         })
 
@@ -235,6 +237,36 @@ export function Calculator() {
             setResult(res)
             setSubmittedName(calculationName) // Save the name at time of calculation
             sounds.playSuccess()
+
+            // Track all calculation attempts (including anonymous) for admin analytics.
+            try {
+                const { error: usageLogError } = await supabase.from('usage_logs').insert({
+                    user_id: user?.id ?? null,
+                    action_type: 'calculation',
+                    details: {
+                        authenticated: Boolean(user),
+                        successful: !res?.error,
+                        name: calculationName || null,
+                        input_data: {
+                            weight: weightNum,
+                            distance: distNum,
+                            loadDate: loadDate.toISOString(),
+                            packDate: packDate?.toISOString() ?? null,
+                        },
+                        result_summary: res?.error ? { error: res.error } : {
+                            transitDays: res?.transitDays ?? null,
+                            seasonStatus: res?.seasonStatus ?? null,
+                            rdd: res?.rdd?.toISOString?.() ?? null,
+                        }
+                    }
+                })
+
+                if (usageLogError) {
+                    console.warn('Failed to log calculation usage:', usageLogError.message)
+                }
+            } catch (usageErr) {
+                console.warn('Calculation usage logging threw:', usageErr)
+            }
             
             // Save to history if logged in
             if (user && res && !res.error) {
@@ -313,7 +345,7 @@ export function Calculator() {
         try {
             // Manually clear state first for immediate UI feedback
             setUser(null)
-            setIsAdmin(false)
+            setAdminStatus('user')
             
             const { error } = await supabase.auth.signOut()
             if (error) {
@@ -339,6 +371,7 @@ export function Calculator() {
     }
 
     const isFallout = settings.themeMode === 'fallout'
+    const isAdmin = adminStatus === 'admin'
 
     return (
         <div 

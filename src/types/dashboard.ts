@@ -2,8 +2,7 @@ export interface DashboardData {
     userCount: number
     calcCount: number
     logCount: number
-    chartData: { label: string; value: number }[]
-    timeOfDayData: { hour: number; value: number }[]
+    calculationEventTimestamps: string[]
     topRoutes: { route: string; count: number }[]
     recentCalcs: any[]
     recentLogs: any[]
