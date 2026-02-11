@@ -103,7 +103,7 @@ function getInitialSettings(serverThemeMode?: ThemeMode): ThemeSettings {
         const savedFalloutTheme = localStorage.getItem('falloutTheme')
         const savedFalloutCustomColors = localStorage.getItem('falloutCustomColors')
 
-        // Resolve themeMode: prefer localStorage, fall back to server-provided value
+        // Resolve themeMode: prefer localStorage for user-selected preference.
         const resolvedThemeMode = (savedThemeMode as ThemeMode) || serverThemeMode || DEFAULT_SETTINGS.themeMode
 
         return {
@@ -193,7 +193,7 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             root.classList.remove('theme-fallout')
             root.classList.add('theme-minecraft')
         }
-        
+
     }, [settings.themeMode, settings.activeTheme, settings.customColors, settings.falloutTheme, settings.falloutCustomColors, mounted])
 
     // Sync theme mode with sound manager
@@ -222,6 +222,7 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
         setCookie('themeMode', settings.themeMode)
         setCookie('activeTheme', settings.activeTheme)
         setCookie('falloutTheme', settings.falloutTheme)
+
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const updateSettings = (updates: Partial<ThemeSettings>) => {

@@ -19,13 +19,60 @@ const SPLASHES = [
   "Check your dates!"
 ]
 
-export function SplashText() {
-  // Use a stable splash based on date to avoid hydration mismatch, or just simple random client-side
-  const [text, setText] = React.useState("")
+type SplashSelection = {
+  text: string
+  index: number
+  source: 'seed' | 'day-key'
+  seed?: number
+  dayKey?: string
+  hash?: number
+}
 
-  React.useEffect(() => {
-    setText(SPLASHES[Math.floor(Math.random() * SPLASHES.length)])
-  }, [])
+function getSplashBySeed(seed: number) {
+  const index = Math.abs(Math.trunc(seed)) % SPLASHES.length
+  return {
+    index,
+    text: SPLASHES[index],
+  }
+}
+
+function getStableSplashSelection(date = new Date()) {
+  // Stable per UTC day, avoids first-paint null and hydration drift.
+  const dayKey = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`
+  let hash = 0
+  for (let i = 0; i < dayKey.length; i++) {
+    hash = (hash * 31 + dayKey.charCodeAt(i)) | 0
+  }
+  const index = Math.abs(hash) % SPLASHES.length
+  return {
+    dayKey,
+    hash,
+    index,
+    text: SPLASHES[index],
+  }
+}
+
+export function SplashText({ initialSeed }: { initialSeed?: number }) {
+  const [selection] = React.useState<SplashSelection>(() => {
+    if (typeof initialSeed === 'number' && Number.isFinite(initialSeed)) {
+      const seeded = getSplashBySeed(initialSeed)
+      return {
+        text: seeded.text,
+        index: seeded.index,
+        source: 'seed',
+        seed: Math.trunc(initialSeed),
+      }
+    }
+    const stable = getStableSplashSelection()
+    return {
+      text: stable.text,
+      index: stable.index,
+      source: 'day-key',
+      dayKey: stable.dayKey,
+      hash: stable.hash,
+    }
+  })
+  const text = selection.text
 
   if (!text) return null
 
@@ -33,6 +80,7 @@ export function SplashText() {
     <div 
       className="absolute bottom-0 right-0 -mr-10 -mb-1 pointer-events-none select-none z-20"
       style={{
+        transform: 'rotate(-20deg) scale(1)',
         animation: 'minecraft-splash 0.8s infinite alternate ease-in-out'
       }}
     >

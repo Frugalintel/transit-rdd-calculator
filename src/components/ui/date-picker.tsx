@@ -88,8 +88,12 @@ export function DatePicker({
   label?: string
   disabled?: boolean
 }) {
+  const toMonthStart = React.useCallback((d: Date) => new Date(d.getFullYear(), d.getMonth(), 1), [])
   const [open, setOpen] = React.useState(false)
   const [inputValue, setInputValue] = React.useState("")
+  const [calendarMonth, setCalendarMonth] = React.useState<Date>(() =>
+    date ? new Date(date.getFullYear(), date.getMonth(), 1) : new Date()
+  )
   const [isFocused, setIsFocused] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const cursorPosRef = React.useRef<{ start: number | null; end: number | null }>({ start: null, end: null })
@@ -107,6 +111,13 @@ export function DatePicker({
       }
     }
   }, [date, isFocused])
+
+  // Keep calendar month aligned with committed date when popover is closed.
+  React.useEffect(() => {
+    if (!open && date) {
+      setCalendarMonth(toMonthStart(date))
+    }
+  }, [date, open, toMonthStart])
 
   // Restore cursor position after React re-renders the controlled input.
   // useLayoutEffect fires synchronously after DOM update but before paint,
@@ -198,8 +209,20 @@ export function DatePicker({
   // Calendar selection handler
   const handleCalendarSelect = (d: Date | undefined) => {
     setDate(d)
+    if (d) {
+      setCalendarMonth(toMonthStart(d))
+    }
     setOpen(false)
     // Don't steal focus back to input
+  }
+
+  const handlePopoverOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      const parsed = parseSmartDate(inputValue)
+      const anchorDate = parsed ?? date ?? new Date()
+      setCalendarMonth(toMonthStart(anchorDate))
+    }
+    setOpen(nextOpen)
   }
 
   // Shared calendar footer with quick-pick buttons
@@ -209,7 +232,9 @@ export function DatePicker({
         type="button"
         className="h-8 flex-1 text-sm"
         onClick={() => {
-          setDate(new Date())
+          const today = new Date()
+          setDate(today)
+          setCalendarMonth(toMonthStart(today))
           setOpen(false)
         }}
       >
@@ -222,6 +247,7 @@ export function DatePicker({
           const tmrw = new Date()
           tmrw.setDate(tmrw.getDate() + 1)
           setDate(tmrw)
+          setCalendarMonth(toMonthStart(tmrw))
           setOpen(false)
         }}
       >
@@ -251,7 +277,7 @@ export function DatePicker({
             style={{ caretColor: 'var(--fo-primary)' }}
             autoComplete="off"
           />
-          <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : setOpen}>
+          <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
             <PopoverTrigger asChild>
               <button
                 type="button"
@@ -273,6 +299,8 @@ export function DatePicker({
                 <Calendar
                   mode="single"
                   selected={date}
+                  month={calendarMonth}
+                  onMonthChange={setCalendarMonth}
                   onSelect={handleCalendarSelect}
                   initialFocus
                   className="!border-0 !shadow-none !bg-transparent !m-0"
@@ -312,7 +340,7 @@ export function DatePicker({
           style={{ caretColor: 'var(--mc-input-text, #ffffff)' }}
           autoComplete="off"
         />
-        <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : setOpen}>
+        <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
           <PopoverTrigger asChild>
             <button
               type="button"
@@ -335,6 +363,8 @@ export function DatePicker({
               <Calendar
                 mode="single"
                 selected={date}
+                month={calendarMonth}
+                onMonthChange={setCalendarMonth}
                 onSelect={handleCalendarSelect}
                 initialFocus
                 className="!border-0 !shadow-none !bg-transparent"

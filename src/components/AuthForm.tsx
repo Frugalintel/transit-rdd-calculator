@@ -56,7 +56,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
 
     return (
         <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none">
                 <DialogHeader>
                     <DialogTitle className={cn("text-2xl", isFallout ? "fo-heading border-none mb-0 pb-0" : "mc-heading")}>
                         {view === 'login' 

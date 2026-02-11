@@ -5,7 +5,7 @@ import { useTheme } from '@/context/ThemeContext'
 
 export function Panorama() {
   const { settings } = useTheme()
-  const [resolvedImage, setResolvedImage] = useState<string>('')
+  const [resolvedImage, setResolvedImage] = useState<string>('/backgrounds/minecraft/default-office.webp')
 
   const minecraftBackgrounds: Record<string, string[]> = useMemo(() => ({
     default: [
@@ -62,18 +62,27 @@ export function Panorama() {
       ...fallbackImages.filter((path) => !selectedImages.includes(path)),
     ]
 
+    // Paint immediately with the preferred image to avoid a dark flash on refresh.
+    if (candidates[0]) {
+      setResolvedImage(candidates[0])
+    }
+
     const resolveFirstAvailable = (index: number) => {
       if (cancelled) return
       if (index >= candidates.length) {
-        setResolvedImage('')
+        // Keep the currently shown image if probing fails.
         return
       }
 
       const probe = new window.Image()
       probe.onload = () => {
-        if (!cancelled) setResolvedImage(candidates[index])
+        if (!cancelled) {
+          setResolvedImage(candidates[index])
+        }
       }
-      probe.onerror = () => resolveFirstAvailable(index + 1)
+      probe.onerror = () => {
+        resolveFirstAvailable(index + 1)
+      }
       probe.src = candidates[index]
     }
 

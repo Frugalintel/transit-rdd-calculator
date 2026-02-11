@@ -6,8 +6,15 @@ export async function middleware(request: NextRequest) {
     request,
   })
 
-  // Skip auth refresh for non-page requests to avoid slowing down HMR/API
+  // Only run Supabase session refresh on admin routes.
+  // Running this on every page request can make login/logout feel hung
+  // when auth endpoints are slow.
   const pathname = request.nextUrl.pathname
+  if (!pathname.startsWith('/admin')) {
+    return supabaseResponse
+  }
+
+  // Skip auth refresh for non-page requests.
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -37,24 +44,18 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session if expired - with real timeout to prevent hanging
+  // Refresh auth session deterministically so cookies are updated
+  // before server components (like admin layout) read auth state.
   try {
-    await Promise.race([
-      supabase.auth.getUser(),
-      new Promise((resolve) => setTimeout(resolve, 3000)) // 3s max
-    ])
+    await supabase.auth.getUser()
   } catch {
-    // If auth refresh fails/times out, continue without blocking
+    // If auth refresh fails, continue without blocking request.
+    // Downstream server checks can still handle unauthenticated state.
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Only match page routes - skip static files, images, fonts, etc.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|Fonts|textures|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|woff|woff2)$).*)',
-  ],
+  matcher: ['/admin/:path*'],
 }

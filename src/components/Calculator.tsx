@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useTransitData } from '@/hooks/useTransitData'
@@ -38,8 +38,16 @@ import { TerminalProgress } from './fallout/TerminalProgress'
 // Shared components
 import { HistorySidebar } from './HistorySidebar'
 
+const AUTH_HINT_KEY = 'calc-auth-hint'
 
-export function Calculator() {
+
+export function Calculator({
+    initialAuthHint = false,
+    initialSplashSeed,
+}: {
+    initialAuthHint?: boolean
+    initialSplashSeed?: number
+}) {
     const { data, loading, error: dataError } = useTransitData()
     const { calculate } = useCalculator(data)
     const { settings, mounted } = useTheme()
@@ -63,8 +71,11 @@ export function Calculator() {
     const [submittedName, setSubmittedName] = useState('')
     const [isHistoryOpen, setIsHistoryOpen] = useState(false)
     const [refreshHistory, setRefreshHistory] = useState(0)
+    const [authResolved, setAuthResolved] = useState(false)
+    const [authHint, setAuthHint] = useState(initialAuthHint)
     type AdminStatus = 'unknown' | 'admin' | 'user'
     const [adminStatus, setAdminStatus] = useState<AdminStatus>('unknown')
+    const lastAutoAdjustNoticeRef = useRef<{ key: string; at: number } | null>(null)
 
     // URL Params
     const searchParams = useSearchParams()
@@ -83,7 +94,12 @@ export function Calculator() {
                 if (isAbortLikeError(authResult.error)) return undefined
                 return null
             }
-            return authResult?.data?.user ?? null
+            const directUser = authResult?.data?.user ?? null
+            if (directUser) return directUser
+
+            // Fallback: session can still have a user during transient refresh timing.
+            const sessionResult = await withTimeout(supabase.auth.getSession(), 8000) as any
+            return sessionResult?.data?.session?.user ?? null
         } catch (err) {
             if (!isAbortLikeError(err)) {
                 console.warn('getUser failed, attempting getSession fallback:', err)
@@ -99,6 +115,34 @@ export function Calculator() {
             }
         }
     }
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+    const persistAuthHint = (value: boolean) => {
+        setAuthHint(value)
+        if (typeof window === 'undefined') return
+        try {
+            if (value) {
+                window.sessionStorage.setItem(AUTH_HINT_KEY, '1')
+                document.cookie = `${AUTH_HINT_KEY}=1; path=/; SameSite=Lax`
+            } else {
+                window.sessionStorage.removeItem(AUTH_HINT_KEY)
+                document.cookie = `${AUTH_HINT_KEY}=; path=/; Max-Age=0; SameSite=Lax`
+            }
+        } catch {
+            // Ignore storage errors.
+        }
+    }
+
+    useLayoutEffect(() => {
+        // Read auth hint before first paint to prevent login/logout flash.
+        let nextHint = false
+        try {
+            nextHint = window.sessionStorage.getItem(AUTH_HINT_KEY) === '1'
+        } catch {
+            nextHint = false
+        }
+        setAuthHint(nextHint)
+    }, [])
 
     // Check auth state and admin status
     useEffect(() => {
@@ -140,14 +184,31 @@ export function Calculator() {
         }
         
         const checkUser = async (): Promise<void> => {
-            const currentUser = await getCurrentUserSafe()
-            
+            let currentUser: any | undefined = undefined
+            for (let attempt = 0; attempt < 3; attempt++) {
+                currentUser = await getCurrentUserSafe()
+
+                // Retry transient indeterminate/empty states briefly to reduce refresh flicker.
+                if (typeof currentUser === 'undefined' || currentUser === null) {
+                    if (attempt < 2) {
+                        await sleep(120 * (attempt + 1))
+                        continue
+                    }
+                }
+                break
+            }
+
             if (!mounted) return
 
-            // Do not mutate UI state if auth state is temporarily indeterminate.
-            if (typeof currentUser === 'undefined') return
+            // Fail-safe: resolve UI controls even if auth remains indeterminate.
+            if (typeof currentUser === 'undefined') {
+                setAuthResolved(true)
+                return
+            }
 
             setUser(currentUser)
+            persistAuthHint(Boolean(currentUser))
+            setAuthResolved(true)
             await resolveAdminStatus(currentUser)
         }
         
@@ -163,11 +224,22 @@ export function Calculator() {
             if (event === 'SIGNED_OUT') {
                 setUser(null)
                 setAdminStatus('user')
+                persistAuthHint(false)
+                setAuthResolved(true)
                 return
             }
 
             const eventUser = session?.user ?? null
+            // Avoid clearing user/admin on transient null-session events
+            // (can happen briefly during refresh/bootstrap in production).
+            if (!eventUser) {
+                setAuthResolved(true)
+                return
+            }
+
             setUser(eventUser)
+            persistAuthHint(true)
+            setAuthResolved(true)
 
             await resolveAdminStatus(eventUser)
         })
@@ -359,8 +431,19 @@ export function Calculator() {
     // Date validation
     useEffect(() => {
         if (packDate && loadDate && loadDate < packDate) {
+            const adjustmentKey = `${packDate.toISOString()}::${loadDate.toISOString()}`
+            const now = Date.now()
+            const lastNotice = lastAutoAdjustNoticeRef.current
+            const isDuplicateAdjustment =
+                lastNotice !== null &&
+                lastNotice.key === adjustmentKey &&
+                now - lastNotice.at < 6000
+
+            lastAutoAdjustNoticeRef.current = { key: adjustmentKey, at: now }
             setLoadDate(packDate)
-            toast.info("Date adjusted")
+            if (!isDuplicateAdjustment) {
+                toast.info(`Pickup date was earlier than pack date and was adjusted to ${formatDateForCopy(packDate)}.`)
+            }
         }
     }, [packDate, loadDate])
 
@@ -370,6 +453,7 @@ export function Calculator() {
             // Manually clear state first for immediate UI feedback
             setUser(null)
             setAdminStatus('user')
+            persistAuthHint(false)
             
             const { error } = await supabase.auth.signOut()
             if (error) {
@@ -396,6 +480,7 @@ export function Calculator() {
 
     const isFallout = settings.themeMode === 'fallout'
     const isAdmin = adminStatus === 'admin'
+    const showAuthenticatedControls = Boolean(user) || (!authResolved && authHint)
 
     return (
         <div 
@@ -421,7 +506,7 @@ export function Calculator() {
                             priority
                             className="h-14 sm:h-20 md:h-28 w-auto drop-shadow-xl relative z-10"
                         />
-                        <SplashText />
+                        <SplashText initialSeed={initialSplashSeed} />
                     </div>
                 )}
             </div>
@@ -431,49 +516,85 @@ export function Calculator() {
                 <div className={`p-0 relative ${isFallout ? 'bg-transparent' : 'mc-panel p-2'}`}>
                     {/* Minecraft Header */}
                     {!isFallout && (
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-2 sm:px-4 py-2 mb-2 border-b-2 border-[var(--mc-dark-border)]">
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 px-2 sm:px-4 py-2 mb-2 border-b-2 border-[var(--mc-dark-border)]">
+                            <div className="flex items-center gap-2 shrink-0">
                                 <span className="text-base sm:text-xl mc-heading">Transit Guide</span>
                             </div>
-                            <div className="flex flex-wrap gap-1 sm:gap-2 w-full sm:w-auto">
-                                <Button size="sm" variant="primary" onClick={() => router.push('/training')} className="text-xs sm:text-sm flex-1 sm:flex-initial">
-                                    <ItemIcon type="book" className="mr-1 sm:mr-2" />
-                                    Training
-                                </Button>
-                                <Button size="sm" onClick={openSettings} title="Settings" className="text-xs sm:text-sm flex-1 sm:flex-initial">
-                                    <ItemIcon type="sign" className="mr-1 sm:mr-2" />
-                                    Options
-                                </Button>
-                                {user && (
-                                    <Button size="sm" onClick={() => setIsHistoryOpen(true)} title="History" className="text-xs sm:text-sm flex-1 sm:flex-initial">
-                                        <ItemIcon type="clock" className="mr-1 sm:mr-2" />
-                                        History
+                            <div className="w-full overflow-x-auto overflow-y-hidden whitespace-nowrap no-scrollbar">
+                                <div className="flex items-center gap-1 sm:gap-2 w-max min-w-full">
+                                    <div className="flex items-center gap-1 sm:gap-2">
+                                    <Button size="sm" variant="primary" onClick={() => router.push('/training')} className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                        <ItemIcon type="book" className="mr-1 sm:mr-2" />
+                                        Training
                                     </Button>
-                                )}
-                                {user ? (
-                                    <Button size="sm" onClick={handleLogout} className="text-xs sm:text-sm flex-1 sm:flex-initial">
-                                        Disconnect
+                                    <Button size="sm" onClick={openSettings} title="Settings" className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                        <ItemIcon type="sign" className="mr-1 sm:mr-2" />
+                                        Options
                                     </Button>
-                                ) : (
-                                    <Button size="sm" onClick={openAuth} className="text-xs sm:text-sm flex-1 sm:flex-initial">
-                                        Login
-                                    </Button>
-                                )}
+                                    {showAuthenticatedControls ? (
+                                        <Button
+                                            size="sm"
+                                            onClick={() => {
+                                                if (user) setIsHistoryOpen(true)
+                                            }}
+                                            title="History"
+                                            className="text-xs sm:text-sm min-w-[104px] shrink-0"
+                                        >
+                                            <ItemIcon type="clock" className="mr-1 sm:mr-2" />
+                                            History
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            disabled
+                                            aria-hidden="true"
+                                            className="text-xs sm:text-sm min-w-[104px] shrink-0 invisible pointer-events-none"
+                                        >
+                                            <ItemIcon type="clock" className="mr-1 sm:mr-2" />
+                                            History
+                                        </Button>
+                                    )}
+                                    </div>
+                                    <div className="ml-auto">
+                                    {showAuthenticatedControls ? (
+                                        <Button size="sm" onClick={handleLogout} className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                            Disconnect
+                                        </Button>
+                                    ) : (
+                                        <Button size="sm" onClick={openAuth} className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                            Login
+                                        </Button>
+                                    )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
 
                     {/* Fallout Header / Menu */}
                     {isFallout && (
-                        <div className="flex flex-wrap gap-1 sm:gap-4 w-full mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
-                            <button onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ SETTINGS ]</button>
-                            <button onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ GUIDE ]</button>
-                            {user && <button onClick={() => setIsHistoryOpen(true)} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ LOGS ]</button>}
-                            {user ? (
-                                <button onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ LOGOUT ]</button>
-                            ) : (
-                                <button onClick={openAuth} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base flex-1 sm:flex-initial justify-center whitespace-nowrap">[ LOGIN ]</button>
-                            )}
+                        <div className="w-full mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
+                            <div className="w-full overflow-x-auto overflow-y-hidden whitespace-nowrap no-scrollbar">
+                                <div className="flex items-center gap-1 sm:gap-3 w-max min-w-full">
+                                    <button onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0">[ SETTINGS ]</button>
+                                    <button onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0">[ GUIDE ]</button>
+                                    {showAuthenticatedControls && (
+                                        <button
+                                            onClick={() => {
+                                                if (user) setIsHistoryOpen(true)
+                                            }}
+                                            className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0"
+                                        >
+                                            [ LOGS ]
+                                        </button>
+                                    )}
+                                    {showAuthenticatedControls ? (
+                                        <button onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0 ml-auto">[ LOGOUT ]</button>
+                                    ) : (
+                                        <button onClick={openAuth} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0 ml-auto">[ LOGIN ]</button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     )}
 

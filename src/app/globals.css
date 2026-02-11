@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 @import "tailwindcss";
 
 @font-face {
@@ -132,6 +131,11 @@
   html {
     background-color: hsl(var(--background));
   }
+
+  /* Hide body briefly until critical Minecraft assets are ready. */
+  html.mc-preload-pending body {
+    visibility: hidden;
+  }
   
   body {
     background-color: transparent;
@@ -157,30 +161,29 @@
   
   .theme-minecraft body,
   .theme-minecraft {
-    font-family: 'VT323', monospace;
+    font-family: var(--font-vt323), monospace;
     image-rendering: pixelated;
   }
 
 .mc-pan-bg {
   position: absolute;
-  width: 130vw;
-  height: 130vh;
-  left: -15vw;
-  top: -15vh;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
-  transform: translate3d(0, 0, 0) scale(1.08);
+  background-position: 50% 50%;
   animation: mc-pan-slow 20s ease-in-out infinite alternate;
-  will-change: transform;
+  will-change: background-position;
 }
 
 @keyframes mc-pan-slow {
   0% {
-    transform: translate3d(-4vw, -2vh, 0) scale(1.08);
+    background-position: 50% 50%;
   }
   100% {
-    transform: translate3d(4vw, 2vh, 0) scale(1.08);
+    background-position: 58% 54%;
   }
 }
   
@@ -1575,6 +1578,16 @@
 /* Show/hide based on active theme */
 .theme-minecraft .fallout-only { display: none !important; }
 .theme-fallout .minecraft-only { display: none !important; }
+
+/* Utility: keep horizontal scroll behavior without visible bars. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 /* --- Variable Remapping ---
    Inline Tailwind like bg-[var(--mc-bg)] and
