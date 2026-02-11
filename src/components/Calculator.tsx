@@ -619,6 +619,7 @@ export function Calculator({
                                             date={packDate}
                                             setDate={setPackDate}
                                             label={isFallout ? "[ SELECT ]" : "Select..."}
+                                            fallbackDate={loadDate}
                                         />
                                     </div>
                                     <div className="space-y-1">
@@ -627,6 +628,7 @@ export function Calculator({
                                             date={loadDate}
                                             setDate={setLoadDate}
                                             label={isFallout ? "[ SELECT ]" : "Select..."}
+                                            fallbackDate={packDate}
                                         />
                                     </div>
                                 </div>

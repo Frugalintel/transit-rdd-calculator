@@ -82,11 +82,13 @@ export function DatePicker({
   setDate,
   label,
   disabled,
+  fallbackDate,
 }: {
   date: Date | undefined
   setDate: (date: Date | undefined) => void
   label?: string
   disabled?: boolean
+  fallbackDate?: Date
 }) {
   const toMonthStart = React.useCallback((d: Date) => new Date(d.getFullYear(), d.getMonth(), 1), [])
   const [open, setOpen] = React.useState(false)
@@ -219,7 +221,7 @@ export function DatePicker({
   const handlePopoverOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       const parsed = parseSmartDate(inputValue)
-      const anchorDate = parsed ?? date ?? new Date()
+      const anchorDate = parsed ?? date ?? fallbackDate ?? new Date()
       setCalendarMonth(toMonthStart(anchorDate))
     }
     setOpen(nextOpen)
