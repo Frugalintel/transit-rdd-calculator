@@ -154,6 +154,15 @@ export function DatePicker({
     // Allow clearing
     if (val === "") {
       setDate(undefined)
+      return
+    }
+
+    // Keep parent date state in sync once the typed value is valid.
+    // This avoids stale calculations when users type a date and click
+    // Calculate immediately without an explicit blur/Enter.
+    const parsed = parseSmartDate(val)
+    if (parsed) {
+      setDate(parsed)
     }
   }
 
