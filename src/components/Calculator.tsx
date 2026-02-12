@@ -775,12 +775,12 @@ export function Calculator({
                                         className={`flex-1 ${isChicago95 ? 'text-sm h-9' : 'text-xl h-12'}`}
                                         variant={isFallout ? "ghost" : "default"}
                                     >
-                                        {isFallout ? (loading ? '[ CALCULATING... ]' : (
+                                        {isFallout ? (loading ? '[ LOADING DATA... ]' : (
                                             <>
                                                 <span className="sm:hidden">[ CALCULATE ]</span>
                                                 <span className="hidden sm:inline">[ CALCULATE DELIVERY ]</span>
                                             </>
-                                        )) : (loading ? 'Calculating...' : 'Calculate Delivery')}
+                                        )) : (loading ? 'Loading data...' : 'Calculate Delivery')}
                                     </Button>
                                     {isMinecraft && (
                                         <Button
