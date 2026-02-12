@@ -27,7 +27,7 @@ const SelectTrigger = React.forwardRef<
       className={cn(
         isFallout ? "fo-input" : isChicago95 ? "chi95-input" : "mc-input",
         "flex h-10 w-full items-center justify-between [&>span]:line-clamp-1",
-        isChicago95 && "text-black [&>span]:text-black",
+        isChicago95 && "flex! items-center! justify-between! gap-2 bg-white text-black [&>span]:flex-1 [&>span]:text-left [&>span]:text-black",
         className
       )}
       {...props}
@@ -149,7 +149,7 @@ const SelectItem = React.forwardRef<
         isFallout
           ? "text-[var(--fo-text)] hover:bg-[var(--fo-primary-dim)] hover:text-[var(--fo-text)] focus:bg-[var(--fo-primary-dim)] focus:text-[var(--fo-text)] hover:border-[var(--fo-primary)] fo-text"
           : isChicago95
-            ? "chi95-text text-base text-black font-medium bg-white hover:bg-[#000080] hover:text-white focus:bg-[#000080] focus:text-white data-[highlighted]:bg-[#000080] data-[highlighted]:text-white data-[state=checked]:bg-[#000080] data-[state=checked]:text-white data-[state=checked]:font-semibold border-[#d4d0c8] hover:border-[#000080]"
+            ? "text-base text-black font-medium bg-white hover:bg-[#000080] hover:text-white focus:bg-[#000080] focus:text-white data-[highlighted]:bg-[#000080] data-[highlighted]:!text-white data-[state=checked]:bg-[#000080] data-[state=checked]:!text-white data-[state=checked]:font-semibold border-[#d4d0c8] hover:border-[#000080]"
           : "text-[var(--mc-text-dark)] hover:bg-[var(--mc-slot-bg)] hover:text-white hover:border-white focus:bg-[var(--mc-slot-bg)] focus:text-white mc-text-dark",
         className
       )}

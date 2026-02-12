@@ -95,7 +95,8 @@ const ThemeContext = createContext<ThemeContextType | null>(null)
 // Helper: set a cookie (client-side only)
 function setCookie(name: string, value: string) {
     if (typeof document === 'undefined') return
-    document.cookie = `${name}=${value};path=/;max-age=31536000;SameSite=Lax`
+    const secure = window.location.protocol === 'https:' || process.env.NODE_ENV === 'production' ? ';Secure' : ''
+    document.cookie = `${name}=${value};path=/;max-age=31536000;SameSite=Lax${secure}`
 }
 
 // Read settings from localStorage synchronously to avoid theme flash

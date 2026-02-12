@@ -13,12 +13,13 @@ import { formatDateForCopy } from '@/utils/dateHelpers'
 import { createClient, withTimeout } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { useSounds } from '@/utils/sounds'
+import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Scale, MapPin, RotateCw } from 'lucide-react'
+import { Scale, MapPin, RotateCw, Copy } from 'lucide-react'
 import { 
     Select, 
     SelectContent, 
@@ -121,12 +122,13 @@ export function Calculator({
         setAuthHint(value)
         if (typeof window === 'undefined') return
         try {
+            const secure = window.location.protocol === 'https:' || process.env.NODE_ENV === 'production' ? '; Secure' : ''
             if (value) {
                 window.sessionStorage.setItem(AUTH_HINT_KEY, '1')
-                document.cookie = `${AUTH_HINT_KEY}=1; path=/; SameSite=Lax`
+                document.cookie = `${AUTH_HINT_KEY}=1; path=/; SameSite=Lax${secure}`
             } else {
                 window.sessionStorage.removeItem(AUTH_HINT_KEY)
-                document.cookie = `${AUTH_HINT_KEY}=; path=/; Max-Age=0; SameSite=Lax`
+                document.cookie = `${AUTH_HINT_KEY}=; path=/; Max-Age=0; SameSite=Lax${secure}`
             }
         } catch {
             // Ignore storage errors.
@@ -938,13 +940,13 @@ export function Calculator({
                                                 ) : (
                                                     <div className="space-y-1">
                                                         <Label className={`text-sm ${isChicago95 ? 'chi95-label' : 'mc-label'}`}>Copy Format</Label>
-                                                        <div className={`flex gap-2 ${isChicago95 ? 'items-stretch' : 'items-center'}`}>
+                                                        <div className={cn(isChicago95 ? 'grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-1.5' : 'flex items-center gap-2')}>
                                                             <div className="flex-1">
                                                                 <Select 
                                                                     value={copyFormat} 
                                                                     onValueChange={(val) => setCopyFormat(val as CopyFormat)}
                                                                 >
-                                                                    <SelectTrigger className={`text-sm ${isChicago95 ? 'h-9 py-0 leading-none [&>span]:leading-none' : 'h-10'}`}>
+                                                                    <SelectTrigger className={cn("text-sm", isChicago95 ? 'h-9 px-2 py-0 leading-none [&>span]:leading-none [&>span]:text-left' : 'h-10')}>
                                                                         <SelectValue />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
@@ -959,10 +961,14 @@ export function Calculator({
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
-                                                            <Button onClick={() => copyResult()} title="Copy to Clipboard" className={`${isChicago95 ? 'h-9 w-9 self-stretch' : 'h-10 w-10'} p-0`}>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="shrink-0" stroke="currentColor" strokeWidth="1">
-                                                                    <path fillRule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                                                </svg>
+                                                            <Button
+                                                                onClick={() => copyResult()}
+                                                                title="Copy to Clipboard"
+                                                                variant={isChicago95 ? "secondary" : "default"}
+                                                                size="icon"
+                                                                className={`${isChicago95 ? 'h-9 w-9 self-stretch min-h-0' : 'h-10 w-10'} p-0 inline-flex items-center justify-center leading-none`}
+                                                            >
+                                                                <Copy aria-hidden="true" className="h-4 w-4 shrink-0" />
                                                             </Button>
                                                         </div>
                                                     </div>

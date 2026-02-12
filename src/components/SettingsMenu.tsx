@@ -547,7 +547,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                 value={settings.chicago95Theme}
                                                 onValueChange={(val) => setChicago95Theme(val as Chicago95Preset)}
                                             >
-                                                <SelectTrigger className="chi95-button w-full h-10 justify-between px-3 text-sm">
+                                                <SelectTrigger className="w-full h-10 px-2 text-sm">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent className="chi95-panel border border-[#808080]">

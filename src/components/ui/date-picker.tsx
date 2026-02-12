@@ -323,11 +323,13 @@ export function DatePicker({
           </Popover>
         </div>
         {/* Hint text when focused and empty */}
-        {isFocused && !inputValue && (
-          <div className="absolute -bottom-5 left-1 text-[10px] fo-text-dim opacity-60">
-            type date, &quot;today&quot;, or &quot;tomorrow&quot;
-          </div>
-        )}
+        <div className="mt-1 min-h-[12px] pl-1">
+          {isFocused && !inputValue && (
+            <div className="text-[10px] leading-tight fo-text-dim opacity-60">
+              type date, &quot;today&quot;, or &quot;tomorrow&quot;
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -394,11 +396,13 @@ export function DatePicker({
         </Popover>
       </div>
       {/* Hint text when focused and empty */}
-      {isFocused && !inputValue && (
-        <div className={cn("absolute -bottom-5 left-1 text-[10px]", isChicago95 ? "chi95-text opacity-70" : "text-[#707070]")}>
-          type date, &quot;today&quot;, or &quot;tomorrow&quot;
-        </div>
-      )}
+      <div className="mt-1 min-h-[12px] pl-1">
+        {isFocused && !inputValue && (
+          <div className={cn("text-[10px] leading-tight", isChicago95 ? "chi95-text opacity-70" : "text-[#707070]")}>
+            type date, &quot;today&quot;, or &quot;tomorrow&quot;
+          </div>
+        )}
+      </div>
     </div>
   )
 }
