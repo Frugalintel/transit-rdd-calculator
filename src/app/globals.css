@@ -1149,6 +1149,40 @@
   color: #fff;
 }
 
+.fo-sgs-mark {
+  position: relative;
+  isolation: isolate;
+  background: var(--fo-primary);
+  -webkit-mask-image: url('/backgrounds/minecraft/SGS.svg');
+  mask-image: url('/backgrounds/minecraft/SGS.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 0 2px var(--fo-primary));
+  opacity: 0.97;
+}
+
+.fo-sgs-mark::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: var(--fo-primary-glow);
+  -webkit-mask-image: url('/backgrounds/minecraft/SGS.svg');
+  mask-image: url('/backgrounds/minecraft/SGS.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: blur(6px);
+  opacity: 0.95;
+}
+
 .fo-body {
   font-family: var(--fo-font-stack);
   font-size: 16px;

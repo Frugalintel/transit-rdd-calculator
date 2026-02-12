@@ -104,7 +104,16 @@ drop policy if exists "Users can view own calculations" on public.calculations;
 create policy "Users can view own calculations" on public.calculations for select using (auth.uid() = user_id);
 
 drop policy if exists "Users can insert own calculations" on public.calculations;
-create policy "Users can insert own calculations" on public.calculations for insert with check (auth.uid() = user_id);
+drop policy if exists "Authenticated users can insert own calculations" on public.calculations;
+drop policy if exists "Anonymous users can insert anonymous calculations" on public.calculations;
+create policy "Authenticated users can insert own calculations" on public.calculations
+    for insert
+    to authenticated
+    with check (auth.uid() = user_id);
+create policy "Anonymous users can insert anonymous calculations" on public.calculations
+    for insert
+    to anon
+    with check (user_id is null);
 
 -- Function to handle new user signup
 create or replace function public.handle_new_user()

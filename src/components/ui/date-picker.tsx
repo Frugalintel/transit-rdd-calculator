@@ -288,7 +288,7 @@ export function DatePicker({
                 aria-label="Open calendar"
                 tabIndex={-1}
               >
-                [V]
+                <CalendarIcon className="h-5 w-5" />
               </button>
             </PopoverTrigger>
             <PopoverContent

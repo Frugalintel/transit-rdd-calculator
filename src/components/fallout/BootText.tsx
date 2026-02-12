@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 const BOOT_MESSAGES = [
     "SUDCO INDUSTRIES (TM) TERMLINK",
-    "RDD CALCULATOR v1.3.0",
+    "DATE CHANGE TOOL V3 v3.0.0",
     "VAULT-TEC LOGISTICS SYSTEM",
     "TERMINAL READY",
     "WELCOME OVERSEER",

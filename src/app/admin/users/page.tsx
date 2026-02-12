@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { UsersTable } from '@/components/admin/UsersTable'
-import { Button } from '@/components/ui/button'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
+import { InviteUserButton } from '@/components/admin/InviteUserButton'
 
 // Cache for 30 seconds
 export const revalidate = 30
@@ -19,7 +19,7 @@ export default async function UsersPage() {
             <AdminPageHeader 
                 title="User Management" 
                 icon="totem"
-                actions={<Button variant="primary" size="default">Invite User</Button>}
+                actions={<InviteUserButton />}
             />
             <UsersTable users={users || []} />
         </div>

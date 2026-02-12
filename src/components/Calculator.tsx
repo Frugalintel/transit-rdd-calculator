@@ -364,10 +364,11 @@ export function Calculator({
                 console.warn('Calculation usage logging threw:', usageErr)
             }
             
-            // Save to history if logged in
-            if (user && res && !res.error) {
+            // Save successful calculations for both authenticated and anonymous users.
+            // Authenticated users can view their own history; admins can view all records.
+            if (res && !res.error) {
                 const { error: insertError } = await supabase.from('calculations').insert({
-                    user_id: user.id,
+                    user_id: user?.id ?? null,
                     name: calculationName || null,
                     input_data: {
                         weight: weightNum,
@@ -390,8 +391,10 @@ export function Calculator({
                 if (insertError) {
                     console.error("Failed to save calculation:", insertError)
                 } else {
-                    setRefreshHistory(prev => prev + 1)
-                    setCalculationName('') // Clear the name after saving
+                    if (user) {
+                        setRefreshHistory(prev => prev + 1)
+                        setCalculationName('') // Keep existing UX for authenticated history saves
+                    }
                 }
             }
 
@@ -490,17 +493,22 @@ export function Calculator({
             {/* Title */}
             <div className={`mb-8 relative text-center z-10 w-full max-w-4xl pb-4 ${isFallout ? 'border-b-2 border-[var(--fo-primary)]' : ''}`}>
                 {isFallout ? (
-                    <div className="text-left w-full font-mono">
-                        <div className="fo-text text-sm mb-2">STATUS: ONLINE SETTINGS VER 1.0.8</div>
-                        <div className="fo-text text-sm mb-2">SUDCO INDUSTRIES UNIFIED OPERATING SYSTEM</div>
-                        <div className="fo-text text-sm mb-4">COPYRIGHT 2075-2077 SUDCO INDUSTRIES</div>
-                        <h1 className="text-4xl fo-title mt-8 mb-4">RDD CALCULATOR</h1>
+                    <div className="w-full font-mono flex items-start justify-between gap-4 sm:gap-6">
+                        <div className="min-w-0 text-left">
+                            <div className="fo-text text-sm mb-2 whitespace-nowrap">STATUS: ONLINE SETTINGS VER 3.0.0</div>
+                            <div className="fo-text text-sm mb-2 whitespace-nowrap">SUDCO INDUSTRIES UNIFIED OPERATING SYSTEM</div>
+                            <div className="fo-text text-sm mb-4 whitespace-nowrap">COPYRIGHT 2075-2077 SUDCO INDUSTRIES</div>
+                            <h1 className="text-4xl fo-title mt-8 mb-4">DATE CHANGE TOOL V3</h1>
+                        </div>
+                        <div className="shrink-0 pt-1 sm:pt-0 relative z-20">
+                            <div aria-hidden="true" className="fo-sgs-mark h-26 w-44 sm:h-30 sm:w-48 md:h-34 md:w-56 pointer-events-none" />
+                        </div>
                     </div>
                 ) : (
                     <div className="relative w-fit mx-auto">
                         <Image
                             src="/backgrounds/minecraft/DATE-CHANGE-TOOL-V3.svg"
-                            alt="RDD Calculator"
+                            alt="Date Change Tool V3"
                             width={1200}
                             height={220}
                             priority
@@ -612,7 +620,7 @@ export function Calculator({
                                     </div>
                                 )}
                                 
-                                <div className={`grid grid-cols-1 gap-6 ${!isFallout ? 'md:grid-cols-2' : ''}`}>
+                                <div className={`grid grid-cols-1 gap-6 ${isFallout ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
                                     <div className="space-y-1">
                                         <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : 'mc-label'}`}>PACK DATE (OPTIONAL):</Label>
                                         <DatePicker 
@@ -633,7 +641,7 @@ export function Calculator({
                                     </div>
                                 </div>
 
-                                <div className={`grid grid-cols-1 gap-6 ${!isFallout ? 'md:grid-cols-2' : ''}`}>
+                                <div className={`grid grid-cols-1 gap-6 ${isFallout ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
                                     <div className="space-y-1">
                                         <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : 'mc-label'}`}>SHIPMENT WEIGHT (LBS):</Label>
                                         <div className="relative">
@@ -825,12 +833,7 @@ export function Calculator({
                                         {settings.showFormat && (
                                             <div className="pt-4 mt-auto">
                                                 {isFallout ? (
-                                                    <div className="flex gap-2 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                                        <style jsx>{`
-                                                            div::-webkit-scrollbar {
-                                                                display: none;
-                                                            }
-                                                        `}</style>
+                                                    <div className="flex flex-wrap justify-center gap-2 w-full">
                                                         {Object.keys(settings.visibleFormats).map((format) => (
                                                             settings.visibleFormats[format as CopyFormat] && (
                                                                 <button 
@@ -905,7 +908,7 @@ export function Calculator({
                 {!isFallout && (
                     <div className="mt-8 text-center">
                         <div className="text-sm drop-shadow-sm mc-small">
-                            RDD Calculator v1.3.0 (Minecraft Edition)
+                            Date Change Tool V3 v3.0.0 (Minecraft Edition)
                         </div>
                     </div>
                 )}

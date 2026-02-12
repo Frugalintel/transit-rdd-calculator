@@ -17,7 +17,7 @@ import {
 } from '@/utils/themeConstants'
 
 export const metadata: Metadata = {
-  title: 'RDD Calculator',
+  title: 'Date Change Tool V3',
   description: 'Calculate delivery dates',
 }
 

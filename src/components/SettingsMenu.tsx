@@ -41,8 +41,9 @@ type SettingsTab = 'general' | 'colors' | 'templates' | 'admin'
 
 interface AdminStats {
     userCount: number
-    calcCount: number
-    logCount: number
+    savedCalcCount: number
+    attemptCount: number
+    successfulAttemptCount: number
 }
 
 const VARIABLES = [
@@ -88,17 +89,22 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
             const fetchStats = async () => {
                 setLoadingStats(true)
                 const supabase = createClient()
+                const sevenDaysAgo = new Date()
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+                const sinceIso = sevenDaysAgo.toISOString()
                 
-                const [userResult, calcResult, logResult] = await Promise.all([
+                const [userResult, savedCalcResult, attemptResult, successfulAttemptResult] = await Promise.all([
                     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-                    supabase.from('calculations').select('*', { count: 'exact', head: true }),
-                    supabase.from('usage_logs').select('*', { count: 'exact', head: true }),
+                    supabase.from('calculations').select('*', { count: 'exact', head: true }).gte('created_at', sinceIso),
+                    supabase.from('usage_logs').select('*', { count: 'exact', head: true }).eq('action_type', 'calculation').gte('created_at', sinceIso),
+                    supabase.from('usage_logs').select('*', { count: 'exact', head: true }).eq('action_type', 'calculation').eq('details->>successful', 'true').gte('created_at', sinceIso),
                 ])
                 
                 setAdminStats({
                     userCount: userResult.count || 0,
-                    calcCount: calcResult.count || 0,
-                    logCount: logResult.count || 0,
+                    savedCalcCount: savedCalcResult.count || 0,
+                    attemptCount: attemptResult.count || 0,
+                    successfulAttemptCount: successfulAttemptResult.count || 0,
                 })
                 setLoadingStats(false)
             }
@@ -166,6 +172,10 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
             }
         })
     }
+
+    const successRate = adminStats && adminStats.attemptCount > 0
+        ? Math.round((adminStats.successfulAttemptCount / adminStats.attemptCount) * 100)
+        : null
 
     const TabButton = ({ id, label, icon }: { id: SettingsTab, label: string, icon: ItemType }) => {
         const isActive = activeTab === id
@@ -897,7 +907,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                 </div>
 
                                 {/* Quick Stats */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                                     <div className="bg-[var(--mc-bg)] border-2 border-[var(--mc-dark-border)] relative p-4 group hover:bg-[var(--mc-slot-bg)] transition-colors">
                                         <div className="absolute top-0 right-0 w-4 h-4 bg-[var(--mc-dark-border)] clip-corner"></div>
                                         <div className="flex items-center gap-3 mb-2">
@@ -918,12 +928,12 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                             <div className="w-10 h-10 bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)] flex items-center justify-center shadow-inner">
                                                 <ThemeIcon type="clock" />
                                             </div>
-                                            <span className="mc-heading text-lg">Data</span>
+                                            <span className="mc-heading text-lg">Attempts (7d)</span>
                                         </div>
                                         <div className="mc-text-yellow text-3xl font-bold ml-1">
-                                            {loadingStats ? '...' : adminStats?.calcCount ?? '—'}
+                                            {loadingStats ? '...' : adminStats?.attemptCount ?? '—'}
                                         </div>
-                                        <div className="mc-text-muted text-sm ml-1">Total Operations</div>
+                                        <div className="mc-text-muted text-sm ml-1">Calculation clicks</div>
                                     </div>
 
                                     <div className="bg-[var(--mc-bg)] border-2 border-[var(--mc-dark-border)] relative p-4 group hover:bg-[var(--mc-slot-bg)] transition-colors">
@@ -932,12 +942,28 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                             <div className="w-10 h-10 bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)] flex items-center justify-center shadow-inner">
                                                 <ThemeIcon type="paper" />
                                             </div>
-                                            <span className="mc-heading text-lg">Events</span>
+                                            <span className="mc-heading text-lg">Saved (7d)</span>
                                         </div>
                                         <div className="mc-text-yellow text-3xl font-bold ml-1">
-                                            {loadingStats ? '...' : adminStats?.logCount ?? '—'}
+                                            {loadingStats ? '...' : adminStats?.savedCalcCount ?? '—'}
                                         </div>
-                                        <div className="mc-text-muted text-sm ml-1">System Logs</div>
+                                        <div className="mc-text-muted text-sm ml-1">Saved calculations</div>
+                                    </div>
+
+                                    <div className="bg-[var(--mc-bg)] border-2 border-[var(--mc-dark-border)] relative p-4 group hover:bg-[var(--mc-slot-bg)] transition-colors">
+                                        <div className="absolute top-0 right-0 w-4 h-4 bg-[var(--mc-dark-border)] clip-corner"></div>
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-10 h-10 bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)] flex items-center justify-center shadow-inner">
+                                                <ThemeIcon type="cookie" />
+                                            </div>
+                                            <span className="mc-heading text-lg">Success (7d)</span>
+                                        </div>
+                                        <div className="mc-text-yellow text-3xl font-bold ml-1">
+                                            {loadingStats ? '...' : successRate === null ? '—' : `${successRate}%`}
+                                        </div>
+                                        <div className="mc-text-muted text-sm ml-1">
+                                            {loadingStats ? '...' : `${adminStats?.successfulAttemptCount ?? 0} of ${adminStats?.attemptCount ?? 0}`}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -998,7 +1024,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                 </div>
 
                                 {/* Quick Stats */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                                     <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
                                         <div className="flex items-center gap-3 mb-3">
                                             <PipBoyIcon type="user" />
@@ -1012,24 +1038,37 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
 
                                     <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <PipBoyIcon type="terminal" />
-                                            <span className="fo-subheading text-lg tracking-widest">OPERATIONS</span>
+                                            <PipBoyIcon type="clock" />
+                                            <span className="fo-subheading text-lg tracking-widest">ATTEMPTS (7D)</span>
                                         </div>
                                         <div className="fo-title text-4xl mb-1 text-right">
-                                            {loadingStats ? '...' : adminStats?.calcCount ?? '—'}
+                                            {loadingStats ? '...' : adminStats?.attemptCount ?? '—'}
                                         </div>
-                                        <div className="fo-small text-xs uppercase tracking-wider opacity-60 text-right">Calculations</div>
+                                        <div className="fo-small text-xs uppercase tracking-wider opacity-60 text-right">Calculation clicks</div>
                                     </div>
 
                                     <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <PipBoyIcon type="book" />
-                                            <span className="fo-subheading text-lg tracking-widest">EVENTS</span>
+                                            <PipBoyIcon type="terminal" />
+                                            <span className="fo-subheading text-lg tracking-widest">SAVED (7D)</span>
                                         </div>
                                         <div className="fo-title text-4xl mb-1 text-right">
-                                            {loadingStats ? '...' : adminStats?.logCount ?? '—'}
+                                            {loadingStats ? '...' : adminStats?.savedCalcCount ?? '—'}
                                         </div>
-                                        <div className="fo-small text-xs uppercase tracking-wider opacity-60 text-right">System Logs</div>
+                                        <div className="fo-small text-xs uppercase tracking-wider opacity-60 text-right">Saved calculations</div>
+                                    </div>
+
+                                    <div className="p-4 border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)] transition-colors duration-300">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <PipBoyIcon type="check" />
+                                            <span className="fo-subheading text-lg tracking-widest">SUCCESS (7D)</span>
+                                        </div>
+                                        <div className="fo-title text-4xl mb-1 text-right">
+                                            {loadingStats ? '...' : successRate === null ? '—' : `${successRate}%`}
+                                        </div>
+                                        <div className="fo-small text-xs uppercase tracking-wider opacity-60 text-right">
+                                            {loadingStats ? '...' : `${adminStats?.successfulAttemptCount ?? 0} OF ${adminStats?.attemptCount ?? 0}`}
+                                        </div>
                                     </div>
                                 </div>
 

@@ -11,6 +11,9 @@ export default async function AdminDashboard() {
     // Calculate date ranges
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const analyticsLookbackDays = 180
+    const analyticsLookbackStart = new Date()
+    analyticsLookbackStart.setDate(analyticsLookbackStart.getDate() - analyticsLookbackDays)
     const twoWeeksAgo = new Date()
     twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14)
     const oneWeekAgo = new Date()
@@ -39,7 +42,7 @@ export default async function AdminDashboard() {
         supabase.from('usage_logs')
             .select('id, created_at, user_id, details')
             .eq('action_type', 'calculation')
-            .gte('created_at', sevenDaysAgo.toISOString())
+            .gte('created_at', analyticsLookbackStart.toISOString())
             .order('created_at', { ascending: true }),
         supabase.from('calculations')
             .select('id, created_at, name, origin_date')
