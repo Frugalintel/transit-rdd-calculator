@@ -11,7 +11,12 @@ export interface InputProps
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
     const { settings } = useTheme()
-    const baseClass = settings.themeMode === 'fallout' ? 'fo-input' : 'mc-input'
+    const baseClass =
+      settings.themeMode === 'fallout'
+        ? 'fo-input'
+        : settings.themeMode === 'chicago95'
+          ? 'chi95-input'
+          : 'mc-input'
     
     return (
       <input

@@ -482,6 +482,8 @@ export function Calculator({
     }
 
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
+    const isMinecraft = settings.themeMode === 'minecraft'
     const isAdmin = adminStatus === 'admin'
     const showAuthenticatedControls = Boolean(user) || (!authResolved && authHint)
 
@@ -504,6 +506,10 @@ export function Calculator({
                             <div aria-hidden="true" className="fo-sgs-mark h-26 w-44 sm:h-30 sm:w-48 md:h-34 md:w-56 pointer-events-none" />
                         </div>
                     </div>
+                ) : isChicago95 ? (
+                    <div className="chi95-text text-left px-1">
+                        <span>Desktop: SUDCO Calculator Workspace</span>
+                    </div>
                 ) : (
                     <div className="relative w-fit mx-auto">
                         <Image
@@ -521,9 +527,52 @@ export function Calculator({
 
             <div className="w-full max-w-4xl z-10 relative">
                 {/* Main Panel */}
-                <div className={`p-0 relative ${isFallout ? 'bg-transparent' : 'mc-panel p-2'}`}>
+                <div className={`p-0 relative ${isFallout ? 'bg-transparent' : isChicago95 ? 'chi95-window' : 'mc-panel p-2'}`}>
+                    {isChicago95 && (
+                        <>
+                            <div className="chi95-titlebar">
+                                <span>Date Change Tool V3</span>
+                                <div className="flex items-center gap-1">
+                                    <button type="button" className="chi95-button chi95-control-btn" aria-label="Minimize">_</button>
+                                    <button type="button" className="chi95-button chi95-control-btn" aria-label="Maximize">□</button>
+                                    <button type="button" className="chi95-button chi95-control-btn" aria-label="Close">x</button>
+                                </div>
+                            </div>
+                            <div className="chi95-menubar">
+                                <div className="chi95-menubar-left">
+                                    <button type="button" onClick={openSettings}>Settings</button>
+                                    <button type="button" onClick={() => router.push('/training')}>Guide</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { if (user) setIsHistoryOpen(true) }}
+                                        disabled={!showAuthenticatedControls}
+                                    >
+                                        History
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push('/admin')}
+                                        disabled={!isAdmin}
+                                    >
+                                        Admin
+                                    </button>
+                                    <span className="chi95-menubar-sep" aria-hidden="true">|</span>
+                                    <button type="button" onClick={handleReset}>Reset</button>
+                                </div>
+                                <div className="chi95-menubar-right">
+                                    <button
+                                        type="button"
+                                        onClick={showAuthenticatedControls ? handleLogout : openAuth}
+                                    >
+                                        {showAuthenticatedControls ? 'Log out' : 'Log in'}
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
                     {/* Minecraft Header */}
-                    {!isFallout && (
+                    {isMinecraft && (
                         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 px-2 sm:px-4 py-2 mb-2 border-b-2 border-[var(--mc-dark-border)]">
                             <div className="flex items-center gap-2 shrink-0">
                                 <span className="text-base sm:text-xl mc-heading">Transit Guide</span>
@@ -606,23 +655,30 @@ export function Calculator({
                         </div>
                     )}
 
-                    <div className={`flex flex-col gap-2 sm:gap-4 p-0 ${!isFallout ? 'lg:flex-row p-2 items-start' : 'items-center w-full'}`}>
+                    <div className={`flex flex-col gap-2 sm:gap-4 p-0 ${isMinecraft ? 'lg:flex-row p-2 items-start' : isChicago95 ? 'items-center w-full p-2' : 'items-center w-full p-3'}`}>
                         {/* Input Section */}
-                        <div className={`w-full flex flex-col ${!isFallout ? 'flex-1' : 'max-w-2xl'}`}>
-                            <div className={`space-y-6 h-full ${
+                        <div className={`w-full flex flex-col ${isMinecraft ? 'flex-1' : isChicago95 ? 'max-w-none' : 'max-w-2xl'}`}>
+                            <div className={`${isChicago95 ? 'space-y-2' : 'space-y-6'} h-full ${
                                 isFallout 
                                     ? 'bg-transparent border-none p-0' 
-                                    : 'p-4 border-none mc-slot shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-light-border)]'
+                                    : isChicago95
+                                        ? 'chi95-fieldset'
+                                        : 'p-4 border-none mc-slot shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-light-border)]'
                             }`}>
-                                {!isFallout && (
+                                {isMinecraft && (
                                     <div className="text-base sm:text-lg border-b-2 pb-2 mb-2 flex items-center gap-2 mc-subheading border-[var(--mc-text-gray)]">
                                         Shipment Data
                                     </div>
                                 )}
+                                {isChicago95 && (
+                                    <div className="chi95-text text-sm border-b border-[#808080] pb-2 mb-2 font-bold">
+                                        Shipment Data
+                                    </div>
+                                )}
                                 
-                                <div className={`grid grid-cols-1 gap-6 ${isFallout ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
+                                <div className={`grid grid-cols-1 ${isChicago95 ? 'gap-2 sm:gap-x-4 sm:gap-y-2' : 'gap-6'} ${isFallout || isChicago95 ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : 'mc-label'}`}>PACK DATE (OPTIONAL):</Label>
+                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>PACK DATE (OPTIONAL):</Label>
                                         <DatePicker 
                                             date={packDate}
                                             setDate={setPackDate}
@@ -631,7 +687,7 @@ export function Calculator({
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : 'mc-label'}`}>PICKUP DATE:</Label>
+                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>PICKUP DATE:</Label>
                                         <DatePicker 
                                             date={loadDate}
                                             setDate={setLoadDate}
@@ -641,9 +697,9 @@ export function Calculator({
                                     </div>
                                 </div>
 
-                                <div className={`grid grid-cols-1 gap-6 ${isFallout ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
+                                <div className={`grid grid-cols-1 ${isChicago95 ? 'gap-2 sm:gap-x-4 sm:gap-y-2' : 'gap-6'} ${isFallout || isChicago95 ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : 'mc-label'}`}>SHIPMENT WEIGHT (LBS):</Label>
+                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>SHIPMENT WEIGHT (LBS):</Label>
                                         <div className="relative">
                                             <Input 
                                                 type="number" 
@@ -651,9 +707,9 @@ export function Calculator({
                                                 placeholder={isFallout ? "_" : "..."}
                                                 value={weight}
                                                 onChange={(e) => setWeight(e.target.value)}
-                                                className={`text-lg relative z-20 ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
+                                                className={`relative z-20 ${isChicago95 ? 'text-sm h-9' : 'text-lg'} ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
                                             />
-                                            {!isFallout && (
+                                            {isMinecraft && (
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                                                     <Scale className="h-5 w-5 text-[#707070]" />
                                                 </div>
@@ -661,7 +717,7 @@ export function Calculator({
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : 'mc-label'}`}>DISTANCE (MILES):</Label>
+                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>DISTANCE (MILES):</Label>
                                         <div className="relative">
                                             <Input 
                                                 type="number" 
@@ -669,9 +725,9 @@ export function Calculator({
                                                 placeholder={isFallout ? "_" : "..."}
                                                 value={distance}
                                                 onChange={(e) => setDistance(e.target.value)}
-                                                className={`text-lg relative z-20 ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
+                                                className={`relative z-20 ${isChicago95 ? 'text-sm h-9' : 'text-lg'} ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
                                             />
-                                            {!isFallout && (
+                                            {isMinecraft && (
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                                                     <MapPin className="h-5 w-5 text-[#707070]" />
                                                 </div>
@@ -680,7 +736,7 @@ export function Calculator({
                                     </div>
                                 </div>
 
-                                <div className="mt-4">
+                                <div className={isChicago95 ? "mt-0.5" : "mt-4"}>
                                     {isFallout ? (
                                         <div className="space-y-1">
                                             <Label className="fo-label text-base sm:text-lg mb-2">IDENTIFIER (OPTIONAL):</Label>
@@ -689,6 +745,16 @@ export function Calculator({
                                                 onChange={(e) => setCalculationName(e.target.value)}
                                                 placeholder="_"
                                                 className="text-lg fo-input pl-0"
+                                            />
+                                        </div>
+                                    ) : isChicago95 ? (
+                                        <div className="space-y-1">
+                                            <Label className="chi95-label block text-xs mb-1">IDENTIFIER (OPTIONAL):</Label>
+                                            <Input
+                                                value={calculationName}
+                                                onChange={(e) => setCalculationName(e.target.value)}
+                                                placeholder="Name or code..."
+                                                className="text-sm h-9"
                                             />
                                         </div>
                                     ) : (
@@ -700,11 +766,11 @@ export function Calculator({
                                     )}
                                 </div>
                                 
-                                <div className="pt-2 sm:pt-4 flex gap-2 items-center">
+                                <div className={`${isChicago95 ? 'pt-1 gap-1' : 'pt-2 sm:pt-4 gap-2'} flex items-center`}>
                                     <Button 
                                         onClick={handleCalculate} 
                                         disabled={loading || !loadDate || !packDate}
-                                        className="flex-1 text-xl h-12"
+                                        className={`flex-1 ${isChicago95 ? 'text-sm h-9' : 'text-xl h-12'}`}
                                         variant={isFallout ? "ghost" : "default"}
                                     >
                                         {isFallout ? (loading ? '[ CALCULATING... ]' : (
@@ -712,9 +778,9 @@ export function Calculator({
                                                 <span className="sm:hidden">[ CALCULATE ]</span>
                                                 <span className="hidden sm:inline">[ CALCULATE DELIVERY ]</span>
                                             </>
-                                        )) : (loading ? 'Crafting...' : 'Calculate Delivery')}
+                                        )) : (loading ? 'Calculating...' : 'Calculate Delivery')}
                                     </Button>
-                                    {!isFallout && (
+                                    {isMinecraft && (
                                         <Button
                                             onClick={handleReset}
                                             variant="destructive"
@@ -738,7 +804,7 @@ export function Calculator({
                         </div>
 
                         {/* Arrow/Progress Divider (Minecraft Only) */}
-                        {!isFallout && (
+                        {isMinecraft && (
                             <div className="flex items-center justify-center shrink-0 self-center py-1 sm:py-2 lg:py-0 lg:px-4">
                                 <div className="rotate-90 lg:rotate-0 transition-transform">
                                     <FurnaceArrow isProcessing={isProcessing} />
@@ -747,21 +813,28 @@ export function Calculator({
                         )}
 
                         {/* Results Section */}
-                        <div className={`w-full flex flex-col ${!isFallout ? 'lg:w-72 xl:w-80 shrink-0' : 'mt-8 border-t-2 border-[var(--fo-primary)] pt-8 max-w-2xl'}`}>
+                        <div className={`w-full flex flex-col ${isMinecraft ? 'lg:w-72 xl:w-80 shrink-0' : isFallout ? 'mt-8 border-t-2 border-[var(--fo-primary)] pt-8 max-w-2xl' : isChicago95 ? 'mt-2 max-w-none' : 'mt-4 max-w-2xl'}`}>
                              <div className={`flex flex-col h-full ${
                                  isFallout 
                                      ? 'bg-transparent border-none p-0' 
-                                     : 'p-4 border-none mc-slot shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-light-border)]'
+                                     : isChicago95
+                                        ? 'chi95-fieldset'
+                                        : 'p-4 border-none mc-slot shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-light-border)]'
                              }`}>
-                                {!isFallout && (
+                                {isMinecraft && (
                                     <div className="text-base sm:text-lg border-b-2 pb-2 mb-2 sm:mb-3 flex items-center gap-2 mc-subheading border-[var(--mc-text-gray)]">
+                                        {submittedName ? `Results for ${submittedName}` : 'Result'}
+                                    </div>
+                                )}
+                                {isChicago95 && (
+                                    <div className="chi95-text text-sm border-b border-[#808080] pb-2 mb-2 font-bold">
                                         {submittedName ? `Results for ${submittedName}` : 'Result'}
                                     </div>
                                 )}
 
                                 {result ? (
                                     <div className="flex-1 flex flex-col justify-between gap-2 sm:gap-3 animate-in fade-in zoom-in-95 duration-300">
-                                        <div className="space-y-6">
+                                        <div className={isChicago95 ? "space-y-3" : "space-y-6"}>
                                             {/* Main Result */}
                                             {isFallout ? (
                                                 <div className="space-y-6 pt-2">
@@ -800,6 +873,18 @@ export function Calculator({
                                                         </div>
                                                     </div>
                                                 </div>
+                                            ) : isChicago95 ? (
+                                                <>
+                                                    <div className="chi95-panel p-3 text-center">
+                                                        <div className="chi95-text font-bold text-sm">Required Delivery Date</div>
+                                                        <div className="text-2xl font-bold mt-1">{result.rddDisplay}</div>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        <div className="chi95-panel p-2 flex justify-between chi95-text"><span>Transit Time</span><span>{result.transitDays} days</span></div>
+                                                        <div className="chi95-panel p-2 flex justify-between chi95-text"><span>Rate Cycle</span><span>{result.seasonStatus === 'Peak Season' ? 'Peak' : 'Off-Peak'}</span></div>
+                                                        <div className="chi95-panel p-2 flex justify-between chi95-text"><span>Pickup Spread</span><span>{formatDateForCopy(result.loadSpread.earliest)} - {formatDateForCopy(result.loadSpread.latest)}</span></div>
+                                                    </div>
+                                                </>
                                             ) : (
                                                 <>
                                                     <div className="w-full justify-center py-4 flex-col items-center text-center mc-achievement">
@@ -831,7 +916,7 @@ export function Calculator({
 
                                         {/* Copy Tools */}
                                         {settings.showFormat && (
-                                            <div className="pt-4 mt-auto">
+                                            <div className={isChicago95 ? "pt-2" : "pt-4 mt-auto"}>
                                                 {isFallout ? (
                                                     <div className="flex flex-wrap justify-center gap-2 w-full">
                                                         {Object.keys(settings.visibleFormats).map((format) => (
@@ -852,14 +937,14 @@ export function Calculator({
                                                     </div>
                                                 ) : (
                                                     <div className="space-y-1">
-                                                        <Label className="text-sm mc-label">Copy Format</Label>
-                                                        <div className="flex gap-2">
+                                                        <Label className={`text-sm ${isChicago95 ? 'chi95-label' : 'mc-label'}`}>Copy Format</Label>
+                                                        <div className={`flex gap-2 ${isChicago95 ? 'items-stretch' : 'items-center'}`}>
                                                             <div className="flex-1">
                                                                 <Select 
                                                                     value={copyFormat} 
                                                                     onValueChange={(val) => setCopyFormat(val as CopyFormat)}
                                                                 >
-                                                                    <SelectTrigger className="text-sm h-10">
+                                                                    <SelectTrigger className={`text-sm ${isChicago95 ? 'h-9 py-0 leading-none [&>span]:leading-none' : 'h-10'}`}>
                                                                         <SelectValue />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
@@ -874,7 +959,7 @@ export function Calculator({
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
-                                                            <Button onClick={() => copyResult()} title="Copy to Clipboard" className="h-10 w-10 p-0">
+                                                            <Button onClick={() => copyResult()} title="Copy to Clipboard" className={`${isChicago95 ? 'h-9 w-9 self-stretch' : 'h-10 w-10'} p-0`}>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="shrink-0" stroke="currentColor" strokeWidth="1">
                                                                     <path fillRule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
                                                                 </svg>
@@ -886,12 +971,16 @@ export function Calculator({
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50 py-8">
-                                        {!isFallout ? (
+                                    <div className={`${isChicago95 ? '' : 'flex-1 flex flex-col items-center justify-center text-center opacity-50 py-8'}`}>
+                                        {isMinecraft ? (
                                             <>
                                                 <div className="w-12 h-12 bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)] shadow-[inset_2px_2px_0_0_var(--mc-text-gray)] mb-3"></div>
                                                 <div className="mc-body text-sm">Output Slot Empty</div>
                                             </>
+                                        ) : isChicago95 ? (
+                                            <div className="chi95-panel p-3 text-center opacity-70">
+                                                <div className="chi95-text text-sm">No result yet.</div>
+                                            </div>
                                         ) : (
                                             <div className="text-left w-full">
                                                 <div className="fo-text">--</div>
@@ -904,8 +993,15 @@ export function Calculator({
                     </div>
                 </div>
 
+                {isChicago95 && (
+                    <div className="chi95-statusbar">
+                        <span>Date Change Tool V3 v3.0.0</span>
+                        <span>{result ? 'Ready' : 'Waiting for input'}</span>
+                    </div>
+                )}
+
                 {/* Footer */}
-                {!isFallout && (
+                {isMinecraft && (
                     <div className="mt-8 text-center">
                         <div className="text-sm drop-shadow-sm mc-small">
                             Date Change Tool V3 v3.0.0 (Minecraft Edition)

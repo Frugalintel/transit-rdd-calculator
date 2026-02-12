@@ -26,6 +26,7 @@ export function TrainingMode() {
     if (!isOpen) return null
 
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
     
     // If we have modules/scenarios, redirect to training page
     const hasModularContent = modules.length > 0 || scenarios.length > 0
@@ -38,9 +39,11 @@ export function TrainingMode() {
     return (
         <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-300 ${isFallout ? 'fo-scanlines' : ''}`}>
             <div className="absolute top-4 right-4 z-50">
-                <Button variant="destructive" onClick={closeTraining} className={isFallout ? "fo-button fo-button-destructive" : ""}>
+                <Button variant="destructive" onClick={closeTraining} className={isFallout ? "fo-button fo-button-destructive" : isChicago95 ? "chi95-button chi95-button-destructive" : ""}>
                     {isFallout ? (
                         <><PipBoyIcon type="x" size={16} className="mr-2" /> EXIT TRAINING</>
+                    ) : isChicago95 ? (
+                        <><ThemeIcon type="chain" className="mr-2" /> Exit</>
                     ) : (
                         <><ThemeIcon type="chain" className="mr-2" /> Exit Training</>
                     )}
@@ -49,9 +52,9 @@ export function TrainingMode() {
 
             <div className="w-full max-w-4xl p-4 sm:p-6 md:p-8 flex flex-col items-center gap-6">
                 {isLoading ? (
-                    <div className={isFallout ? "fo-panel p-8 text-center w-full max-w-lg" : "mc-panel p-8 text-center"}>
-                        <div className={`animate-pulse ${isFallout ? 'fo-heading text-xl' : 'mc-heading text-xl'}`}>
-                            {isFallout ? 'LOADING TRAINING...' : 'Loading training...'}
+                    <div className={isFallout ? "fo-panel p-8 text-center w-full max-w-lg" : isChicago95 ? "chi95-window p-8 text-center w-full max-w-lg" : "mc-panel p-8 text-center"}>
+                        <div className={`animate-pulse ${isFallout ? 'fo-heading text-xl' : isChicago95 ? 'chi95-text text-lg font-bold' : 'mc-heading text-xl'}`}>
+                            {isFallout ? 'LOADING TRAINING...' : isChicago95 ? 'Loading training...' : 'Loading training...'}
                         </div>
                     </div>
                 ) : hasModularContent ? (
@@ -106,6 +109,22 @@ export function TrainingMode() {
                                 </div>
                             </div>
                         </div>
+                    ) : isChicago95 ? (
+                        <div className="chi95-window p-8 text-center max-w-lg">
+                            <ThemeIcon type="book" scale={2} className="mx-auto mb-4" />
+                            <h2 className="chi95-text text-xl font-bold mb-3">Training Center Available</h2>
+                            <p className="chi95-text mb-6 text-sm">
+                                Structured training modules and scenarios are available.
+                            </p>
+                            <div className="flex gap-3 justify-center">
+                                <Button variant="primary" onClick={handleGoToTrainingCenter} className="chi95-button">
+                                    Go to Training Center
+                                </Button>
+                                <Button onClick={closeTraining} className="chi95-button">
+                                    Maybe Later
+                                </Button>
+                            </div>
+                        </div>
                     ) : (
                         // Minecraft themed modal
                         <div className="mc-panel p-8 text-center max-w-lg">
@@ -139,19 +158,21 @@ export function TrainingMode() {
                                 />
                             </>
                         ) : (
-                            <div className={isFallout ? "fo-panel p-8 text-center w-full max-w-lg" : "mc-panel p-8 text-center"}>
+                            <div className={isFallout ? "fo-panel p-8 text-center w-full max-w-lg" : isChicago95 ? "chi95-window p-8 text-center w-full max-w-lg" : "mc-panel p-8 text-center"}>
                                 {isFallout ? (
                                     <PipBoyIcon type="radiation" size={48} className="mx-auto mb-4 opacity-50" />
+                                ) : isChicago95 ? (
+                                    <ThemeIcon type="chest" scale={2} className="mx-auto mb-4 opacity-50" />
                                 ) : (
                                     <ThemeIcon type="chest" scale={2} className="mx-auto mb-4 opacity-50" />
                                 )}
-                                <h2 className={`${isFallout ? 'fo-heading text-xl' : 'mc-heading text-xl'} mb-2`}>
-                                    {isFallout ? '[ NO TRAINING STEPS ]' : 'No Training Steps'}
+                                <h2 className={`${isFallout ? 'fo-heading text-xl' : isChicago95 ? 'chi95-text text-lg font-bold' : 'mc-heading text-xl'} mb-2`}>
+                                    {isFallout ? '[ NO TRAINING STEPS ]' : isChicago95 ? 'No Training Steps' : 'No Training Steps'}
                                 </h2>
-                                <p className={`${isFallout ? 'fo-text-dim' : 'mc-body text-gray-400'} mb-4`}>
+                                <p className={`${isFallout ? 'fo-text-dim' : isChicago95 ? 'chi95-text text-sm' : 'mc-body text-gray-400'} mb-4`}>
                                     {isFallout ? '> TRAINING CONTENT IS BEING PREPARED.' : 'Training content is being prepared.'}
                                 </p>
-                                <Button onClick={closeTraining} variant={isFallout ? "ghost" : "default"} className={isFallout ? "fo-button" : ""}>
+                                <Button onClick={closeTraining} variant={isFallout ? "ghost" : "default"} className={isFallout ? "fo-button" : isChicago95 ? "chi95-button" : ""}>
                                     {isFallout ? '[ CLOSE ]' : 'Close'}
                                 </Button>
                             </div>

@@ -1,5 +1,36 @@
 import { ItemIcon, ItemType } from '@/components/minecraft/ItemIcon'
 import { PipBoyIcon, PipBoyIconType } from '@/components/fallout/PipBoyIcon'
+import {
+    Archive,
+    ArrowDown,
+    ArrowRight,
+    Bell,
+    BookOpen,
+    CakeSlice,
+    Clock3,
+    Cog,
+    Compass,
+    Cookie,
+    Drumstick,
+    Feather,
+    FileText,
+    Flag,
+    Flower2,
+    Hammer,
+    Lightbulb,
+    Link2,
+    MapPinned,
+    Shield,
+    Signpost,
+    Snowflake,
+    Sparkles,
+    Square,
+    Tag,
+    UserRound,
+    Wheat,
+    Zap,
+    type LucideIcon,
+} from 'lucide-react'
 
 /**
  * Maps Minecraft ItemType names to the closest PipBoy icon equivalent.
@@ -43,17 +74,51 @@ interface ThemeIconProps {
     scale?: number
 }
 
+const CHI95_ICON_MAP: Record<string, LucideIcon> = {
+    clock: Clock3,
+    compass: Compass,
+    distance: MapPinned,
+    book: BookOpen,
+    chest: Archive,
+    paper: FileText,
+    sign: Signpost,
+    totem: UserRound,
+    wheat: Wheat,
+    redstone_dust: Zap,
+    golden_helmet: Shield,
+    firework_star: Sparkles,
+    firework: Sparkles,
+    bell: Bell,
+    arrow_right: ArrowRight,
+    arrow_down: ArrowDown,
+    chain: Link2,
+    gear: Cog,
+    feather: Feather,
+    snowball: Snowflake,
+    torch: Lightbulb,
+    pickaxe: Hammer,
+    iron_pickaxe: Hammer,
+    name_tag: Tag,
+    banner: Flag,
+    poppy: Flower2,
+    cookie: Cookie,
+    cooked_chicken: Drumstick,
+    cake: CakeSlice,
+    pumpkin_pie: CakeSlice,
+}
+
 /**
  * Theme-aware icon component.
- * Renders both Minecraft (ItemIcon) and Fallout (PipBoyIcon) variants.
- * CSS classes `.minecraft-only` / `.fallout-only` show/hide based on
- * the active theme class on <html> (`.theme-minecraft` / `.theme-fallout`).
+ * Renders Minecraft (ItemIcon), Fallout (PipBoyIcon), and Chicago95 variants.
+ * CSS visibility classes show/hide based on the active theme class on <html>.
  *
  * Works in both server and client components.
  */
 export function ThemeIcon({ type, className = '', scale = 1 }: ThemeIconProps) {
     const foType = ICON_MAP[type] || 'terminal'
     const foSize = Math.round(16 * scale)
+    const chiSize = Math.round(14 * scale)
+    const ChicagoIcon = CHI95_ICON_MAP[type] || Square
 
     return (
         <>
@@ -62,6 +127,9 @@ export function ThemeIcon({ type, className = '', scale = 1 }: ThemeIconProps) {
             </span>
             <span className={`fallout-only inline-flex items-center justify-center ${className}`}>
                 <PipBoyIcon type={foType} size={foSize} />
+            </span>
+            <span className={`chicago95-only inline-flex items-center justify-center ${className}`}>
+                <ChicagoIcon size={chiSize} strokeWidth={1.75} />
             </span>
         </>
     )

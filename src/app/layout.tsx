@@ -12,8 +12,10 @@ import { TrainingMode } from '@/components/training/TrainingMode'
 import { 
   THEMES, 
   FALLOUT_THEMES, 
+  CHICAGO95_THEMES,
   ThemePreset, 
-  FalloutPreset 
+  FalloutPreset,
+  Chicago95Preset
 } from '@/utils/themeConstants'
 
 export const metadata: Metadata = {
@@ -43,9 +45,20 @@ export default async function RootLayout({
   const themeCookie = cookieStore.get('themeMode')?.value
   const activeThemeCookie = cookieStore.get('activeTheme')?.value as ThemePreset | undefined
   const falloutThemeCookie = cookieStore.get('falloutTheme')?.value as FalloutPreset | undefined
+  const chicago95ThemeCookie = cookieStore.get('chicago95Theme')?.value as Chicago95Preset | undefined
 
-  const themeMode: ThemeMode = themeCookie === 'fallout' ? 'fallout' : 'minecraft'
-  const themeClass = themeMode === 'fallout' ? 'theme-fallout' : 'theme-minecraft'
+  const themeMode: ThemeMode =
+    themeCookie === 'fallout'
+      ? 'fallout'
+      : themeCookie === 'chicago95'
+        ? 'chicago95'
+        : 'minecraft'
+  const themeClass =
+    themeMode === 'fallout'
+      ? 'theme-fallout'
+      : themeMode === 'chicago95'
+        ? 'theme-chicago95'
+        : 'theme-minecraft'
   const minecraftBackgroundByTheme: Record<ThemePreset, string> = {
     default: '/backgrounds/minecraft/default-office.webp',
     nether: '/backgrounds/minecraft/nether.webp',
@@ -71,6 +84,25 @@ export default async function RootLayout({
       '--fo-text': colors.textPrimary,
       '--fo-text-dim': colors.textDim,
       '--fo-scanline-opacity': String(colors.scanlineOpacity),
+    } as React.CSSProperties
+  } else if (themeMode === 'chicago95') {
+    const presetName = chicago95ThemeCookie && CHICAGO95_THEMES[chicago95ThemeCookie] ? chicago95ThemeCookie : 'default'
+    const colors = CHICAGO95_THEMES[presetName]
+    initialStyle = {
+      '--chi95-desktop-bg': colors.desktopBg,
+      '--chi95-window-bg': colors.windowBg,
+      '--chi95-titlebar-bg': colors.titleBarBg,
+      '--chi95-titlebar-text': colors.titleBarText,
+      '--chi95-border-light': colors.borderLight,
+      '--chi95-border-dark': colors.borderDark,
+      '--chi95-text': colors.text,
+      '--chi95-text-dim': colors.textDim,
+      '--chi95-button-face': colors.buttonFace,
+      '--chi95-button-text': colors.buttonText,
+      '--chi95-input-bg': colors.inputBg,
+      '--chi95-input-text': colors.inputText,
+      '--chi95-accent': colors.accent,
+      backgroundColor: colors.desktopBg,
     } as React.CSSProperties
   } else {
     const presetName = activeThemeCookie && THEMES[activeThemeCookie] ? activeThemeCookie : 'default'

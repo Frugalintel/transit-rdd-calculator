@@ -22,6 +22,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
     const [view, setView] = useState<'login' | 'signup'>('login')
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
 
     const supabase = createClient()
 
@@ -58,12 +59,12 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
         <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none">
                 <DialogHeader>
-                    <DialogTitle className={cn("text-2xl", isFallout ? "fo-heading border-none mb-0 pb-0" : "mc-heading")}>
+                    <DialogTitle className={cn("text-2xl", isFallout ? "fo-heading border-none mb-0 pb-0" : isChicago95 ? "chi95-text font-bold" : "mc-heading")}>
                         {view === 'login' 
                             ? (isFallout ? 'ACCESS TERMINAL' : 'Login to Server')
                             : (isFallout ? 'NEW USER REGISTRATION' : 'Create Account')}
                     </DialogTitle>
-                    <DialogDescription className={cn("text-base", isFallout ? "fo-text-dim mt-1" : "mc-body")}>
+                    <DialogDescription className={cn("text-base", isFallout ? "fo-text-dim mt-1" : isChicago95 ? "chi95-text opacity-80" : "mc-body")}>
                         {view === 'login' 
                             ? (isFallout ? 'Enter credentials to access system' : 'Enter your credentials to continue')
                             : (isFallout ? 'Register new user account' : 'Register a new account')}
@@ -79,22 +80,22 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
 
                     <div className={cn(
                         "space-y-4",
-                        !isFallout && "p-4 mc-slot"
+                        isChicago95 ? "p-4 chi95-fieldset" : !isFallout && "p-4 mc-slot"
                     )}>
                         <div className="space-y-1">
-                            <Label className={isFallout ? "fo-label text-xs" : ""}>{isFallout ? 'USER ID' : 'Email Address'}</Label>
+                            <Label className={isFallout ? "fo-label text-xs" : isChicago95 ? "chi95-label text-xs" : ""}>{isFallout ? 'USER ID' : 'Email Address'}</Label>
                             <Input 
                                 type="email" 
                                 value={email} 
                                 onChange={e => setEmail(e.target.value)} 
                                 required 
-                                placeholder={isFallout ? "user@vault-tec.com" : "player@minecraft.net"}
+                                placeholder={isFallout ? "user@vault-tec.com" : isChicago95 ? "user@example.com" : "player@minecraft.net"}
                                 className={isFallout ? "fo-input" : ""}
                             />
                         </div>
                         
                         <div className="space-y-1">
-                            <Label className={isFallout ? "fo-label text-xs" : ""}>{isFallout ? 'PASSWORD' : 'Password'}</Label>
+                            <Label className={isFallout ? "fo-label text-xs" : isChicago95 ? "chi95-label text-xs" : ""}>{isFallout ? 'PASSWORD' : 'Password'}</Label>
                             <Input 
                                 type="password" 
                                 value={password} 
@@ -111,13 +112,13 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                             type="submit" 
                             variant={isFallout ? "ghost" : "primary"} 
                             disabled={loading} 
-                            className={cn("w-full", isFallout && "fo-button border-2 hover:bg-[var(--fo-primary)] hover:text-black")}
+                            className={cn("w-full", isFallout && "fo-button border-2 hover:bg-[var(--fo-primary)] hover:text-black", isChicago95 && "chi95-button-primary")}
                         >
                             {loading 
-                                ? (isFallout ? 'PROCESSING...' : 'Please wait...') 
+                                ? (isFallout ? 'PROCESSING...' : isChicago95 ? 'Processing...' : 'Please wait...') 
                                 : (view === 'login' 
-                                    ? (isFallout ? '[ LOGIN ]' : 'Login') 
-                                    : (isFallout ? '[ CREATE ACCOUNT ]' : 'Create Account'))}
+                                    ? (isFallout ? '[ LOGIN ]' : isChicago95 ? 'Log In' : 'Login') 
+                                    : (isFallout ? '[ CREATE ACCOUNT ]' : isChicago95 ? 'Create Account' : 'Create Account'))}
                         </Button>
                         
                         <Button 
@@ -127,7 +128,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                             onClick={() => setView(view === 'login' ? 'signup' : 'login')}
                         >
                             {view === 'login' 
-                                ? (isFallout ? '> Register New User' : 'New player? Register') 
+                                ? (isFallout ? '> Register New User' : isChicago95 ? 'Need an account? Register' : 'New player? Register') 
                                 : (isFallout ? '> Back to Login' : 'Back to Login')}
                         </Button>
                     </div>

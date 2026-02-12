@@ -7,12 +7,15 @@ import {
     ThemePreset,
     FalloutColors,
     FalloutPreset,
+    Chicago95Colors,
+    Chicago95Preset,
     THEMES,
-    FALLOUT_THEMES
+    FALLOUT_THEMES,
+    CHICAGO95_THEMES
 } from '@/utils/themeConstants'
 
 // Theme Mode - top level theme selection
-export type ThemeMode = 'minecraft' | 'fallout'
+export type ThemeMode = 'minecraft' | 'fallout' | 'chicago95'
 
 export interface ThemeSettings {
     // Theme mode selection
@@ -23,6 +26,9 @@ export interface ThemeSettings {
     // Fallout settings (new)
     falloutTheme: FalloutPreset
     falloutCustomColors: FalloutColors
+    // Chicago95 settings
+    chicago95Theme: Chicago95Preset
+    chicago95CustomColors: Chicago95Colors
     // Shared settings
     showFormat: boolean
     soundEnabled: boolean
@@ -46,6 +52,11 @@ interface ThemeContextType {
     updateFalloutCustomColor: (key: keyof FalloutColors, value: string | number) => void
     resetFalloutCustomColors: () => void
     currentFalloutColors: FalloutColors
+    // Chicago95 theme functions
+    setChicago95Theme: (theme: Chicago95Preset) => void
+    updateChicago95CustomColor: (key: keyof Chicago95Colors, value: string) => void
+    resetChicago95CustomColors: () => void
+    currentChicago95Colors: Chicago95Colors
     // Theme mode
     setThemeMode: (mode: ThemeMode) => void
 }
@@ -68,6 +79,9 @@ const DEFAULT_SETTINGS: ThemeSettings = {
     // Fallout settings
     falloutTheme: 'green',
     falloutCustomColors: FALLOUT_THEMES.green,
+    // Chicago95 settings
+    chicago95Theme: 'default',
+    chicago95CustomColors: CHICAGO95_THEMES.default,
     // Shared settings
     showFormat: true,
     soundEnabled: true,
@@ -102,6 +116,8 @@ function getInitialSettings(serverThemeMode?: ThemeMode): ThemeSettings {
         const savedCustomColors = localStorage.getItem('customColors')
         const savedFalloutTheme = localStorage.getItem('falloutTheme')
         const savedFalloutCustomColors = localStorage.getItem('falloutCustomColors')
+        const savedChicago95Theme = localStorage.getItem('chicago95Theme')
+        const savedChicago95CustomColors = localStorage.getItem('chicago95CustomColors')
 
         // Resolve themeMode: prefer localStorage for user-selected preference.
         const resolvedThemeMode = (savedThemeMode as ThemeMode) || serverThemeMode || DEFAULT_SETTINGS.themeMode
@@ -118,6 +134,8 @@ function getInitialSettings(serverThemeMode?: ThemeMode): ThemeSettings {
             customColors: savedCustomColors ? JSON.parse(savedCustomColors) : DEFAULT_SETTINGS.customColors,
             falloutTheme: (savedFalloutTheme as FalloutPreset) || DEFAULT_SETTINGS.falloutTheme,
             falloutCustomColors: savedFalloutCustomColors ? JSON.parse(savedFalloutCustomColors) : DEFAULT_SETTINGS.falloutCustomColors,
+            chicago95Theme: (savedChicago95Theme as Chicago95Preset) || DEFAULT_SETTINGS.chicago95Theme,
+            chicago95CustomColors: savedChicago95CustomColors ? JSON.parse(savedChicago95CustomColors) : DEFAULT_SETTINGS.chicago95CustomColors,
         }
     } catch {
         return { ...DEFAULT_SETTINGS, themeMode: serverThemeMode || DEFAULT_SETTINGS.themeMode }
@@ -162,15 +180,55 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             root.style.setProperty('--fo-text-dim', falloutColors.textDim)
             root.style.setProperty('--fo-scanline-opacity', String(falloutColors.scanlineOpacity))
 
-            root.classList.remove('theme-minecraft')
+            root.classList.remove('theme-minecraft', 'theme-chicago95')
             root.classList.add('theme-fallout')
+        } else if (settings.themeMode === 'chicago95') {
+            // Clear stale variables so CSS remapping works
+            const mcVars = [
+                '--mc-bg', '--mc-dark-border', '--mc-light-border', '--mc-shadow',
+                '--mc-text-shadow', '--mc-input-bg', '--mc-input-text', '--mc-accent',
+                '--mc-button-bg', '--mc-text-dark', '--mc-text-gray', '--mc-slot-bg'
+            ]
+            const foVars = [
+                '--fo-primary', '--fo-primary-dim', '--fo-primary-glow', '--fo-bg',
+                '--fo-panel-bg', '--fo-text', '--fo-text-dim', '--fo-scanline-opacity'
+            ]
+            mcVars.forEach(v => root.style.removeProperty(v))
+            foVars.forEach(v => root.style.removeProperty(v))
+
+            const chicagoColors = settings.chicago95Theme === 'custom'
+                ? settings.chicago95CustomColors
+                : CHICAGO95_THEMES[settings.chicago95Theme]
+
+            root.style.setProperty('--chi95-desktop-bg', chicagoColors.desktopBg)
+            root.style.setProperty('--chi95-window-bg', chicagoColors.windowBg)
+            root.style.setProperty('--chi95-titlebar-bg', chicagoColors.titleBarBg)
+            root.style.setProperty('--chi95-titlebar-text', chicagoColors.titleBarText)
+            root.style.setProperty('--chi95-border-light', chicagoColors.borderLight)
+            root.style.setProperty('--chi95-border-dark', chicagoColors.borderDark)
+            root.style.setProperty('--chi95-text', chicagoColors.text)
+            root.style.setProperty('--chi95-text-dim', chicagoColors.textDim)
+            root.style.setProperty('--chi95-button-face', chicagoColors.buttonFace)
+            root.style.setProperty('--chi95-button-text', chicagoColors.buttonText)
+            root.style.setProperty('--chi95-input-bg', chicagoColors.inputBg)
+            root.style.setProperty('--chi95-input-text', chicagoColors.inputText)
+            root.style.setProperty('--chi95-accent', chicagoColors.accent)
+
+            root.classList.remove('theme-minecraft', 'theme-fallout')
+            root.classList.add('theme-chicago95')
         } else {
             // Clear stale Fallout inline variables so CSS defaults apply
             const foVars = [
                 '--fo-primary', '--fo-primary-dim', '--fo-primary-glow', '--fo-bg',
                 '--fo-panel-bg', '--fo-text', '--fo-text-dim', '--fo-scanline-opacity'
             ]
+            const chiVars = [
+                '--chi95-desktop-bg', '--chi95-window-bg', '--chi95-titlebar-bg', '--chi95-titlebar-text',
+                '--chi95-border-light', '--chi95-border-dark', '--chi95-text', '--chi95-text-dim',
+                '--chi95-button-face', '--chi95-button-text', '--chi95-input-bg', '--chi95-input-text', '--chi95-accent'
+            ]
             foVars.forEach(v => root.style.removeProperty(v))
+            chiVars.forEach(v => root.style.removeProperty(v))
 
             // Apply Minecraft theme colors
             const colors = settings.activeTheme === 'custom' 
@@ -190,11 +248,11 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             root.style.setProperty('--mc-text-gray', colors.textGray)
             root.style.setProperty('--mc-slot-bg', colors.slotBg)
 
-            root.classList.remove('theme-fallout')
+            root.classList.remove('theme-fallout', 'theme-chicago95')
             root.classList.add('theme-minecraft')
         }
 
-    }, [settings.themeMode, settings.activeTheme, settings.customColors, settings.falloutTheme, settings.falloutCustomColors, mounted])
+    }, [settings.themeMode, settings.activeTheme, settings.customColors, settings.falloutTheme, settings.falloutCustomColors, settings.chicago95Theme, settings.chicago95CustomColors, mounted])
 
     // Sync theme mode with sound manager
     useEffect(() => {
@@ -222,6 +280,7 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
         setCookie('themeMode', settings.themeMode)
         setCookie('activeTheme', settings.activeTheme)
         setCookie('falloutTheme', settings.falloutTheme)
+        setCookie('chicago95Theme', settings.chicago95Theme)
 
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -267,6 +326,14 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             }
             if (updates.falloutCustomColors !== undefined) {
                 localStorage.setItem('falloutCustomColors', JSON.stringify(next.falloutCustomColors))
+            }
+            // Chicago95 settings
+            if (updates.chicago95Theme !== undefined) {
+                localStorage.setItem('chicago95Theme', next.chicago95Theme)
+                setCookie('chicago95Theme', next.chicago95Theme)
+            }
+            if (updates.chicago95CustomColors !== undefined) {
+                localStorage.setItem('chicago95CustomColors', JSON.stringify(next.chicago95CustomColors))
             }
             
             return next
@@ -318,6 +385,27 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
         ? settings.falloutCustomColors
         : FALLOUT_THEMES[settings.falloutTheme]
 
+    // Chicago95 theme functions
+    const setChicago95Theme = (theme: Chicago95Preset) => {
+        updateSettings({ chicago95Theme: theme })
+    }
+
+    const updateChicago95CustomColor = (key: keyof Chicago95Colors, value: string) => {
+        const newColors = { ...settings.chicago95CustomColors, [key]: value }
+        updateSettings({
+            chicago95Theme: 'custom',
+            chicago95CustomColors: newColors
+        })
+    }
+
+    const resetChicago95CustomColors = () => {
+        updateSettings({ chicago95CustomColors: CHICAGO95_THEMES.default })
+    }
+
+    const currentChicago95Colors = settings.chicago95Theme === 'custom'
+        ? settings.chicago95CustomColors
+        : CHICAGO95_THEMES[settings.chicago95Theme]
+
     // Theme mode function
     const setThemeMode = (mode: ThemeMode) => {
         updateSettings({ themeMode: mode })
@@ -339,6 +427,11 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             updateFalloutCustomColor,
             resetFalloutCustomColors,
             currentFalloutColors,
+            // Chicago95 theme
+            setChicago95Theme,
+            updateChicago95CustomColor,
+            resetChicago95CustomColors,
+            currentChicago95Colors,
             // Theme mode
             setThemeMode
         }}>

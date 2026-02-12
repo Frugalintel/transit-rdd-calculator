@@ -14,6 +14,7 @@ interface AdminPageHeaderProps {
 export function AdminPageHeader({ title, icon, actions, subtitle }: AdminPageHeaderProps) {
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
 
     if (isFallout) {
         return (
@@ -31,6 +32,31 @@ export function AdminPageHeader({ title, icon, actions, subtitle }: AdminPageHea
                     {actions}
                     <div className="text-right hidden sm:block">
                         <div className="text-sm font-bold text-[var(--fo-primary)]">SYS_STATUS: ONLINE</div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (isChicago95) {
+        return (
+            <div className="chi95-window mb-6">
+                <div className="chi95-titlebar">
+                    <span>{title}</span>
+                    <span>Admin Console</span>
+                </div>
+                <div className="px-3 py-2 border-b border-[#808080] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div className="flex items-center gap-3">
+                        {icon && <ThemeIcon type={icon} scale={1.25} />}
+                        <div>
+                            <h1 className="chi95-text text-xl font-bold">{title}</h1>
+                            {subtitle && (
+                                <p className="chi95-text text-xs opacity-80">{subtitle}</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {actions}
                     </div>
                 </div>
             </div>

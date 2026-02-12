@@ -102,6 +102,7 @@ export function DatePicker({
   const moveCursorToEndRef = React.useRef(false)
   const { settings } = useTheme()
   const isFallout = settings.themeMode === "fallout"
+  const isChicago95 = settings.themeMode === "chicago95"
 
   // Sync display value from external date prop (but not while user is typing)
   React.useEffect(() => {
@@ -322,7 +323,7 @@ export function DatePicker({
     )
   }
 
-  // ─── Minecraft / Default Theme ───────────────────────────
+  // ─── Minecraft / Chicago95 Theme ─────────────────────────
   return (
     <div className="relative w-full">
       <div className="relative group">
@@ -336,10 +337,10 @@ export function DatePicker({
           placeholder={label || "MM/DD/YYYY"}
           disabled={disabled}
           className={cn(
-            "mc-input pr-10 text-xl tracking-wider",
+            isChicago95 ? "chi95-input pr-10 text-sm" : "mc-input pr-10 text-xl tracking-wider",
             disabled && "opacity-60 cursor-not-allowed"
           )}
-          style={{ caretColor: 'var(--mc-input-text, #ffffff)' }}
+          style={{ caretColor: isChicago95 ? "#000000" : 'var(--mc-input-text, #ffffff)' }}
           autoComplete="off"
         />
         <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
@@ -347,21 +348,28 @@ export function DatePicker({
             <button
               type="button"
               disabled={disabled}
-              className="absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center"
+              className={cn(
+                "absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center",
+                isChicago95 && "chi95-button !h-auto !min-h-0 top-[1px] right-[1px] bottom-[1px] w-9 p-0"
+              )}
               aria-label="Open calendar"
               tabIndex={-1}
             >
-              <CalendarIcon className="h-5 w-5 text-[#707070] hover:text-white transition-colors" />
+              <CalendarIcon className={cn("h-5 w-5 transition-colors", isChicago95 ? "text-black hover:text-[#000080]" : "text-[#707070] hover:text-white")} />
             </button>
           </PopoverTrigger>
           <PopoverContent
             className="w-auto p-0 border-0"
             align="start"
             side="bottom"
-            sideOffset={8}
+            sideOffset={isChicago95 ? 2 : 8}
             collisionPadding={20}
           >
-            <div className="bg-[var(--mc-bg)] p-2 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),inset_-4px_-4px_0_0_var(--mc-shadow),0_0_0_2px_#000000,4px_4px_0_0_rgba(0,0,0,0.25)]">
+            <div className={cn(
+              isChicago95
+                ? "bg-[#c0c0c0] p-2 border-2 border-[#808080] shadow-[inset_1px_1px_0_0_#ffffff,inset_-1px_-1px_0_0_#000000]"
+                : "bg-[var(--mc-bg)] p-2 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),inset_-4px_-4px_0_0_var(--mc-shadow),0_0_0_2px_#000000,4px_4px_0_0_rgba(0,0,0,0.25)]"
+            )}>
               <Calendar
                 mode="single"
                 selected={date}
@@ -378,7 +386,7 @@ export function DatePicker({
       </div>
       {/* Hint text when focused and empty */}
       {isFocused && !inputValue && (
-        <div className="absolute -bottom-5 left-1 text-[10px] text-[#707070]">
+        <div className={cn("absolute -bottom-5 left-1 text-[10px]", isChicago95 ? "chi95-text opacity-70" : "text-[#707070]")}>
           type date, &quot;today&quot;, or &quot;tomorrow&quot;
         </div>
       )}

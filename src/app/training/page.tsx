@@ -14,6 +14,8 @@ import { PipBoyIcon } from '@/components/fallout/PipBoyIcon'
 
 export default function TrainingPage() {
     const { settings } = useTheme()
+    const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
     const [modules, setModules] = useState<TrainingModule[]>([])
     const [scenarios, setScenarios] = useState<TrainingScenario[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -137,8 +139,6 @@ export default function TrainingPage() {
     const showComingSoon = !isAdmin && (comingSoonSettings === null || comingSoonSettings?.enabled !== false)
 
     if (showComingSoon) {
-        const isFallout = settings.themeMode === 'fallout'
-
         return (
             <div className={`min-h-screen p-4 md:p-8 ${isFallout ? 'fo-scanlines' : ''}`}>
                 <div className="max-w-6xl mx-auto">
@@ -152,10 +152,10 @@ export default function TrainingPage() {
                                     <ThemeIcon type="book" scale={2} />
                                 )}
                                 <div>
-                                    <h1 className={`${isFallout ? 'fo-title text-3xl' : 'mc-title text-3xl'}`}>
+                                    <h1 className={`${isFallout ? 'fo-title text-3xl' : isChicago95 ? 'chi95-text text-2xl font-bold' : 'mc-title text-3xl'}`}>
                                         {isFallout ? 'TRAINING CENTER' : 'Training Center'}
                                     </h1>
-                                    <p className={`${isFallout ? 'fo-text text-sm' : 'mc-body text-sm text-gray-400'}`}>
+                                    <p className={`${isFallout ? 'fo-text text-sm' : isChicago95 ? 'chi95-text text-xs' : 'mc-body text-sm text-gray-400'}`}>
                                         {isFallout ? 'STATUS: OFFLINE' : 'Master the date change process'}
                                     </p>
                                 </div>
@@ -217,11 +217,19 @@ export default function TrainingPage() {
                                 </div>
                                 <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[var(--fo-primary)] opacity-50"></div>
                             </div>
+                        ) : isChicago95 ? (
+                            <div className="chi95-window p-12 text-center max-w-2xl">
+                                <ThemeIcon type="chest" scale={3} className="mx-auto mb-6 opacity-50" />
+                                <h2 className="chi95-text text-2xl font-bold mb-4">No Training Available</h2>
+                                <p className="chi95-text text-sm">
+                                    {comingSoonSettings?.minecraft_message || 'Training modules are being prepared. Check back soon!'}
+                                </p>
+                            </div>
                         ) : (
                             <div className="mc-panel p-12 text-center max-w-2xl">
                                 <ThemeIcon type="chest" scale={3} className="mx-auto mb-6 opacity-50" />
-                                <h2 className="mc-heading text-2xl mb-4">No Training Available</h2>
-                                <p className="mc-body text-gray-400 text-lg">
+                                <h2 className={isChicago95 ? "chi95-text text-2xl font-bold mb-4" : "mc-heading text-2xl mb-4"}>No Training Available</h2>
+                                <p className={isChicago95 ? "chi95-text text-sm" : "mc-body text-gray-400 text-lg"}>
                                     {comingSoonSettings?.minecraft_message || 'Training modules are being prepared. Check back soon!'}
                                 </p>
                             </div>
@@ -235,8 +243,8 @@ export default function TrainingPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="mc-panel p-8 text-center">
-                    <div className="animate-pulse mc-heading text-xl">Loading training modules...</div>
+                <div className={isFallout ? "fo-panel p-8 text-center" : isChicago95 ? "chi95-window p-8 text-center" : "mc-panel p-8 text-center"}>
+                    <div className={`animate-pulse ${isFallout ? 'fo-heading text-xl' : isChicago95 ? 'chi95-text text-lg font-bold' : 'mc-heading text-xl'}`}>Loading training modules...</div>
                 </div>
             </div>
         )
@@ -246,19 +254,19 @@ export default function TrainingPage() {
         <div className="min-h-screen p-4 md:p-8">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="mc-panel mb-6">
+                <div className={isFallout ? "fo-panel mb-6" : isChicago95 ? "chi95-window mb-6" : "mc-panel mb-6"}>
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4">
                         <div className="flex items-center gap-3">
                             <ThemeIcon type="book" scale={2} />
                             <div>
-                                <h1 className="mc-title text-3xl">Training Center</h1>
-                                <p className="mc-body text-sm text-gray-400">
+                                <h1 className={isFallout ? "fo-title text-3xl" : isChicago95 ? "chi95-text text-2xl font-bold" : "mc-title text-3xl"}>Training Center</h1>
+                                <p className={isFallout ? "fo-text-dim text-sm" : isChicago95 ? "chi95-text text-xs" : "mc-body text-sm text-gray-400"}>
                                     Master the date change process
                                 </p>
                             </div>
                         </div>
                         <Link href="/">
-                            <Button>
+                            <Button className={isChicago95 ? "chi95-button" : ""}>
                                 <ThemeIcon type="compass" className="mr-2" />
                                 Back to Calculator
                             </Button>
@@ -267,14 +275,14 @@ export default function TrainingPage() {
                 </div>
 
                 {/* Filters */}
-                <div className="mc-panel p-4 mb-6">
+                <div className={isChicago95 ? "chi95-window p-4 mb-6" : "mc-panel p-4 mb-6"}>
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex-1">
                             <Input
                                 placeholder="Search scenarios..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="mc-input"
+                                className={isChicago95 ? "chi95-input" : "mc-input"}
                             />
                         </div>
                         <div className="flex gap-2">
@@ -315,10 +323,10 @@ export default function TrainingPage() {
 
                 {/* Modules and Scenarios */}
                 {modules.length === 0 && scenarios.length === 0 ? (
-                    <div className="mc-panel p-8 text-center">
+                    <div className={isChicago95 ? "chi95-window p-8 text-center" : "mc-panel p-8 text-center"}>
                         <ThemeIcon type="chest" scale={2} className="mx-auto mb-4 opacity-50" />
-                        <h2 className="mc-heading text-xl mb-2">No Training Available</h2>
-                        <p className="mc-body text-gray-400">
+                        <h2 className={isChicago95 ? "chi95-text text-lg font-bold mb-2" : "mc-heading text-xl mb-2"}>No Training Available</h2>
+                        <p className={isChicago95 ? "chi95-text text-sm" : "mc-body text-gray-400"}>
                             Training modules are being prepared. Check back soon!
                         </p>
                     </div>
@@ -329,15 +337,15 @@ export default function TrainingPage() {
                             if (moduleScenarios.length === 0 && searchTerm) return null
 
                             return (
-                                <div key={module.id} className="mc-panel">
+                                <div key={module.id} className={isChicago95 ? "chi95-window" : "mc-panel"}>
                                     {/* Module Header */}
-                                    <div className="p-4 border-b-4 border-[var(--mc-dark-border)]">
+                                    <div className={isChicago95 ? "p-4 border-b border-[#808080]" : "p-4 border-b-4 border-[var(--mc-dark-border)]"}>
                                         <div className="flex items-center gap-3">
                                             <ThemeIcon type={module.icon} scale={1.5} />
                                             <div>
-                                                <h2 className="mc-heading text-xl">{module.title}</h2>
+                                                <h2 className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-heading text-xl"}>{module.title}</h2>
                                                 {module.description && (
-                                                    <p className="mc-body text-sm text-gray-400">
+                                                    <p className={isChicago95 ? "chi95-text text-xs opacity-80" : "mc-body text-sm text-gray-400"}>
                                                         {module.description}
                                                     </p>
                                                 )}
@@ -358,13 +366,13 @@ export default function TrainingPage() {
                                                         key={scenario.id}
                                                         href={`/training/${module.id}/${scenario.id}`}
                                                     >
-                                                        <div className="mc-slot p-4 h-full cursor-pointer transition-all hover:scale-[1.02] hover:border-green-500 border-2 border-transparent">
+                                                        <div className={isChicago95 ? "chi95-panel p-4 h-full cursor-pointer transition-all hover:bg-[#d4d0c8] border border-[#808080]" : "mc-slot p-4 h-full cursor-pointer transition-all hover:scale-[1.02] hover:border-green-500 border-2 border-transparent"}>
                                                             <div className="flex items-start gap-3">
                                                                 <ThemeIcon type={scenario.icon} />
                                                                 <div className="flex-1">
-                                                                    <h3 className="font-bold mb-1">{scenario.title}</h3>
+                                                                    <h3 className={isChicago95 ? "chi95-label mb-1" : "font-bold mb-1"}>{scenario.title}</h3>
                                                                     {scenario.description && (
-                                                                        <p className="text-xs text-gray-400 mb-2">
+                                                                        <p className={isChicago95 ? "chi95-text text-xs mb-2" : "text-xs text-gray-400 mb-2"}>
                                                                             {scenario.description}
                                                                         </p>
                                                                     )}
@@ -396,9 +404,9 @@ export default function TrainingPage() {
 
                         {/* Ungrouped Scenarios */}
                         {scenariosByModule['__ungrouped__']?.length > 0 && (
-                            <div className="mc-panel">
-                                <div className="p-4 border-b-4 border-[var(--mc-dark-border)]">
-                                    <h2 className="mc-heading text-xl">Quick Scenarios</h2>
+                            <div className={isChicago95 ? "chi95-window" : "mc-panel"}>
+                                <div className={isChicago95 ? "p-4 border-b border-[#808080]" : "p-4 border-b-4 border-[var(--mc-dark-border)]"}>
+                                    <h2 className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-heading text-xl"}>Quick Scenarios</h2>
                                 </div>
                                 <div className="p-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -407,7 +415,7 @@ export default function TrainingPage() {
                                                 key={scenario.id}
                                                 href={`/training/scenario/${scenario.id}`}
                                             >
-                                                <div className="mc-slot p-4 h-full cursor-pointer transition-all hover:scale-[1.02]">
+                                                <div className={isChicago95 ? "chi95-panel p-4 h-full cursor-pointer transition-all hover:bg-[#d4d0c8]" : "mc-slot p-4 h-full cursor-pointer transition-all hover:scale-[1.02]"}>
                                                     <div className="flex items-start gap-3">
                                                         <ThemeIcon type={scenario.icon} />
                                                         <div className="flex-1">

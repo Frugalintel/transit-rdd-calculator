@@ -20,8 +20,7 @@ const STEP_TYPES: Array<{ type: StepType; icon: string; description: string }> =
 
 export function NodePalette({ onDragStart }: NodePaletteProps) {
     const { settings } = useTheme()
-    const isFallout = settings.themeMode === 'fallout'
-    const theme = getEditorTheme(isFallout)
+    const theme = getEditorTheme(settings.themeMode)
 
     return (
         <div className="mc-panel p-4">
@@ -31,7 +30,7 @@ export function NodePalette({ onDragStart }: NodePaletteProps) {
             </h3>
             <div className="space-y-2">
                 {STEP_TYPES.map((config) => {
-                    const colors = getTypeColor(config.type, isFallout)
+                    const colors = getTypeColor(config.type, settings.themeMode)
                     return (
                         <div
                             key={config.type}

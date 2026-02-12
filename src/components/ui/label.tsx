@@ -12,11 +12,12 @@ const Label = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <LabelPrimitive.Root
       ref={ref}
-      className={cn(isFallout ? "fo-label" : "mc-label", className)}
+      className={cn(isFallout ? "fo-label" : isChicago95 ? "chi95-label" : "mc-label", className)}
       {...props}
     />
   )

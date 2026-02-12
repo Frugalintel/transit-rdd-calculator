@@ -33,6 +33,7 @@ function Calendar({
   const { data } = useTransitData()
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   const [displayMonth, setDisplayMonth] = React.useState(() => props.defaultMonth || new Date())
   const [monthOpen, setMonthOpen] = React.useState(false)
   const [yearOpen, setYearOpen] = React.useState(false)
@@ -102,7 +103,9 @@ function Calendar({
   // Theme-specific dropdown styles
   const dropdownContainerClass = isFallout
     ? "bg-black border border-[var(--fo-primary)] p-1 max-h-[180px] overflow-y-auto"
-    : "bg-[var(--mc-bg)] p-1 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),0_0_0_2px_#000000] max-h-[180px] overflow-y-auto"
+    : isChicago95
+      ? "bg-white p-1 border-2 border-[#808080] shadow-[inset_1px_1px_0_0_#ffffff,inset_-1px_-1px_0_0_#000000] max-h-[180px] overflow-y-auto"
+      : "bg-[var(--mc-bg)] p-1 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),0_0_0_2px_#000000] max-h-[180px] overflow-y-auto"
 
   const dropdownItemClass = (isSelected: boolean) => isFallout
     ? cn(
@@ -110,6 +113,12 @@ function Calendar({
         "text-[var(--fo-primary)] hover:bg-[var(--fo-primary)] hover:text-black",
         isSelected && "bg-[var(--fo-primary)] text-black"
       )
+    : isChicago95
+      ? cn(
+          "w-full px-2 py-1 text-left text-sm text-black",
+          "hover:bg-[#000080] hover:text-white",
+          isSelected && "bg-[#000080] text-white"
+        )
     : cn(
         "w-full px-2 py-0.5 text-left text-xs font-mono",
         "hover:bg-[var(--mc-button-bg)] hover:text-white",
@@ -117,7 +126,7 @@ function Calendar({
       )
 
   return (
-    <div className={cn("p-2 font-mono", className)}>
+    <div className={cn("p-2", !isChicago95 && "font-mono", className)}>
       {/* Custom Header */}
       <div className="flex items-center justify-center gap-2 mb-2">
         <Button
@@ -225,6 +234,8 @@ function Calendar({
           weekdays: "",
           weekday: isFallout
             ? "fo-text w-8 h-6 font-normal text-[11px] text-center opacity-60"
+            : isChicago95
+            ? "chi95-text w-8 h-6 font-normal text-[11px] text-center"
             : "mc-text-dark w-8 h-6 font-normal text-[11px] text-center",
           week: "",
           day: "h-8 w-8 text-center p-0.5 relative",
@@ -235,6 +246,12 @@ function Calendar({
                 "hover:border-[var(--fo-primary)] hover:bg-[var(--fo-primary)] hover:text-black",
                 "flex items-center justify-center text-xs relative transition-none"
               )
+            : isChicago95
+            ? cn(
+                "h-full w-full p-0 font-normal bg-[#c0c0c0] text-black border border-[#808080]",
+                "hover:bg-[#000080] hover:text-white",
+                "flex items-center justify-center text-xs relative transition-none"
+              )
             : cn(
                 "h-full w-full p-0 font-normal bg-[var(--mc-button-bg)] text-white",
                 "shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-shadow)]",
@@ -243,12 +260,18 @@ function Calendar({
               ),
           selected: isFallout
             ? "!bg-transparent !text-[var(--fo-primary)] !font-bold !outline !outline-1 !outline-[var(--fo-primary)] !shadow-[0_0_8px_var(--fo-primary-glow)]"
+            : isChicago95
+            ? "!bg-[#000080] !text-white !font-bold"
             : "!bg-[var(--mc-primary)] !text-[var(--mc-warning-text)] !shadow-[inset_0_0_0_2px_#ffffff]",
           today: isFallout
             ? "!border !border-[var(--fo-primary-dim)] !text-[var(--fo-primary)] !bg-[rgba(26,255,128,0.08)]"
+            : isChicago95
+            ? "!border !border-[#000080] !bg-[#dfe8ff]"
             : "!bg-[var(--mc-destructive)] !text-white !shadow-[inset_2px_2px_0_0_#cc7777,inset_-2px_-2px_0_0_#662222]",
           outside: isFallout
             ? "!text-[var(--fo-primary-dim)] opacity-30"
+            : isChicago95
+            ? "!text-[#666666] opacity-50"
             : "!text-[var(--mc-text-gray)] !bg-[#4a4a4a] !shadow-[inset_1px_1px_0_0_#333333,inset_-1px_-1px_0_0_#5a5a5a] opacity-50",
           disabled: "text-gray-500 opacity-40 cursor-not-allowed",
           hidden: "invisible",
@@ -279,7 +302,7 @@ function Calendar({
             // Determine which icon to show (priority: holiday > peak) — Minecraft only
             let iconType = null
             let iconTitle = holiday?.name
-            if (!isFallout) {
+            if (!isFallout && !isChicago95) {
                 if (holiday) {
                     iconType = HOLIDAY_ICONS[holiday.name] || 'compass'
                 } else if (isPeakStart) {
@@ -302,7 +325,7 @@ function Calendar({
                     // Today only: subtle indicator + preserve hover
                     extraClasses = "!border !border-[var(--fo-primary-dim)] !text-[var(--fo-primary)] !bg-[rgba(26,255,128,0.08)] hover:!bg-[var(--fo-primary)] hover:!text-black hover:!border-[var(--fo-primary)]"
                 }
-            } else if (isToday && !isFallout) {
+            } else if (isToday && !isFallout && !isChicago95) {
                 extraClasses = "!bg-[var(--mc-destructive)] !shadow-[inset_2px_2px_0_0_#662222,inset_-2px_-2px_0_0_#cc7777] hover:!shadow-[inset_0_0_0_2px_#ffffff]"
             }
             

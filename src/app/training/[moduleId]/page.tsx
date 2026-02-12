@@ -9,12 +9,16 @@ import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { TrainingAccessCheck } from '@/components/training/TrainingAccessCheck'
+import { useTheme } from '@/context/ThemeContext'
 
 interface ModulePageProps {
     params: Promise<{ moduleId: string }>
 }
 
 export default function ModulePage({ params }: ModulePageProps) {
+    const { settings } = useTheme()
+    const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
     const { moduleId } = use(params)
     const [module, setModule] = useState<TrainingModule | null>(null)
     const [scenarios, setScenarios] = useState<TrainingScenario[]>([])
@@ -80,8 +84,8 @@ export default function ModulePage({ params }: ModulePageProps) {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="mc-panel p-8 text-center">
-                    <div className="animate-pulse mc-heading text-xl">Loading module...</div>
+                <div className={isChicago95 ? "chi95-window p-8 text-center" : "mc-panel p-8 text-center"}>
+                    <div className={`animate-pulse ${isChicago95 ? 'chi95-text text-lg font-bold' : 'mc-heading text-xl'}`}>Loading module...</div>
                 </div>
             </div>
         )
@@ -90,10 +94,10 @@ export default function ModulePage({ params }: ModulePageProps) {
     if (!module) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="mc-panel p-8 text-center">
-                    <h2 className="mc-heading text-xl mb-4">Module Not Found</h2>
+                <div className={isChicago95 ? "chi95-window p-8 text-center" : "mc-panel p-8 text-center"}>
+                    <h2 className={isChicago95 ? "chi95-text text-lg font-bold mb-4" : "mc-heading text-xl mb-4"}>Module Not Found</h2>
                     <Link href="/training">
-                        <Button>Back to Training</Button>
+                        <Button className={isChicago95 ? "chi95-button" : ""}>Back to Training</Button>
                     </Link>
                 </div>
             </div>
@@ -105,42 +109,42 @@ export default function ModulePage({ params }: ModulePageProps) {
             <div className="min-h-screen p-4 md:p-8">
                 <div className="max-w-4xl mx-auto">
                     {/* Breadcrumb */}
-                    <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-                        <Link href="/training" className="hover:text-white">Training</Link>
+                    <div className={isChicago95 ? "mb-4 flex items-center gap-2 text-sm chi95-text" : "mb-4 flex items-center gap-2 text-sm text-gray-400"}>
+                        <Link href="/training" className={isChicago95 ? "hover:underline" : "hover:text-white"}>Training</Link>
                         <span>/</span>
-                        <span className="text-white">{module.title}</span>
+                        <span className={isChicago95 ? "chi95-label" : "text-white"}>{module.title}</span>
                     </div>
 
                     {/* Module Header */}
-                    <div className="mc-panel mb-6">
+                    <div className={isChicago95 ? "chi95-window mb-6" : "mc-panel mb-6"}>
                     <div className="p-6">
                         <div className="flex items-center gap-4 mb-4">
                             <ThemeIcon type={module.icon} scale={2} />
                             <div>
-                                <h1 className="mc-title text-3xl">{module.title}</h1>
+                                <h1 className={isChicago95 ? "chi95-text text-2xl font-bold" : "mc-title text-3xl"}>{module.title}</h1>
                                 {module.description && (
-                                    <p className="mc-body text-gray-400 mt-2">
+                                    <p className={isChicago95 ? "chi95-text text-sm mt-2" : "mc-body text-gray-400 mt-2"}>
                                         {module.description}
                                     </p>
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-400">
+                        <div className={isChicago95 ? "flex items-center gap-4 text-sm chi95-text" : "flex items-center gap-4 text-sm text-gray-400"}>
                             <span>{scenarios.length} scenario{scenarios.length !== 1 ? 's' : ''}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Scenarios List */}
-                <div className="mc-panel">
-                    <div className="p-4 border-b-4 border-[var(--mc-dark-border)]">
-                        <h2 className="mc-heading text-xl">Select a Scenario</h2>
+                <div className={isChicago95 ? "chi95-window" : "mc-panel"}>
+                    <div className={isChicago95 ? "p-4 border-b border-[#808080]" : "p-4 border-b-4 border-[var(--mc-dark-border)]"}>
+                        <h2 className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-heading text-xl"}>Select a Scenario</h2>
                     </div>
 
                     {scenarios.length === 0 ? (
                         <div className="p-8 text-center">
                             <ThemeIcon type="chest" scale={2} className="mx-auto mb-4 opacity-50" />
-                            <p className="text-gray-400">No scenarios available in this module yet.</p>
+                            <p className={isChicago95 ? "chi95-text" : "text-gray-400"}>No scenarios available in this module yet.</p>
                         </div>
                     ) : (
                         <div className="p-4 space-y-3">
@@ -149,15 +153,15 @@ export default function ModulePage({ params }: ModulePageProps) {
                                     key={scenario.id}
                                     href={`/training/${moduleId}/${scenario.id}`}
                                 >
-                                    <div className="mc-slot p-4 cursor-pointer transition-all hover:scale-[1.01] hover:border-green-500 border-2 border-transparent flex items-center gap-4">
-                                        <div className="w-8 h-8 flex items-center justify-center bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)]">
-                                            <span className="mc-body text-lg">{index + 1}</span>
+                                    <div className={isChicago95 ? "chi95-panel p-4 cursor-pointer transition-all hover:bg-[#d4d0c8] border border-[#808080] flex items-center gap-4" : "mc-slot p-4 cursor-pointer transition-all hover:scale-[1.01] hover:border-green-500 border-2 border-transparent flex items-center gap-4"}>
+                                        <div className={isChicago95 ? "w-8 h-8 flex items-center justify-center chi95-panel" : "w-8 h-8 flex items-center justify-center bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)]"}>
+                                            <span className={isChicago95 ? "chi95-text text-sm" : "mc-body text-lg"}>{index + 1}</span>
                                         </div>
                                         <ThemeIcon type={scenario.icon} scale={1.2} />
                                         <div className="flex-1">
-                                            <h3 className="font-bold">{scenario.title}</h3>
+                                            <h3 className={isChicago95 ? "chi95-label" : "font-bold"}>{scenario.title}</h3>
                                             {scenario.description && (
-                                                <p className="text-sm text-gray-400">{scenario.description}</p>
+                                                <p className={isChicago95 ? "chi95-text text-xs" : "text-sm text-gray-400"}>{scenario.description}</p>
                                             )}
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -180,7 +184,7 @@ export default function ModulePage({ params }: ModulePageProps) {
                 {/* Back Button */}
                 <div className="mt-6">
                     <Link href="/training">
-                        <Button>
+                        <Button className={isChicago95 ? "chi95-button" : ""}>
                             <ThemeIcon type="arrow_down" className="mr-2 rotate-90" />
                             Back to Training Center
                         </Button>

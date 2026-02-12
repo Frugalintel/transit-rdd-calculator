@@ -19,20 +19,22 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        isFallout ? "fo-input" : "mc-input",
+        isFallout ? "fo-input" : isChicago95 ? "chi95-input" : "mc-input",
         "flex h-10 w-full items-center justify-between [&>span]:line-clamp-1",
+        isChicago95 && "text-black [&>span]:text-black",
         className
       )}
       {...props}
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDown className="h-5 w-5 opacity-70" />
+        <ChevronDown className={cn("h-5 w-5 opacity-70", isChicago95 && "text-black opacity-100")} />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -80,6 +82,7 @@ const SelectContent = React.forwardRef<
 >(({ className, children, position = "popper", ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <SelectPrimitive.Portal>
@@ -87,7 +90,7 @@ const SelectContent = React.forwardRef<
         ref={ref}
         className={cn(
           "relative z-[101] max-h-96 min-w-[8rem] overflow-hidden p-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          isFallout ? "fo-panel" : "mc-panel",
+          isFallout ? "fo-panel" : isChicago95 ? "chi95-panel !bg-white text-black" : "mc-panel",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
@@ -118,11 +121,12 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <SelectPrimitive.Label
       ref={ref}
-      className={cn(isFallout ? "fo-label" : "mc-label", "py-1.5 px-2", className)}
+      className={cn(isFallout ? "fo-label" : isChicago95 ? "chi95-label" : "mc-label", "py-1.5 px-2", className)}
       {...props}
     />
   )
@@ -135,14 +139,17 @@ const SelectItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <SelectPrimitive.Item
       ref={ref}
       className={cn(
         "relative flex w-full cursor-pointer select-none items-center py-2 px-8 text-xl outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 border-2 border-transparent",
-        isFallout 
+        isFallout
           ? "text-[var(--fo-text)] hover:bg-[var(--fo-primary-dim)] hover:text-[var(--fo-text)] focus:bg-[var(--fo-primary-dim)] focus:text-[var(--fo-text)] hover:border-[var(--fo-primary)] fo-text"
+          : isChicago95
+            ? "chi95-text text-base text-black font-medium bg-white hover:bg-[#000080] hover:text-white focus:bg-[#000080] focus:text-white data-[highlighted]:bg-[#000080] data-[highlighted]:text-white data-[state=checked]:bg-[#000080] data-[state=checked]:text-white data-[state=checked]:font-semibold border-[#d4d0c8] hover:border-[#000080]"
           : "text-[var(--mc-text-dark)] hover:bg-[var(--mc-slot-bg)] hover:text-white hover:border-white focus:bg-[var(--mc-slot-bg)] focus:text-white mc-text-dark",
         className
       )}
@@ -166,11 +173,12 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <SelectPrimitive.Separator
       ref={ref}
-      className={cn("-mx-1 my-1 h-px", isFallout ? "bg-[var(--fo-primary-dim)]" : "bg-[var(--mc-border)]", className)}
+      className={cn("-mx-1 my-1 h-px", isFallout ? "bg-[var(--fo-primary-dim)]" : isChicago95 ? "bg-[#808080]" : "bg-[var(--mc-border)]", className)}
       {...props}
     />
   )

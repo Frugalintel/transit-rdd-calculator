@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { ThemeIcon } from '@/components/ThemeIcon'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
+import { useTheme } from '@/context/ThemeContext'
 
 interface ScenarioPlayerProps {
     scenarioId: string
@@ -18,6 +19,8 @@ interface ScenarioPlayerProps {
 }
 
 export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: ScenarioPlayerProps) {
+    const { settings } = useTheme()
+    const isChicago95 = settings.themeMode === 'chicago95'
     const [scenario, setScenario] = useState<TrainingScenario | null>(null)
     const [module, setModule] = useState<TrainingModule | null>(null)
     const [steps, setSteps] = useState<TrainingStep[]>([])
@@ -168,8 +171,8 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
     if (isLoading) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-                <div className="mc-panel p-8 text-center">
-                    <div className="animate-pulse mc-heading text-xl">Loading scenario...</div>
+                <div className={isChicago95 ? "chi95-window p-8 text-center" : "mc-panel p-8 text-center"}>
+                    <div className={`animate-pulse ${isChicago95 ? 'chi95-text text-lg font-bold' : 'mc-heading text-xl'}`}>Loading scenario...</div>
                 </div>
             </div>
         )
@@ -178,10 +181,10 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
     if (!scenario || steps.length === 0) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-                <div className="mc-panel p-8 text-center">
-                    <div className="mc-heading text-xl mb-4">No steps found</div>
-                    <p className="mc-body mb-4">This scenario has no training steps yet.</p>
-                    <Button onClick={onExit}>Exit</Button>
+                <div className={isChicago95 ? "chi95-window p-8 text-center" : "mc-panel p-8 text-center"}>
+                    <div className={isChicago95 ? "chi95-text text-lg font-bold mb-4" : "mc-heading text-xl mb-4"}>No steps found</div>
+                    <p className={isChicago95 ? "chi95-text mb-4" : "mc-body mb-4"}>This scenario has no training steps yet.</p>
+                    <Button onClick={onExit} className={isChicago95 ? "chi95-button" : ""}>Exit</Button>
                 </div>
             </div>
         )
@@ -190,7 +193,7 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm overflow-auto">
             {/* Header */}
-            <div className="bg-[var(--mc-bg)] border-b-4 border-[var(--mc-dark-border)] p-4">
+            <div className={isChicago95 ? "chi95-window p-4 border-b border-[#808080]" : "bg-[var(--mc-bg)] border-b-4 border-[var(--mc-dark-border)] p-4"}>
                 <div className="max-w-5xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         {module && (
@@ -202,7 +205,7 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
                         )}
                         <div className="flex items-center gap-2">
                             <ThemeIcon type={scenario.icon} scale={1.2} />
-                            <span className="mc-heading text-lg">{scenario.title}</span>
+                            <span className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-heading text-lg"}>{scenario.title}</span>
                         </div>
                         <div className={`px-2 py-0.5 text-xs rounded ${
                             scenario.complexityLevel === 'simple' ? 'bg-green-900 text-green-300' :
@@ -213,7 +216,7 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
                         </div>
                     </div>
                     
-                    <Button variant="destructive" onClick={onExit}>
+                    <Button variant="destructive" onClick={onExit} className={isChicago95 ? "chi95-button chi95-button-destructive" : ""}>
                         <ThemeIcon type="chain" className="mr-2" />
                         Exit
                     </Button>
@@ -222,13 +225,13 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
                 {/* Progress Bar */}
                 <div className="max-w-5xl mx-auto mt-4">
                     <div className="flex items-center gap-4">
-                        <div className="flex-1 h-4 bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)]">
+                        <div className={isChicago95 ? "flex-1 h-4 bg-white border border-[#808080]" : "flex-1 h-4 bg-[var(--mc-slot-bg)] border-2 border-[var(--mc-dark-border)]"}>
                             <div 
                                 className="h-full bg-green-500 transition-all duration-300"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
-                        <span className="text-sm mc-body">{progress}%</span>
+                        <span className={isChicago95 ? "text-sm chi95-text" : "text-sm mc-body"}>{progress}%</span>
                     </div>
                 </div>
             </div>
@@ -261,13 +264,13 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
                             {/* Other Step Types */}
                             {currentStep.type !== 'simulation' && currentStep.type !== 'copy_template' && (
                                 <div className="w-full max-w-2xl">
-                                    <div className="mc-panel">
-                                        <div className="flex items-center gap-3 border-b-2 border-[var(--mc-dark-border)] pb-4 mb-4">
+                                    <div className={isChicago95 ? "chi95-window p-4" : "mc-panel"}>
+                                        <div className={isChicago95 ? "flex items-center gap-3 border-b border-[#808080] pb-4 mb-4" : "flex items-center gap-3 border-b-2 border-[var(--mc-dark-border)] pb-4 mb-4"}>
                                             <ThemeIcon type={currentStep.icon} scale={1.5} />
-                                            <h2 className="mc-heading text-2xl">{currentStep.title}</h2>
+                                            <h2 className={isChicago95 ? "chi95-text text-xl font-bold" : "mc-heading text-2xl"}>{currentStep.title}</h2>
                                         </div>
                                         
-                                        <div className="mc-body mb-8 min-h-[100px]">
+                                        <div className={isChicago95 ? "chi95-text mb-8 min-h-[100px]" : "mc-body mb-8 min-h-[100px]"}>
                                             {currentStep.content}
                                         </div>
                                         
@@ -310,7 +313,7 @@ export function ScenarioPlayer({ scenarioId, moduleId, onComplete, onExit }: Sce
             </div>
             
             {/* Step Indicator */}
-            <div className="bg-[var(--mc-bg)] border-t-4 border-[var(--mc-dark-border)] p-4">
+            <div className={isChicago95 ? "chi95-window p-4 border-t border-[#808080]" : "bg-[var(--mc-bg)] border-t-4 border-[var(--mc-dark-border)] p-4"}>
                 <div className="max-w-5xl mx-auto">
                     <div className="flex items-center gap-2 overflow-x-auto py-2">
                         {steps.map((step, index) => {

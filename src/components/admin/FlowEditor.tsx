@@ -29,8 +29,8 @@ import { getTypeColor, getEditorTheme, EditorTheme } from '@/utils/trainingTheme
 import { toast } from 'sonner'
 
 // Memoized custom node component - prevents re-render of unselected nodes
-const StepNode = memo(function StepNode({ data, selected }: { data: TrainingStep & { onSelect: (id: string) => void, theme: EditorTheme, isFallout: boolean }, selected: boolean }) {
-    const colors = getTypeColor(data.type, data.isFallout)
+const StepNode = memo(function StepNode({ data, selected }: { data: TrainingStep & { onSelect: (id: string) => void, theme: EditorTheme, themeMode: 'minecraft' | 'fallout' | 'chicago95' }, selected: boolean }) {
+    const colors = getTypeColor(data.type, data.themeMode)
     const t = data.theme
 
     return (
@@ -100,8 +100,7 @@ function FlowEditorInner({
 }: FlowEditorProps) {
     const { screenToFlowPosition, fitView } = useReactFlow()
     const { settings } = useTheme()
-    const isFallout = settings.themeMode === 'fallout'
-    const theme = getEditorTheme(isFallout)
+    const theme = getEditorTheme(settings.themeMode)
     const isInitialMount = useRef(true)
     const prevStepsRef = useRef(steps)
     
@@ -185,7 +184,7 @@ function FlowEditorInner({
                     id,
                     type: 'stepNode',
                     position: { x, y },
-                    data: { ...steps[id], onSelect: stableOnSelect, theme, isFallout },
+                    data: { ...steps[id], onSelect: stableOnSelect, theme, themeMode: settings.themeMode },
                     selected: false, // Selection handled separately
                 })
             })
@@ -199,7 +198,7 @@ function FlowEditorInner({
                     id: step.id,
                     type: 'stepNode',
                     position: { x: 0, y: orphanY },
-                    data: { ...step, onSelect: stableOnSelect, theme, isFallout },
+                    data: { ...step, onSelect: stableOnSelect, theme, themeMode: settings.themeMode },
                     selected: false,
                 })
                 orphanY += 150
@@ -207,7 +206,7 @@ function FlowEditorInner({
         })
         
         return Array.from(nodeMap.values())
-    }, [steps, stableOnSelect, theme, isFallout]) // Removed selectedStepId dependency!
+    }, [steps, stableOnSelect, theme, settings.themeMode]) // Removed selectedStepId dependency!
     
     // Convert steps to React Flow edges
     const layoutEdges = useMemo(() => {
@@ -290,8 +289,8 @@ function FlowEditorInner({
     const miniMapNodeColor = useCallback((node: Node) => {
         const step = steps[node.id]
         if (!step) return '#8b8b8b'
-        return getTypeColor(step.type, isFallout).bg
-    }, [steps, isFallout])
+        return getTypeColor(step.type, settings.themeMode).bg
+    }, [steps, settings.themeMode])
     
     const onConnect = useCallback((params: Connection) => {
         if (!params.source || !params.target) return
@@ -364,7 +363,7 @@ function FlowEditorInner({
                     </div>
                     <div className="space-y-1 text-xs">
                         {(['info', 'input', 'quiz', 'decision', 'simulation', 'copy_template'] as StepType[]).map(type => {
-                            const c = getTypeColor(type, isFallout)
+                            const c = getTypeColor(type, settings.themeMode)
                             return (
                                 <div key={type} className="flex items-center gap-2">
                                     <div className="w-4 h-4" style={{ backgroundColor: c.bg, border: `2px solid ${c.border}` }} />

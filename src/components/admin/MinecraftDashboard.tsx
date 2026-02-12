@@ -9,6 +9,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { CalculationDrilldown } from '@/components/admin/CalculationDrilldown'
 import { AdminActivityDrilldown } from '@/components/admin/AdminActivityDrilldown'
 import { formatEasternDateTime, getEasternHour } from '@/utils/timezone'
+import { useTheme } from '@/context/ThemeContext'
 
 interface DrillSelection {
     bucketLabel: string
@@ -23,6 +24,8 @@ interface DrillSelection {
 export function MinecraftDashboard({ data }: { data: DashboardData }) {
     const [drillSelection, setDrillSelection] = useState<DrillSelection | null>(null)
     const [activitySelection, setActivitySelection] = useState<DashboardData['recentAdminLogs'][number] | null>(null)
+    const { settings } = useTheme()
+    const isChicago95 = settings.themeMode === 'chicago95'
     const {
         userCount,
         calcCount,
@@ -110,9 +113,9 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
             <AdminPageHeader 
                 title="Server Dashboard" 
                 actions={
-                    <div className="flex items-center gap-2 px-4 py-2 mc-slot">
-                        <div className="w-3 h-3 bg-[#55ff55] animate-pulse" style={{ boxShadow: '0 0 8px #55ff55' }}></div>
-                        <span className="mc-admin-text">Server Online</span>
+                    <div className={isChicago95 ? "flex items-center gap-2 px-3 py-1 chi95-panel" : "flex items-center gap-2 px-4 py-2 mc-slot"}>
+                        <div className={`w-3 h-3 ${isChicago95 ? 'bg-[#008000]' : 'bg-[#55ff55] animate-pulse'}`} style={{ boxShadow: isChicago95 ? 'none' : '0 0 8px #55ff55' }}></div>
+                        <span className={isChicago95 ? "chi95-text text-xs" : "mc-admin-text"}>Server Online</span>
                     </div>
                 }
             />
@@ -143,10 +146,10 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Activity Chart */}
-                <div className="mc-panel p-5">
+                <div className={isChicago95 ? "chi95-window p-4" : "mc-panel p-5"}>
                     <div className="flex items-center gap-2 mb-3">
                         <ThemeIcon type="wheat" />
-                        <span className="mc-admin-heading text-2xl">Daily Activity</span>
+                        <span className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-admin-heading text-2xl"}>Daily Activity</span>
                     </div>
                     <MinecraftBarChart 
                         data={chartData}
@@ -168,10 +171,10 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                 </div>
 
                 {/* Time of Day Chart */}
-                <div className="mc-panel p-5">
+                <div className={isChicago95 ? "chi95-window p-4" : "mc-panel p-5"}>
                     <div className="flex items-center gap-2 mb-3">
                         <ThemeIcon type="clock" />
-                        <span className="mc-admin-heading text-2xl">Peak Hours</span>
+                        <span className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-admin-heading text-2xl"}>Peak Hours</span>
                     </div>
                     <MinecraftBarChart 
                         data={timeBuckets}
@@ -197,10 +200,10 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
             </div>
 
             {drillSelection && (
-                <div className="mc-panel p-5">
+                <div className={isChicago95 ? "chi95-window p-4" : "mc-panel p-5"}>
                     <div className="flex items-center gap-2 mb-3">
                         <ThemeIcon type="book" />
-                        <span className="mc-admin-heading text-2xl">Calculation Drilldown</span>
+                        <span className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-admin-heading text-2xl"}>Calculation Drilldown</span>
                     </div>
                     <CalculationDrilldown
                         rows={drillRows}
@@ -215,10 +218,10 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
             )}
 
             {activitySelection && (
-                <div className="mc-panel p-5">
+                <div className={isChicago95 ? "chi95-window p-4" : "mc-panel p-5"}>
                     <div className="flex items-center gap-2 mb-3">
                         <ThemeIcon type="paper" />
-                        <span className="mc-admin-heading text-2xl">Admin Activity Drilldown</span>
+                        <span className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-admin-heading text-2xl"}>Admin Activity Drilldown</span>
                     </div>
                     <AdminActivityDrilldown
                         log={activitySelection}
@@ -230,17 +233,17 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
             {/* Detailed Stats Row */}
             <div className="grid grid-cols-1 gap-6">
                 {/* Recent Activity Log */}
-                <div className="mc-panel p-5">
+                <div className={isChicago95 ? "chi95-window p-4" : "mc-panel p-5"}>
                     <div className="flex items-center gap-2 mb-4">
                         <ThemeIcon type="book" />
-                        <span className="mc-admin-heading text-2xl">Recent Activity</span>
+                        <span className={isChicago95 ? "chi95-text text-lg font-bold" : "mc-admin-heading text-2xl"}>Recent Activity</span>
                     </div>
                     <div className="space-y-2">
                         {recentActivityCalcs.map((calc) => (
                             <button
                                 key={calc.id}
                                 type="button"
-                                className="w-full text-left flex justify-between items-center p-3 mc-slot-dark hover:brightness-110 transition"
+                                className={isChicago95 ? "w-full text-left flex justify-between items-center p-3 chi95-panel hover:bg-[#d4d0c8] transition" : "w-full text-left flex justify-between items-center p-3 mc-slot-dark hover:brightness-110 transition"}
                                 onClick={() => {
                                     setActivitySelection(null)
                                     setDrillSelection({
@@ -255,15 +258,15 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                                 <div className="flex items-center gap-3">
                                     <ThemeIcon type="compass" />
                                     <div>
-                                        <span className="mc-admin-text text-lg font-bold">
+                                        <span className={isChicago95 ? "chi95-text text-sm font-bold" : "mc-admin-text text-lg font-bold"}>
                                             {calc.identifier || 'Calculation'}
                                         </span>
-                                        <span className="mc-text-muted ml-2">
+                                        <span className={isChicago95 ? "chi95-text text-black text-xs ml-2 font-medium" : "mc-text-muted ml-2"}>
                                             {calc.loadDate ? new Date(calc.loadDate).toLocaleDateString() : 'N/A'}
                                         </span>
                                     </div>
                                 </div>
-                                <span className="mc-text-muted">
+                                <span className={isChicago95 ? "chi95-text text-black text-xs font-medium" : "mc-text-muted"}>
                                     {formatEasternDateTime(calc.created_at)}
                                 </span>
                             </button>
@@ -272,7 +275,7 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                             <button
                                 key={log.id}
                                 type="button"
-                                className="w-full text-left flex justify-between items-center p-3 mc-slot-dark hover:brightness-110 transition"
+                                className={isChicago95 ? "w-full text-left flex justify-between items-center p-3 chi95-panel hover:bg-[#d4d0c8] transition" : "w-full text-left flex justify-between items-center p-3 mc-slot-dark hover:brightness-110 transition"}
                                 onClick={() => {
                                     setDrillSelection(null)
                                     setActivitySelection(log)
@@ -281,21 +284,21 @@ export function MinecraftDashboard({ data }: { data: DashboardData }) {
                                 <div className="flex items-center gap-3">
                                     <ThemeIcon type="paper" />
                                     <div>
-                                        <span className="mc-admin-text text-lg font-bold capitalize">
+                                        <span className={isChicago95 ? "chi95-text text-sm font-bold capitalize" : "mc-admin-text text-lg font-bold capitalize"}>
                                             {log.action_type?.replace(/_/g, ' ') || 'System Event'}
                                         </span>
-                                        <span className="mc-text-muted ml-2">
+                                        <span className={isChicago95 ? "chi95-text text-black text-xs ml-2 font-medium" : "mc-text-muted ml-2"}>
                                             {log.userEmail || (log.user_id ? `User ${log.user_id.slice(0, 8)}` : 'Admin')}
                                         </span>
                                     </div>
                                 </div>
-                                <span className="mc-text-muted">
+                                <span className={isChicago95 ? "chi95-text text-black text-xs font-medium" : "mc-text-muted"}>
                                     {formatEasternDateTime(log.created_at)}
                                 </span>
                             </button>
                         ))}
                         {recentActivityCalcs.length === 0 && (!recentAdminLogs || recentAdminLogs.length === 0) && (
-                            <div className="text-center mc-text-muted py-8 text-lg">
+                            <div className={isChicago95 ? "text-center chi95-text py-8 text-sm" : "text-center mc-text-muted py-8 text-lg"}>
                                 No recent activity available
                             </div>
                         )}

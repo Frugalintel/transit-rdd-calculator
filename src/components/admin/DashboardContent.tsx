@@ -8,11 +8,11 @@ import { DashboardData } from '@/types/dashboard'
 export function DashboardContent({ data }: { data: DashboardData }) {
     const { settings } = useTheme()
     
-    // Check if fallout theme is active (any of the fallout presets)
-    // The themeMode is what determines the overall style (minecraft vs fallout)
+    // Theme mode controls the dashboard shell style.
     if (settings.themeMode === 'fallout') {
         return <FalloutDashboard data={data} />
     }
 
+    // Chicago95 currently uses the shared dashboard with Chicago-aware styling branches.
     return <MinecraftDashboard data={data} />
 }

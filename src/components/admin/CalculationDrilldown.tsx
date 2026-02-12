@@ -82,6 +82,7 @@ export function CalculationDrilldown({
 }: CalculationDrilldownProps) {
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
     const [sortField, setSortField] = useState<SortField>('created_at')
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
@@ -186,9 +187,9 @@ export function CalculationDrilldown({
         <div className="space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                    <p className={cn("text-sm", isFallout ? "fo-text-dim uppercase tracking-wider" : "mc-text-muted text-lg")}>Filtered Bucket</p>
-                    <p className={cn(isFallout ? "fo-heading text-2xl border-none mb-1" : "mc-admin-heading text-3xl")}>{subtitle || 'All Calculations'}</p>
-                    <p className={cn("text-sm", isFallout ? "fo-text-dim" : "mc-text-muted")}>
+                    <p className={cn("text-sm", isFallout ? "fo-text-dim uppercase tracking-wider" : isChicago95 ? "chi95-text text-xs" : "mc-text-muted text-lg")}>Filtered Bucket</p>
+                    <p className={cn(isFallout ? "fo-heading text-2xl border-none mb-1" : isChicago95 ? "chi95-text text-xl font-bold mb-1" : "mc-admin-heading text-3xl")}>{subtitle || 'All Calculations'}</p>
+                    <p className={cn("text-sm", isFallout ? "fo-text-dim" : isChicago95 ? "chi95-text text-xs opacity-80" : "mc-text-muted")}>
                         Rows: {normalizedRows.length} | Auth: {authenticatedCount} | Anonymous: {anonymousCount}
                     </p>
                 </div>
@@ -202,15 +203,24 @@ export function CalculationDrilldown({
             </div>
 
             <div className={cn(
-                "p-2 sm:p-3 flex flex-wrap items-center gap-2",
+                isChicago95
+                    ? "p-2 sm:p-3 grid grid-cols-1 sm:grid-cols-[auto_220px_auto] items-center gap-2 sm:gap-3"
+                    : "p-2 sm:p-3 flex flex-wrap items-center gap-2",
                 isFallout
                     ? "border border-[var(--fo-primary-dim)] bg-[rgba(0,0,0,0.25)]"
+                    : isChicago95
+                        ? "chi95-panel border border-[#808080]"
                     : "mc-slot"
             )}>
-                <div className={cn("text-xs", isFallout ? "fo-text-dim uppercase tracking-wider" : "mc-text-muted")}>Sort</div>
-                <div className="w-[190px] max-w-full">
+                <div className={cn("text-xs", isFallout ? "fo-text-dim uppercase tracking-wider" : isChicago95 ? "chi95-text" : "mc-text-muted")}>Sort</div>
+                <div className={isChicago95 ? "w-full sm:w-[220px]" : "w-[190px] max-w-full"}>
                     <Select value={sortField} onValueChange={(value) => setSortField(value as SortField)}>
-                        <SelectTrigger className="h-8 text-sm">
+                        <SelectTrigger className={cn(
+                            "text-sm",
+                            isChicago95
+                                ? "h-9 py-0 leading-none [&>span]:leading-none [&>svg]:h-4 [&>svg]:w-4"
+                                : "h-8"
+                        )}>
                             <SelectValue placeholder="Sort by..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -223,8 +233,11 @@ export function CalculationDrilldown({
                     </Select>
                 </div>
                 <Button
-                    variant="ghost"
-                    className="h-8 text-xs px-2"
+                    variant={isChicago95 ? "secondary" : "ghost"}
+                    className={cn(
+                        "text-xs px-2",
+                        isChicago95 ? "h-9 justify-center" : "h-8"
+                    )}
                     onClick={() => setSortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))}
                     title="Toggle sort direction"
                 >

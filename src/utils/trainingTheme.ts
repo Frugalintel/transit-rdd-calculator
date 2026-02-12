@@ -27,8 +27,18 @@ const FO_TYPE_COLORS: Record<StepType | 'default', TypeColors> = {
     default:       { bg: '#1a2a1a', border: '#3a6a3a', label: 'Unknown' },
 }
 
-export function getTypeColor(type: StepType, isFallout: boolean): TypeColors {
-    const palette = isFallout ? FO_TYPE_COLORS : MC_TYPE_COLORS
+const CHI95_TYPE_COLORS: Record<StepType | 'default', TypeColors> = {
+    info:          { bg: '#d4d0c8', border: '#808080', label: 'Info' },
+    input:         { bg: '#b8c8ff', border: '#000080', label: 'Input' },
+    quiz:          { bg: '#f2d28b', border: '#9b6a00', label: 'Quiz' },
+    decision:      { bg: '#b8e0b8', border: '#008000', label: 'Decision' },
+    simulation:    { bg: '#e0b8e0', border: '#800080', label: 'Simulation' },
+    copy_template: { bg: '#b8e0e0', border: '#008080', label: 'Template' },
+    default:       { bg: '#d4d0c8', border: '#808080', label: 'Unknown' },
+}
+
+export function getTypeColor(type: StepType, themeMode: 'minecraft' | 'fallout' | 'chicago95'): TypeColors {
+    const palette = themeMode === 'fallout' ? FO_TYPE_COLORS : themeMode === 'chicago95' ? CHI95_TYPE_COLORS : MC_TYPE_COLORS
     return palette[type] || palette.default
 }
 
@@ -90,6 +100,27 @@ const FO_EDITOR: EditorTheme = {
     nodeBorderWidth: '2px',
 }
 
-export function getEditorTheme(isFallout: boolean): EditorTheme {
-    return isFallout ? FO_EDITOR : MC_EDITOR
+const CHI95_EDITOR: EditorTheme = {
+    font: "'MS Sans Serif', 'Arial', sans-serif",
+    canvasBg: '#008080',
+    canvasGrid: '#0a6f6f',
+    panelBg: '#c0c0c0',
+    panelBorder: '#808080',
+    controlBg: '#c0c0c0',
+    controlBorder: '#808080',
+    textColor: '#000000',
+    textDim: '#333333',
+    textShadow: 'none',
+    selectionColor: '#000080',
+    selectionGlow: '0 0 0 2px rgba(0,0,128,0.35)',
+    edgeColor: '#404040',
+    optionEdgeColor: '#000080',
+    bevelShadow: 'inset 1px 1px 0 0 #ffffff, inset -1px -1px 0 0 #000000',
+    nodeBorderWidth: '2px',
+}
+
+export function getEditorTheme(themeMode: 'minecraft' | 'fallout' | 'chicago95'): EditorTheme {
+    if (themeMode === 'fallout') return FO_EDITOR
+    if (themeMode === 'chicago95') return CHI95_EDITOR
+    return MC_EDITOR
 }

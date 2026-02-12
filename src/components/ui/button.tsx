@@ -49,6 +49,17 @@ const FALLOUT_VARIANTS: Record<string, string> = {
   link: "fo-button fo-button-link",
 }
 
+const CHICAGO95_VARIANTS: Record<string, string> = {
+  default: "chi95-button",
+  primary: "chi95-button chi95-button-primary",
+  destructive: "chi95-button chi95-button-destructive",
+  warning: "chi95-button chi95-button-warning",
+  secondary: "chi95-button",
+  outline: "chi95-button",
+  ghost: "chi95-button chi95-button-ghost",
+  link: "chi95-button chi95-button-link",
+}
+
 export type ButtonVariant = "default" | "primary" | "destructive" | "warning" | "secondary" | "outline" | "ghost" | "link"
 
 export interface ButtonProps
@@ -61,7 +72,12 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size, asChild = false, ...props }, ref) => {
     const { settings } = useTheme()
-    const themeVariants = settings.themeMode === 'fallout' ? FALLOUT_VARIANTS : MINECRAFT_VARIANTS
+    const themeVariants =
+      settings.themeMode === 'fallout'
+        ? FALLOUT_VARIANTS
+        : settings.themeMode === 'chicago95'
+          ? CHICAGO95_VARIANTS
+          : MINECRAFT_VARIANTS
     const variantClass = themeVariants[variant || 'default']
     
     const Comp = asChild ? Slot : "button"

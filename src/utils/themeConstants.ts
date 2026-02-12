@@ -29,6 +29,24 @@ export interface FalloutColors {
 
 export type FalloutPreset = 'green' | 'amber' | 'blue' | 'white' | 'red' | 'pink' | 'yellow' | 'purple' | 'cyan' | 'custom'
 
+export interface Chicago95Colors {
+    desktopBg: string
+    windowBg: string
+    titleBarBg: string
+    titleBarText: string
+    borderLight: string
+    borderDark: string
+    text: string
+    textDim: string
+    buttonFace: string
+    buttonText: string
+    inputBg: string
+    inputText: string
+    accent: string
+}
+
+export type Chicago95Preset = 'default' | 'classic-blue' | 'olive' | 'custom'
+
 export const THEMES: Record<ThemePreset, ThemeColors> = {
     default: {
         panelBg: '#C6C6C6',
@@ -218,4 +236,67 @@ export const FALLOUT_THEMES: Record<FalloutPreset, FalloutColors> = {
         textDim: '#0D7A3D',
         scanlineOpacity: 0.15
     }
+}
+
+export const CHICAGO95_THEMES: Record<Chicago95Preset, Chicago95Colors> = {
+    default: {
+        desktopBg: '#008080',
+        windowBg: '#c0c0c0',
+        titleBarBg: '#000080',
+        titleBarText: '#ffffff',
+        borderLight: '#ffffff',
+        borderDark: '#808080',
+        text: '#000000',
+        textDim: '#404040',
+        buttonFace: '#c0c0c0',
+        buttonText: '#000000',
+        inputBg: '#ffffff',
+        inputText: '#000000',
+        accent: '#000080',
+    },
+    'classic-blue': {
+        desktopBg: '#005a9e',
+        windowBg: '#c6d6e6',
+        titleBarBg: '#0a246a',
+        titleBarText: '#ffffff',
+        borderLight: '#ffffff',
+        borderDark: '#6f8193',
+        text: '#000000',
+        textDim: '#34404f',
+        buttonFace: '#c6d6e6',
+        buttonText: '#000000',
+        inputBg: '#ffffff',
+        inputText: '#000000',
+        accent: '#0a246a',
+    },
+    olive: {
+        desktopBg: '#4f6b3c',
+        windowBg: '#d0d6c8',
+        titleBarBg: '#3d5d29',
+        titleBarText: '#ffffff',
+        borderLight: '#f8faf4',
+        borderDark: '#76856a',
+        text: '#141a10',
+        textDim: '#46523e',
+        buttonFace: '#d0d6c8',
+        buttonText: '#141a10',
+        inputBg: '#ffffff',
+        inputText: '#141a10',
+        accent: '#3d5d29',
+    },
+    custom: {
+        desktopBg: '#008080',
+        windowBg: '#c0c0c0',
+        titleBarBg: '#000080',
+        titleBarText: '#ffffff',
+        borderLight: '#ffffff',
+        borderDark: '#808080',
+        text: '#000000',
+        textDim: '#404040',
+        buttonFace: '#c0c0c0',
+        buttonText: '#000000',
+        inputBg: '#ffffff',
+        inputText: '#000000',
+        accent: '#000080',
+    },
 }

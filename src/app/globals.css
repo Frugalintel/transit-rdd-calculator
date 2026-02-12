@@ -211,6 +211,23 @@
     font-family: 'Monofonto', monospace;
     image-rendering: auto;
   }
+
+  /* === CHICAGO95 theme: classic system UI rendering === */
+  .theme-chicago95 html,
+  .theme-chicago95 {
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+    font-smooth: auto;
+    text-rendering: optimizeLegibility;
+  }
+
+  .theme-chicago95 body,
+  .theme-chicago95 {
+    font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, sans-serif;
+    image-rendering: auto;
+    color: var(--chi95-text);
+    background: var(--chi95-desktop-bg);
+  }
 }
 
 /* ============================================
@@ -1612,6 +1629,10 @@
 /* Show/hide based on active theme */
 .theme-minecraft .fallout-only { display: none !important; }
 .theme-fallout .minecraft-only { display: none !important; }
+.theme-chicago95 .minecraft-only,
+.theme-chicago95 .fallout-only { display: none !important; }
+.theme-minecraft .chicago95-only,
+.theme-fallout .chicago95-only { display: none !important; }
 
 /* Utility: keep horizontal scroll behavior without visible bars. */
 .no-scrollbar {
@@ -2022,4 +2043,287 @@
 
 .theme-fallout .admin-table-row:hover {
   background: rgba(26, 255, 128, 0.08);
+}
+
+/* ============================================
+   CHICAGO95 THEME REMAP
+   Reuse existing mc-* and fo-* semantic classes
+   so pages get a third full visual style.
+   ============================================ */
+.theme-chicago95 {
+  --mc-bg: var(--chi95-window-bg);
+  --mc-dark-border: var(--chi95-border-dark);
+  --mc-light-border: var(--chi95-border-light);
+  --mc-shadow: var(--chi95-border-dark);
+  --mc-text-shadow: transparent;
+  --mc-input-bg: var(--chi95-input-bg);
+  --mc-input-text: var(--chi95-input-text);
+  --mc-accent: var(--chi95-accent);
+  --mc-button-bg: var(--chi95-button-face);
+  --mc-text-dark: var(--chi95-text);
+  --mc-text-gray: var(--chi95-text-dim);
+  --mc-slot-bg: #ffffff;
+  --mc-success: #0f6f0f;
+}
+
+.theme-chicago95 .mc-panel,
+.theme-chicago95 .fo-panel {
+  background: var(--chi95-window-bg);
+  color: var(--chi95-text);
+  border: 2px solid var(--chi95-border-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--chi95-border-light),
+    inset -1px -1px 0 #000;
+}
+
+.theme-chicago95 .mc-title,
+.theme-chicago95 .fo-title {
+  color: var(--chi95-titlebar-text);
+  background: var(--chi95-titlebar-bg);
+  text-shadow: none;
+  letter-spacing: 0;
+}
+
+.theme-chicago95 .mc-heading,
+.theme-chicago95 .mc-body,
+.theme-chicago95 .mc-subheading,
+.theme-chicago95 .fo-text,
+.theme-chicago95 .fo-label {
+  color: var(--chi95-text);
+  text-shadow: none;
+}
+
+.theme-chicago95 .mc-input,
+.theme-chicago95 .fo-input,
+.theme-chicago95 input,
+.theme-chicago95 textarea,
+.theme-chicago95 select {
+  background: var(--chi95-input-bg);
+  color: var(--chi95-input-text);
+  border: 2px solid var(--chi95-border-dark);
+  box-shadow:
+    inset 1px 1px 0 #000,
+    inset -1px -1px 0 var(--chi95-border-light);
+}
+
+.theme-chicago95 .mc-button,
+.theme-chicago95 .fo-button,
+.theme-chicago95 button {
+  background: var(--chi95-button-face);
+  color: var(--chi95-button-text);
+  border: 2px solid var(--chi95-border-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--chi95-border-light),
+    inset -1px -1px 0 #000;
+  text-shadow: none;
+}
+
+.theme-chicago95 .mc-button:active,
+.theme-chicago95 .fo-button:active,
+.theme-chicago95 button:active {
+  box-shadow:
+    inset 1px 1px 0 #000,
+    inset -1px -1px 0 var(--chi95-border-light);
+}
+
+.theme-chicago95 .admin-table-header {
+  background: var(--chi95-titlebar-bg);
+  color: var(--chi95-titlebar-text);
+  border-bottom: 2px solid var(--chi95-border-dark);
+}
+
+.theme-chicago95 .admin-table-row {
+  border-bottom: 1px solid var(--chi95-border-dark);
+}
+
+.theme-chicago95 .admin-table-row:hover {
+  background: rgba(0, 0, 128, 0.08);
+}
+
+/* --- Chicago95 dedicated primitives --- */
+.theme-chicago95 .chi95-window {
+  background: var(--chi95-window-bg);
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #000000;
+}
+
+.theme-chicago95 .chi95-titlebar {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-chicago95 .chi95-panel {
+  background: #c0c0c0;
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #000000;
+}
+
+.theme-chicago95 .chi95-fieldset {
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #000000;
+  background: #c0c0c0;
+  padding: 8px;
+}
+
+.theme-chicago95 .chi95-label {
+  color: #000000;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.theme-chicago95 .chi95-text {
+  color: #000000;
+  font-size: 13px;
+}
+
+.theme-chicago95 .chi95-input {
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #808080;
+  display: block;
+  width: 100%;
+  box-shadow:
+    inset 1px 1px 0 #000000,
+    inset -1px -1px 0 #ffffff;
+  font-size: 13px;
+  min-height: 34px;
+  padding: 6px 8px;
+}
+
+.theme-chicago95 .chi95-button {
+  background: #c0c0c0;
+  color: #000000;
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #000000;
+  font-size: 13px;
+  min-height: 30px;
+}
+
+.theme-chicago95 .chi95-button:hover {
+  background: #d4d0c8;
+}
+
+.theme-chicago95 .chi95-button:active {
+  box-shadow:
+    inset 1px 1px 0 #000000,
+    inset -1px -1px 0 #ffffff;
+}
+
+.theme-chicago95 .chi95-button-primary {
+  font-weight: 700;
+}
+
+.theme-chicago95 .chi95-button-secondary {
+  background: #c0c0c0;
+}
+
+.theme-chicago95 .chi95-button-warning {
+  background: #d8c28a;
+  color: #3b2b00;
+}
+
+.theme-chicago95 .chi95-button-destructive {
+  background: #d7a4a4;
+  color: #4a0000;
+}
+
+.theme-chicago95 .chi95-button-ghost {
+  background: transparent;
+  border: 1px solid #808080;
+  box-shadow: none;
+}
+
+.theme-chicago95 .chi95-button-link {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #000080;
+  text-decoration: underline;
+  min-height: auto;
+  padding: 0 2px;
+}
+
+.theme-chicago95 .chi95-control-btn {
+  width: 18px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.theme-chicago95 .chi95-menubar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-top: 1px solid #ffffff;
+  border-bottom: 1px solid #808080;
+  background: #c0c0c0;
+  font-size: 12px;
+}
+
+.theme-chicago95 .chi95-menubar-left,
+.theme-chicago95 .chi95-menubar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-chicago95 .chi95-menubar button {
+  border: none;
+  background: transparent;
+  padding: 1px 4px;
+  min-height: auto;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+.theme-chicago95 .chi95-menubar button:hover {
+  background: #000080;
+  color: #ffffff;
+}
+
+.theme-chicago95 .chi95-menubar button:disabled {
+  color: #5a5a5a;
+  background: transparent;
+  cursor: default;
+}
+
+.theme-chicago95 .chi95-menubar-sep {
+  color: #707070;
+  user-select: none;
+}
+
+.theme-chicago95 .chi95-statusbar {
+  padding: 3px 6px;
+  border-top: 1px solid #808080;
+  border: 2px solid #808080;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #000000;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

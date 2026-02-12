@@ -1,6 +1,6 @@
 // Theme-aware sound effects using Web Audio API
 
-type ThemeMode = 'minecraft' | 'fallout'
+type ThemeMode = 'minecraft' | 'fallout' | 'chicago95'
 
 class SoundManager {
   private audioContext: AudioContext | null = null

@@ -55,12 +55,23 @@ const FalloutCloseButton = () => (
   </DialogPrimitive.Close>
 )
 
+const Chicago95CloseButton = () => (
+  <DialogPrimitive.Close
+    className="absolute right-2 top-2 chi95-button chi95-control-btn focus:outline-none disabled:pointer-events-none"
+    aria-label="Close"
+    title="Close"
+  >
+    x
+  </DialogPrimitive.Close>
+)
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <DialogPortal>
@@ -70,14 +81,14 @@ const DialogContent = React.forwardRef<
           ref={ref}
           className={cn(
             "relative z-[100] grid w-full max-w-lg gap-4 p-6 duration-200 pointer-events-auto data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-            isFallout ? "fo-panel" : "mc-panel",
+            isFallout ? "fo-panel" : isChicago95 ? "chi95-panel" : "mc-panel",
             className
           )}
           style={{ margin: 0 }}
           {...props}
         >
           {children}
-          {isFallout ? <FalloutCloseButton /> : <MinecraftCloseButton />}
+          {isFallout ? <FalloutCloseButton /> : isChicago95 ? <Chicago95CloseButton /> : <MinecraftCloseButton />}
         </DialogPrimitive.Content>
       </div>
     </DialogPortal>
@@ -119,13 +130,14 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <DialogPrimitive.Title
       ref={ref}
       className={cn(
         "text-2xl",
-        isFallout ? "fo-heading" : "mc-text-dark",
+        isFallout ? "fo-heading" : isChicago95 ? "chi95-text font-bold" : "mc-text-dark",
         className
       )}
       {...props}
@@ -140,13 +152,14 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { settings } = useTheme()
   const isFallout = settings.themeMode === 'fallout'
+  const isChicago95 = settings.themeMode === 'chicago95'
   
   return (
     <DialogPrimitive.Description
       ref={ref}
       className={cn(
         "text-lg",
-        isFallout ? "fo-text-dim" : "text-gray-600",
+        isFallout ? "fo-text-dim" : isChicago95 ? "chi95-text opacity-80" : "text-gray-600",
         className
       )}
       {...props}

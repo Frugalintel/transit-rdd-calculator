@@ -96,6 +96,43 @@ const FalloutSwitch = React.forwardRef<HTMLButtonElement, SwitchProps>(
   )
 )
 
+// Chicago95-styled switch
+const Chicago95Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
+  ({ checked = false, onCheckedChange, className, id, title, disabled }, ref) => (
+    <button
+      ref={ref}
+      id={id}
+      title={title}
+      disabled={disabled}
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onCheckedChange?.(!checked)}
+      className={cn(
+        "relative inline-flex h-6 w-12 shrink-0 cursor-pointer items-center border-2 border-[#808080] bg-[#c0c0c0] align-middle focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      style={{
+        boxShadow: checked
+          ? "inset 1px 1px 0 #000000, inset -1px -1px 0 #ffffff"
+          : "inset 1px 1px 0 #ffffff, inset -1px -1px 0 #000000",
+      }}
+    >
+      <div className="absolute left-1 top-1/2 -translate-y-1/2 text-[9px] font-bold leading-none text-black">
+        {checked ? "ON" : "OFF"}
+      </div>
+      <div
+        className="absolute top-[2px] h-4 w-4 border border-[#808080] bg-[#c0c0c0]"
+        style={{
+          left: checked ? "calc(100% - 18px)" : "2px",
+          boxShadow: checked
+            ? "inset 1px 1px 0 #000000, inset -1px -1px 0 #ffffff"
+            : "inset 1px 1px 0 #ffffff, inset -1px -1px 0 #000000",
+        }}
+      />
+    </button>
+  )
+)
+
 // Theme-aware switch that renders the appropriate style
 const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
   (props, ref) => {
@@ -103,6 +140,9 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
     
     if (settings.themeMode === 'fallout') {
       return <FalloutSwitch ref={ref} {...props} />
+    }
+    if (settings.themeMode === 'chicago95') {
+      return <Chicago95Switch ref={ref} {...props} />
     }
     return <MinecraftSwitch ref={ref} {...props} />
   }

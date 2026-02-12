@@ -39,6 +39,7 @@ export function MinecraftBarChart({
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
     const isDenseXAxis = data.length > 12
     const resolvedLabelStep = xAxisLabelStep ?? (isDenseXAxis ? 2 : 1)
 
@@ -62,10 +63,10 @@ export function MinecraftBarChart({
     return (
         <div className={`${className}`}>
             {title && (
-                <h3 className="mc-admin-heading text-xl mb-1">{title}</h3>
+                <h3 className={isFallout ? "fo-heading text-xl border-none mb-1" : isChicago95 ? "chi95-text text-lg font-bold mb-1" : "mc-admin-heading text-xl mb-1"}>{title}</h3>
             )}
             {subtitle && (
-                <p className="mc-text-muted text-sm mb-4">{subtitle}</p>
+                <p className={isFallout ? "fo-text-dim text-sm mb-4" : isChicago95 ? "chi95-text text-xs mb-4" : "mc-text-muted text-sm mb-4"}>{subtitle}</p>
             )}
             
             <div 
@@ -73,7 +74,7 @@ export function MinecraftBarChart({
                 style={{ height: `${height}px` }}
             >
                 {/* Y-Axis Labels */}
-                <div className="absolute left-0 top-0 bottom-8 flex flex-col justify-between mc-admin-text text-sm w-8 text-right pr-2">
+                <div className={`absolute left-0 top-0 bottom-8 flex flex-col justify-between text-sm w-8 text-right pr-2 ${isFallout ? 'fo-text' : isChicago95 ? 'chi95-text' : 'mc-admin-text'}`}>
                     <span>{maxValue}</span>
                     <span>{Math.round(maxValue / 2)}</span>
                     <span>0</span>
@@ -81,9 +82,9 @@ export function MinecraftBarChart({
 
                 {/* Horizontal Grid Lines */}
                 <div className="absolute left-10 right-0 top-0 bottom-8 flex flex-col justify-between pointer-events-none">
-                    <div className={`border-t-2 border-dashed w-full ${isFallout ? 'border-[var(--fo-primary-dim)] opacity-30' : 'border-[#555555] opacity-40'}`}></div>
-                    <div className={`border-t-2 border-dashed w-full ${isFallout ? 'border-[var(--fo-primary-dim)] opacity-30' : 'border-[#555555] opacity-40'}`}></div>
-                    <div className={`border-t-2 w-full ${isFallout ? 'border-[var(--fo-primary-dim)]' : 'border-[#373737]'}`}></div>
+                    <div className={`border-t-2 border-dashed w-full ${isFallout ? 'border-[var(--fo-primary-dim)] opacity-30' : isChicago95 ? 'border-[#808080] opacity-40' : 'border-[#555555] opacity-40'}`}></div>
+                    <div className={`border-t-2 border-dashed w-full ${isFallout ? 'border-[var(--fo-primary-dim)] opacity-30' : isChicago95 ? 'border-[#808080] opacity-40' : 'border-[#555555] opacity-40'}`}></div>
+                    <div className={`border-t-2 w-full ${isFallout ? 'border-[var(--fo-primary-dim)]' : isChicago95 ? 'border-[#808080]' : 'border-[#373737]'}`}></div>
                 </div>
 
                 {/* Bars */}
@@ -138,11 +139,11 @@ export function MinecraftBarChart({
                                     height: getBarHeight(item.value),
                                     minHeight: item.value > 0 ? '8px' : '0',
                                     backgroundColor: baseColor,
-                                    borderTop: `4px solid ${highlightColor}`,
-                                    borderLeft: `4px solid ${highlightColor}`,
-                                    borderRight: `4px solid ${shadowColor}`,
-                                    borderBottom: `4px solid ${shadowColor}`,
-                                    backgroundImage: `
+                                    borderTop: isChicago95 ? '1px solid #ffffff' : `4px solid ${highlightColor}`,
+                                    borderLeft: isChicago95 ? '1px solid #ffffff' : `4px solid ${highlightColor}`,
+                                    borderRight: isChicago95 ? '1px solid #000000' : `4px solid ${shadowColor}`,
+                                    borderBottom: isChicago95 ? '1px solid #000000' : `4px solid ${shadowColor}`,
+                                    backgroundImage: isChicago95 ? 'none' : `
                                         linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.1) 50%, transparent 52%),
                                         linear-gradient(-45deg, transparent 48%, rgba(0,0,0,0.1) 50%, transparent 52%)
                                     `,
@@ -154,9 +155,9 @@ export function MinecraftBarChart({
                             >
                                 {/* Hover Tooltip */}
                                 {isHovered && (
-                                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 z-20 mc-tooltip whitespace-nowrap">
-                                        <div className="mc-text-yellow font-bold">{item.label}</div>
-                                        <div className={isFallout ? 'text-[var(--fo-primary)]' : 'text-white'}>{item.value} calculations</div>
+                                    <div className={`absolute -top-14 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap ${isChicago95 ? 'chi95-panel p-2' : 'mc-tooltip'}`}>
+                                        <div className={isChicago95 ? "chi95-label font-bold" : "mc-text-yellow font-bold"}>{item.label}</div>
+                                        <div className={isFallout ? 'text-[var(--fo-primary)]' : isChicago95 ? 'chi95-text' : 'text-white'}>{item.value} calculations</div>
                                     </div>
                                 )}
                             </div>
@@ -164,7 +165,7 @@ export function MinecraftBarChart({
                             {/* X-Axis Label */}
                             <div className={`absolute left-0 right-0 text-center ${isDenseXAxis ? '-bottom-9' : '-bottom-7'}`}>
                                 <span 
-                                    className={`mc-admin-text block ${isDenseXAxis ? 'text-[10px]' : 'text-sm'}`}
+                                    className={`${isFallout ? 'fo-text' : isChicago95 ? 'chi95-text' : 'mc-admin-text'} block ${isDenseXAxis ? 'text-[10px]' : 'text-sm'}`}
                                     style={{ opacity: isHovered ? 1 : 0.8 }}
                                 >
                                     {(index % resolvedLabelStep === 0 || isHovered) ? item.label : ''}

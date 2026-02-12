@@ -28,6 +28,7 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
     const supabase = createClient()
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const isChicago95 = settings.themeMode === 'chicago95'
 
     const getFormatForRecord = (recordId: string): CopyFormat => {
         return formatPerRecord[recordId] || 'simple'
@@ -113,7 +114,9 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                 "fixed top-0 right-0 h-full w-[min(320px,85vw)] z-50 transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl",
                 isFallout 
                     ? "bg-[var(--fo-panel-bg)] border-l-2 border-[var(--fo-primary)] shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
-                    : "bg-[var(--mc-bg)] border-l-4 border-[var(--mc-dark-border)]",
+                    : isChicago95
+                        ? "chi95-window border-l-2 border-[#808080]"
+                        : "bg-[var(--mc-bg)] border-l-4 border-[var(--mc-dark-border)]",
                 isOpen ? "translate-x-0" : "translate-x-full"
             )}>
                 {/* Header */}
@@ -121,12 +124,14 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                     "p-4 flex justify-between items-center",
                     isFallout 
                         ? "bg-transparent border-b border-[var(--fo-primary-dim)]"
+                        : isChicago95
+                            ? "chi95-titlebar border-b border-[#808080]"
                         : "bg-[var(--mc-bg)] border-b-4 border-[var(--mc-dark-border)]"
                 )}>
                     <div className="flex items-center gap-2">
                         <ThemeIcon type="book" scale={1.5} />
-                        <h2 className={isFallout ? "fo-heading text-xl mb-0 border-none" : "mc-heading text-xl"}>
-                            {isFallout ? 'DATA_LOGS' : 'History'}
+                        <h2 className={isFallout ? "fo-heading text-xl mb-0 border-none" : isChicago95 ? "text-white text-lg font-bold" : "mc-heading text-xl"}>
+                            {isFallout ? 'DATA_LOGS' : isChicago95 ? 'History' : 'History'}
                         </h2>
                     </div>
                     <button 
@@ -135,33 +140,40 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                             "h-9 w-9 flex items-center justify-center cursor-pointer group",
                             isFallout 
                                 ? "fo-button p-0"
+                                : isChicago95
+                                    ? "chi95-button chi95-control-btn"
                                 : "bg-[var(--mc-bg)] border-2 border-black shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border)] hover:brightness-110 active:shadow-[inset_2px_2px_0_0_var(--mc-dark-border),inset_-2px_-2px_0_0_var(--mc-light-border)] transition-all"
                         )}
+                        aria-label="Close history"
                     >
-                        <span className={cn(
-                            "text-3xl leading-none pb-1",
-                            isFallout ? "" : "mc-text-gray group-hover:text-black"
-                        )}>×</span>
+                        {isChicago95 ? (
+                            "x"
+                        ) : (
+                            <span className={cn(
+                                "text-3xl leading-none pb-1",
+                                isFallout ? "" : "mc-text-gray group-hover:text-black"
+                            )}>×</span>
+                        )}
                     </button>
                 </div>
 
                 {/* Content */}
                 <div className={cn(
                     "flex-1 overflow-y-auto p-2 space-y-3",
-                    isFallout ? "bg-transparent scrollbar-thin scrollbar-thumb-[var(--fo-primary-dim)] scrollbar-track-transparent" : "bg-[var(--mc-slot-bg)]"
+                    isFallout ? "bg-transparent scrollbar-thin scrollbar-thumb-[var(--fo-primary-dim)] scrollbar-track-transparent" : isChicago95 ? "bg-[#c0c0c0]" : "bg-[var(--mc-slot-bg)]"
                 )}>
                     {loading && history.length === 0 ? (
                         <div className={cn(
                             "text-center p-4 text-xl",
-                            isFallout ? "fo-text animate-pulse" : "mc-text-white"
+                            isFallout ? "fo-text animate-pulse" : isChicago95 ? "chi95-text" : "mc-text-white"
                         )}>{isFallout ? 'ACCESSING ARCHIVES...' : 'Loading...'}</div>
                     ) : history.length === 0 ? (
                         <div className={cn(
                             "text-center p-8",
-                            isFallout ? "fo-text" : "mc-text-white"
+                            isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-white"
                         )}>
                             <p className="text-xl">{isFallout ? 'NO RECORDS FOUND' : 'No calculations yet.'}</p>
-                            <p className="text-base mt-2 opacity-70">Calculations will appear here.</p>
+                            <p className={cn("text-base mt-2", isChicago95 ? "text-black" : "opacity-70")}>Calculations will appear here.</p>
                         </div>
                     ) : (
                         history.map((record) => {
@@ -173,6 +185,8 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                         "p-3 transition-all hover:bg-opacity-50",
                                         isFallout 
                                             ? "bg-[rgba(0,0,0,0.3)] border border-[var(--fo-primary-dim)] hover:border-[var(--fo-primary)]"
+                                            : isChicago95
+                                                ? "chi95-panel border border-[#808080]"
                                             : "bg-[var(--mc-bg)] border-2 border-[var(--mc-dark-border)] shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-shadow)]"
                                     )}
                                 >
@@ -180,13 +194,13 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                     <div className="flex justify-between items-center mb-2">
                                         <div className={cn(
                                             "font-bold truncate pr-2 text-xl",
-                                            isFallout ? "fo-text" : "mc-text-dark"
+                                            isFallout ? "fo-text" : isChicago95 ? "chi95-text text-black" : "mc-text-dark"
                                         )}>
                                             {record.name || (isFallout ? "UNKNOWN_ENTRY" : "Untitled")}
                                         </div>
                                         <div className={cn(
-                                            "text-base opacity-70 whitespace-nowrap",
-                                            isFallout ? "fo-text-dim" : "mc-text-dark"
+                                            "text-base whitespace-nowrap",
+                                            isFallout ? "fo-text-dim opacity-70" : isChicago95 ? "chi95-text text-black text-sm font-medium" : "mc-text-dark opacity-70"
                                         )}>
                                             {getRelativeTime(record.created_at)}
                                         </div>
@@ -195,21 +209,22 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                     {/* Dates Section - Primary Focus */}
                                     <div className={cn(
                                         "space-y-1 mb-2 py-2 border-y",
-                                        isFallout ? "border-[var(--fo-primary-dim)] border-dashed" : "border-[var(--mc-dark-border)] border-y-2"
-                                    )}>
-                                        <div className={cn("flex justify-between items-center text-lg", isFallout ? "fo-text" : "mc-text-dark")}>
-                                            <span className="opacity-70">Pack:</span>
+                                        isFallout ? "border-[var(--fo-primary-dim)] border-dashed" : isChicago95 ? "border-[#808080]" : "border-[var(--mc-dark-border)] border-y-2"
+                                        )}
+                                    >
+                                        <div className={cn("flex justify-between items-center text-lg", isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-dark")}>
+                                            <span className={isChicago95 ? "font-medium text-black" : "opacity-70"}>Pack:</span>
                                             <span className="font-bold">{record.input_data.packDate ? new Date(record.input_data.packDate).toLocaleDateString() : 'N/A'}</span>
                                         </div>
-                                        <div className={cn("flex justify-between items-center text-lg", isFallout ? "fo-text" : "mc-text-dark")}>
-                                            <span className="opacity-70">Pickup:</span>
+                                        <div className={cn("flex justify-between items-center text-lg", isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-dark")}>
+                                            <span className={isChicago95 ? "font-medium text-black" : "opacity-70"}>Pickup:</span>
                                             <span className="font-bold">{record.input_data.loadDate ? new Date(record.input_data.loadDate).toLocaleDateString() : 'N/A'}</span>
                                         </div>
                                         <div className="flex justify-between items-center mt-1 pt-1">
-                                            <span className={cn("text-lg opacity-70", isFallout ? "fo-text" : "mc-text-dark")}>RDD:</span>
+                                            <span className={cn("text-lg", isFallout ? "fo-text opacity-70" : isChicago95 ? "chi95-text text-black font-medium" : "mc-text-dark opacity-70")}>RDD:</span>
                                             <span className={cn(
                                                 "font-bold text-lg",
-                                                isFallout ? "fo-text-glow" : "mc-text-yellow"
+                                                isFallout ? "fo-text-glow" : isChicago95 ? "chi95-text text-black" : "mc-text-yellow"
                                             )}>
                                                 {record.result_data?.rddDisplay || "N/A"}
                                             </span>
@@ -217,22 +232,25 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                     </div>
 
                                     {/* Weight & Distance + Copy Controls */}
-                                    <div className="flex justify-between items-end">
+                                    <div className={cn("flex justify-between", isChicago95 ? "items-center" : "items-end")}>
                                         {/* Weight & Distance - Secondary */}
                                         <div className={cn(
-                                            "flex flex-col text-base opacity-80 pb-1",
-                                            isFallout ? "fo-text-dim" : "mc-text-dark"
+                                            "flex flex-col text-base pb-1",
+                                            isFallout ? "fo-text-dim opacity-80" : isChicago95 ? "chi95-text text-black" : "mc-text-dark opacity-80"
                                         )}>
                                             <span>{record.input_data.weight} lbs</span>
                                             <span>{record.input_data.distance} mi</span>
                                         </div>
 
                                         {/* Copy Controls - Compact Format Toggle with Copy */}
-                                        <div className="flex items-center gap-1">
+                                        <div className={cn("flex items-stretch", isChicago95 ? "gap-0.5" : "gap-1")}>
                                             {/* Previous Format */}
                                             <Button
                                                 onClick={() => cycleFormat(record.id, 'prev')}
-                                                className="h-8 w-6 p-0 flex items-center justify-center text-sm"
+                                                className={cn(
+                                                    "h-8 p-0 flex items-center justify-center text-sm leading-none",
+                                                    isChicago95 ? "w-7" : "w-6"
+                                                )}
                                                 variant={isFallout ? 'outline' : 'default'}
                                                 title="Previous format"
                                             >
@@ -243,7 +261,10 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                             <div className="group relative">
                                                 <Button
                                                     onClick={() => handleCopy(record)}
-                                                    className="h-8 px-2 flex items-center justify-center gap-1 min-w-[60px] text-sm"
+                                                    className={cn(
+                                                        "h-8 px-2 flex items-center justify-center gap-1 text-sm leading-none",
+                                                        isChicago95 ? "min-w-[80px]" : "min-w-[60px]"
+                                                    )}
                                                     variant={isFallout ? 'outline' : 'default'}
                                                 >
                                                     {FORMAT_ACRONYMS[currentFormat]}
@@ -260,7 +281,10 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                             {/* Next Format */}
                                             <Button
                                                 onClick={() => cycleFormat(record.id, 'next')}
-                                                className="h-8 w-6 p-0 flex items-center justify-center text-sm"
+                                                className={cn(
+                                                    "h-8 p-0 flex items-center justify-center text-sm leading-none",
+                                                    isChicago95 ? "w-7" : "w-6"
+                                                )}
                                                 variant={isFallout ? 'outline' : 'default'}
                                                 title="Next format"
                                             >

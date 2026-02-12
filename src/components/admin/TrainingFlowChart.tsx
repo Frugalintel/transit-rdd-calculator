@@ -23,8 +23,7 @@ interface Node {
 
 export function TrainingFlowChart({ steps, selectedStepId, onStepClick }: TrainingFlowChartProps) {
     const { settings } = useTheme()
-    const isFallout = settings.themeMode === 'fallout'
-    const theme = getEditorTheme(isFallout)
+    const theme = getEditorTheme(settings.themeMode)
 
     // Build graph structure and calculate layout
     const { nodes, edges } = useMemo(() => {
@@ -117,7 +116,7 @@ export function TrainingFlowChart({ steps, selectedStepId, onStepClick }: Traini
         return { nodes: Array.from(nodeMap.values()), edges }
     }, [steps])
     
-    const getStepTypeColor = (type: string) => getTypeColor(type as StepType, isFallout)
+    const getStepTypeColor = (type: string) => getTypeColor(type as StepType, settings.themeMode)
     
     const maxY = nodes.length > 0 ? Math.max(...nodes.map(n => n.y)) + 100 : 600
     const svgWidth = 800
@@ -232,7 +231,7 @@ export function TrainingFlowChart({ steps, selectedStepId, onStepClick }: Traini
                 <div className="text-lg mb-2 font-bold" style={{ color: theme.textColor }}>Step Types</div>
                 <div className="space-y-1 text-sm">
                     {(['info', 'input', 'quiz', 'decision'] as StepType[]).map(type => {
-                        const c = getTypeColor(type, isFallout)
+                        const c = getTypeColor(type, settings.themeMode)
                         return (
                             <div key={type} className="flex items-center gap-2">
                                 <div className="w-4 h-4" style={{ backgroundColor: c.bg, border: `2px solid ${c.border}` }}></div>
