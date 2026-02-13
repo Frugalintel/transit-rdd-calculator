@@ -40,6 +40,7 @@ import { TerminalProgress } from './fallout/TerminalProgress'
 import { HistorySidebar } from './HistorySidebar'
 
 const AUTH_HINT_KEY = 'calc-auth-hint'
+const PERSIST_TIMEOUT_MS = 8000
 
 
 export function Calculator({
@@ -304,6 +305,79 @@ export function Calculator({
         setResult(null)
     }
 
+    const persistCalculationRecord = async ({
+        weightNum,
+        distNum,
+        loadDateIso,
+        packDateIso,
+        res,
+    }: {
+        weightNum: number
+        distNum: number
+        loadDateIso: string
+        packDateIso: string | null
+        res: CalculationResult
+    }) => {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), PERSIST_TIMEOUT_MS)
+
+        try {
+            const response = await fetch('/api/calculations/record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    calculationName,
+                    successful: !res?.error,
+                    input: {
+                        weight: weightNum,
+                        distance: distNum,
+                        loadDate: loadDateIso,
+                        packDate: packDateIso,
+                    },
+                    result: res?.error
+                        ? { error: res.error }
+                        : {
+                            transitDays: res?.transitDays ?? null,
+                            seasonStatus: res?.seasonStatus ?? null,
+                            rdd: res?.rdd?.toISOString?.() ?? null,
+                            rddDisplay: res?.rddDisplay ?? null,
+                            loadSpread: {
+                                earliest: res?.loadSpread?.earliest?.toISOString?.() ?? null,
+                                latest: res?.loadSpread?.latest?.toISOString?.() ?? null,
+                            },
+                        },
+                }),
+                signal: controller.signal,
+            })
+
+            const payload = await response.json().catch(() => null) as
+                | { usageLogged?: boolean; calculationSaved?: boolean; usageError?: string | null; calculationError?: string | null }
+                | null
+
+            if (!response.ok || !payload?.usageLogged) {
+                console.warn('Failed to log calculation usage:', payload?.usageError || `HTTP ${response.status}`)
+            }
+
+            if (!res?.error && (!response.ok || !payload?.calculationSaved)) {
+                console.warn('Failed to save calculation:', payload?.calculationError || `HTTP ${response.status}`)
+                return
+            }
+
+            if (!res?.error && user) {
+                setRefreshHistory(prev => prev + 1)
+                setCalculationName('')
+            }
+        } catch (persistErr) {
+            if (!isAbortLikeError(persistErr)) {
+                console.warn('Calculation persistence failed:', persistErr)
+            }
+        } finally {
+            clearTimeout(timeoutId)
+        }
+    }
+
     const handleCalculate = async () => {
         sounds.playClick()
         if (!packDate) {
@@ -329,79 +403,26 @@ export function Calculator({
         setIsProcessing(true)
         
         // Quick animation, then show result
-        setTimeout(async () => {
+        setTimeout(() => {
             const res = calculate(weightNum, distNum, loadDate)
+            if (!res) {
+                setIsProcessing(false)
+                return
+            }
             setResult(res)
             setSubmittedName(calculationName) // Save the name at time of calculation
             sounds.playSuccess()
 
-            // Track all calculation attempts (including anonymous) for admin analytics.
-            try {
-                const { error: usageLogError } = await supabase.from('usage_logs').insert({
-                    user_id: user?.id ?? null,
-                    action_type: 'calculation',
-                    details: {
-                        authenticated: Boolean(user),
-                        user_email: user?.email ?? null,
-                        successful: !res?.error,
-                        name: calculationName || null,
-                        input_data: {
-                            weight: weightNum,
-                            distance: distNum,
-                            loadDate: loadDate.toISOString(),
-                            packDate: packDate?.toISOString() ?? null,
-                        },
-                        result_summary: res?.error ? { error: res.error } : {
-                            transitDays: res?.transitDays ?? null,
-                            seasonStatus: res?.seasonStatus ?? null,
-                            rdd: res?.rdd?.toISOString?.() ?? null,
-                        }
-                    }
-                })
-
-                if (usageLogError) {
-                    console.warn('Failed to log calculation usage:', usageLogError.message)
-                }
-            } catch (usageErr) {
-                console.warn('Calculation usage logging threw:', usageErr)
-            }
-            
-            // Save successful calculations for both authenticated and anonymous users.
-            // Authenticated users can view their own history; admins can view all records.
-            if (res && !res.error) {
-                const { error: insertError } = await supabase.from('calculations').insert({
-                    user_id: user?.id ?? null,
-                    name: calculationName || null,
-                    input_data: {
-                        weight: weightNum,
-                        distance: distNum,
-                        loadDate: loadDate.toISOString(),
-                        packDate: packDate?.toISOString()
-                    },
-                    result_data: {
-                        transitDays: res.transitDays,
-                        rddDisplay: res.rddDisplay,
-                        rdd: res.rdd.toISOString(),
-                        seasonStatus: res.seasonStatus,
-                        loadSpread: {
-                            earliest: res.loadSpread.earliest.toISOString(),
-                            latest: res.loadSpread.latest.toISOString()
-                        }
-                    }
-                })
-                
-                if (insertError) {
-                    console.error("Failed to save calculation:", insertError)
-                } else {
-                    if (user) {
-                        setRefreshHistory(prev => prev + 1)
-                        setCalculationName('') // Keep existing UX for authenticated history saves
-                    }
-                }
-            }
-
-            // Reset processing state after animation completes
+            // Do not block UI on persistence; keep calculate responsive.
             setTimeout(() => setIsProcessing(false), 50)
+
+            void persistCalculationRecord({
+                weightNum,
+                distNum,
+                loadDateIso: loadDate.toISOString(),
+                packDateIso: packDate?.toISOString() ?? null,
+                res,
+            })
         }, 300)
     }
 
