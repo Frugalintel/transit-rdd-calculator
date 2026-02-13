@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/server'
 import { getSupabasePublicConfig } from '@/utils/supabase/publicConfig'
+import { hasAdminPermission, normalizeRole, normalizeStatus } from '@/utils/adminPermissions'
 
 const USER_WINDOW_MINUTES = 10
 const USER_INVITE_LIMIT = 10
@@ -34,25 +35,17 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let isAdmin = false
-    const { data: isAdminFn, error: isAdminFnError } = await supabase.rpc('is_admin')
-    if (!isAdminFnError) {
-        isAdmin = isAdminFn === true
-    } else {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .maybeSingle()
-        isAdmin = profile?.role === 'admin'
-    }
-
-    if (!isAdmin) {
+    const canInviteUsers = await hasAdminPermission(supabase, 'users.create')
+    if (!canInviteUsers) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const payload = await request.json().catch(() => null)
     const email = typeof payload?.email === 'string' ? payload.email.trim().toLowerCase() : ''
+    const requestedRole = normalizeRole(payload?.role)
+    const requestedStatus = normalizeStatus(payload?.status)
+    const initialRole = requestedRole || 'user'
+    const initialStatus = requestedStatus || 'invited'
     const clientIp = getClientIp(request)
 
     const now = Date.now()
@@ -106,8 +99,11 @@ export async function POST(request: Request) {
         .gte('created_at', targetWindowStart)
         .limit(200)
 
-    const recentTargetCount = (recentTargetInvites || []).filter((row: any) => {
-        const details = row?.details && typeof row.details === 'object' ? row.details as Record<string, unknown> : {}
+    const recentTargetCount = (recentTargetInvites || []).filter((row: unknown) => {
+        const typedRow = row as { details?: unknown }
+        const details = typedRow?.details && typeof typedRow.details === 'object'
+            ? typedRow.details as Record<string, unknown>
+            : {}
         return String(details.target_email || '').toLowerCase() === email
     }).length
 
@@ -143,7 +139,7 @@ export async function POST(request: Request) {
     })
 
     const redirectTo = process.env.NEXT_PUBLIC_SITE_URL
-    const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
+    const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
         data: { invited_by: user.id },
         ...(redirectTo ? { redirectTo } : {}),
     })
@@ -162,12 +158,23 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unable to send invite. Please try again later.' }, { status: 400 })
     }
 
+    if (inviteData?.user?.id) {
+        await admin.from('profiles').upsert({
+            id: inviteData.user.id,
+            email,
+            role: initialRole,
+            status: initialStatus,
+        })
+    }
+
     await supabase.from('usage_logs').insert({
         user_id: user.id,
         action_type: 'admin_invite_sent',
         details: {
             target_email: email,
             ip: clientIp,
+            initial_role: initialRole,
+            initial_status: initialStatus,
         },
     })
 

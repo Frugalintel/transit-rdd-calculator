@@ -9,6 +9,7 @@ const NAV_ITEMS = [
     { label: 'Dashboard', path: '/admin', icon: 'wheat' },
     { label: 'Users', path: '/admin/users', icon: 'totem' },
     { label: 'Data', path: '/admin/data', icon: 'book' },
+    { label: 'Regions', path: '/admin/regions', icon: 'compass' },
     { label: 'Training', path: '/admin/training', icon: 'firework_star' },
     { label: 'Logs', path: '/admin/logs', icon: 'paper' },
 ]

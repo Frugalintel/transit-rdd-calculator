@@ -1,7 +1,8 @@
 "use client"
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import { createContext, useContext, ReactNode, useState, useEffect, useMemo } from 'react'
 import { DEFAULT_TEMPLATES, CopyFormat } from '@/utils/textHelpers'
 import { soundManager } from '@/utils/sounds'
+import { createClient as createSupabaseBrowserClient } from '@/utils/supabase/client'
 import {
     ThemeColors,
     ThemePreset,
@@ -39,6 +40,8 @@ export interface ThemeSettings {
 
 interface ThemeContextType {
     settings: ThemeSettings
+    resolvedTemplates: Record<CopyFormat, string>
+    overriddenFormats: CopyFormat[]
     mounted: boolean
     updateSettings: (updates: Partial<ThemeSettings>) => void
     resetTemplates: () => void
@@ -151,6 +154,7 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps) {
     const [settings, setSettings] = useState<ThemeSettings>(() => getInitialSettings(serverThemeMode))
     const [mounted, setMounted] = useState(false)
+    const [serverTemplateOverrides, setServerTemplateOverrides] = useState<Partial<Record<CopyFormat, string>>>({})
 
     // Apply colors to CSS variables based on theme mode
     useEffect(() => {
@@ -285,6 +289,74 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
 
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (!mounted) return
+        let cancelled = false
+
+        const loadServerTemplateOverrides = async () => {
+            try {
+                const supabase = createSupabaseBrowserClient()
+                const { data: sessionData } = await supabase.auth.getSession()
+                const sessionUser = sessionData.session?.user
+                if (!sessionUser) {
+                    if (!cancelled) {
+                        setServerTemplateOverrides({})
+                    }
+                    return
+                }
+
+                const { data, error } = await supabase
+                    .from('user_template_overrides')
+                    .select('format_key, template_text')
+                    .eq('target_user_id', sessionUser.id)
+
+                if (error || !data) {
+                    if (!cancelled) {
+                        setServerTemplateOverrides({})
+                    }
+                    return
+                }
+
+                const nextOverrides: Partial<Record<CopyFormat, string>> = {}
+                for (const row of data as Array<{ format_key: string; template_text: string }>) {
+                    const format = row.format_key as CopyFormat
+                    if (format in DEFAULT_TEMPLATES) {
+                        nextOverrides[format] = row.template_text
+                    }
+                }
+                if (!cancelled) {
+                    setServerTemplateOverrides(nextOverrides)
+                }
+            } catch {
+                if (!cancelled) {
+                    setServerTemplateOverrides({})
+                }
+            }
+        }
+
+        void loadServerTemplateOverrides()
+
+        const onFocus = () => {
+            void loadServerTemplateOverrides()
+        }
+        window.addEventListener('focus', onFocus)
+
+        return () => {
+            cancelled = true
+            window.removeEventListener('focus', onFocus)
+        }
+    }, [mounted])
+
+    const resolvedTemplates = useMemo(
+        () => ({ ...settings.templates, ...serverTemplateOverrides }),
+        [settings.templates, serverTemplateOverrides]
+    )
+
+    const overriddenFormats = useMemo(
+        () => Object.keys(serverTemplateOverrides) as CopyFormat[],
+        [serverTemplateOverrides]
+    )
+
     const updateSettings = (updates: Partial<ThemeSettings>) => {
         setSettings(prev => {
             const next = { ...prev, ...updates }
@@ -415,6 +487,8 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
     return (
         <ThemeContext.Provider value={{ 
             settings, 
+            resolvedTemplates,
+            overriddenFormats,
             mounted,
             updateSettings, 
             resetTemplates,

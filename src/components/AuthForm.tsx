@@ -19,7 +19,6 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
-    const [view, setView] = useState<'login' | 'signup'>('login')
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
     const isChicago95 = settings.themeMode === 'chicago95'
@@ -31,25 +30,16 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
         setLoading(true)
 
         try {
-            if (view === 'login') {
-                const { error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
-                })
-                if (error) throw error
-                toast.success("Login successful!")
-                onClose()
-            } else {
-                const { error } = await supabase.auth.signUp({
-                    email,
-                    password
-                })
-                if (error) throw error
-                toast.success("Account created!")
-                onClose()
-            }
-        } catch (err: any) {
-            toast.error(err.message || "Authentication failed!")
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            })
+            if (error) throw error
+            toast.success("Login successful!")
+            onClose()
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Authentication failed!"
+            toast.error(message)
         } finally {
             setLoading(false)
         }
@@ -60,14 +50,10 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
             <DialogContent className="sm:max-w-md data-[state=open]:animate-none data-[state=closed]:animate-none">
                 <DialogHeader>
                     <DialogTitle className={cn("text-2xl", isFallout ? "fo-heading border-none mb-0 pb-0" : isChicago95 ? "chi95-text font-bold" : "mc-heading")}>
-                        {view === 'login' 
-                            ? (isFallout ? 'ACCESS TERMINAL' : 'Login to Server')
-                            : (isFallout ? 'NEW USER REGISTRATION' : 'Create Account')}
+                        {isFallout ? 'ACCESS TERMINAL' : 'Login to Server'}
                     </DialogTitle>
                     <DialogDescription className={cn("text-base", isFallout ? "fo-text-dim mt-1" : isChicago95 ? "chi95-text opacity-80" : "mc-body")}>
-                        {view === 'login' 
-                            ? (isFallout ? 'Enter credentials to access system' : 'Enter your credentials to continue')
-                            : (isFallout ? 'Register new user account' : 'Register a new account')}
+                        {isFallout ? 'Enter credentials to access system' : 'Enter your credentials to continue'}
                     </DialogDescription>
                 </DialogHeader>
                 
@@ -116,21 +102,11 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                         >
                             {loading 
                                 ? (isFallout ? 'PROCESSING...' : isChicago95 ? 'Processing...' : 'Please wait...') 
-                                : (view === 'login' 
-                                    ? (isFallout ? '[ LOGIN ]' : isChicago95 ? 'Log In' : 'Login') 
-                                    : (isFallout ? '[ CREATE ACCOUNT ]' : isChicago95 ? 'Create Account' : 'Create Account'))}
+                                : (isFallout ? '[ LOGIN ]' : isChicago95 ? 'Log In' : 'Login')}
                         </Button>
-                        
-                        <Button 
-                            type="button"
-                            variant="ghost"
-                            className={cn("w-full text-sm", isFallout && "fo-button-link opacity-70 hover:opacity-100")}
-                            onClick={() => setView(view === 'login' ? 'signup' : 'login')}
-                        >
-                            {view === 'login' 
-                                ? (isFallout ? '> Register New User' : isChicago95 ? 'Need an account? Register' : 'New player? Register') 
-                                : (isFallout ? '> Back to Login' : 'Back to Login')}
-                        </Button>
+                        <p className={cn("text-center text-xs opacity-70", isFallout ? "fo-text-dim" : isChicago95 ? "chi95-text" : "mc-text-muted")}>
+                            Accounts are provisioned by administrators only.
+                        </p>
                     </div>
                 </form>
             </DialogContent>

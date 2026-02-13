@@ -1,10 +1,18 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useTheme } from '@/context/ThemeContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import {
     Dialog,
     DialogContent,
@@ -13,12 +21,18 @@ import {
     DialogDescription,
 } from '@/components/ui/dialog'
 
-export function InviteUserButton() {
+type InviteRole = 'user' | 'admin'
+type InviteStatus = 'invited' | 'active'
+
+export function InviteUserButton({ onInvited }: { onInvited?: () => void }) {
     const { settings } = useTheme()
     const isFallout = settings.themeMode === 'fallout'
+    const router = useRouter()
 
     const [isOpen, setIsOpen] = useState(false)
     const [email, setEmail] = useState('')
+    const [role, setRole] = useState<InviteRole>('user')
+    const [status, setStatus] = useState<InviteStatus>('invited')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -33,7 +47,7 @@ export function InviteUserButton() {
             const response = await fetch('/api/admin/invite-user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email.trim() }),
+                body: JSON.stringify({ email: email.trim(), role, status }),
             })
 
             const payload = await response.json().catch(() => ({}))
@@ -44,7 +58,11 @@ export function InviteUserButton() {
 
             toast.success(`Invite sent to ${email.trim()}.`)
             setEmail('')
+            setRole('user')
+            setStatus('invited')
             setIsOpen(false)
+            router.refresh()
+            onInvited?.()
         } catch {
             toast.error('Failed to send invite.')
         } finally {
@@ -82,6 +100,33 @@ export function InviteUserButton() {
                             required
                             className={isFallout ? 'fo-input' : ''}
                         />
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Initial Role</label>
+                                <Select value={role} onValueChange={(value) => setRole(value as InviteRole)}>
+                                    <SelectTrigger className={isFallout ? 'fo-input' : ''}>
+                                        <SelectValue placeholder="Select role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="user">User</SelectItem>
+                                        <SelectItem value="admin">Delegated Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Initial Status</label>
+                                <Select value={status} onValueChange={(value) => setStatus(value as InviteStatus)}>
+                                    <SelectTrigger className={isFallout ? 'fo-input' : ''}>
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="invited">Invited</SelectItem>
+                                        <SelectItem value="active">Active</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
 
                         <div className="flex justify-end gap-2">
                             <Button

@@ -15,6 +15,7 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:make-admin": "./scripts/make-local-admin.sh",
+    "supabase:provision-region-seats": "node ./scripts/provision-region-seat-accounts.mjs",
     "supabase:reset": "supabase db reset && npm run supabase:make-admin",
     "supabase:studio": "supabase studio",
     "dev:sync": "./scripts/dev-sync.sh"

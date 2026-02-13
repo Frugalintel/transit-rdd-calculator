@@ -52,7 +52,7 @@ export function Calculator({
 }) {
     const { data, loading, error: dataError } = useTransitData()
     const { calculate } = useCalculator(data)
-    const { settings, mounted } = useTheme()
+    const { settings, resolvedTemplates, mounted } = useTheme()
     const router = useRouter()
     const sounds = useSounds()
     
@@ -434,7 +434,7 @@ export function Calculator({
         const lDateObj = loadDate || new Date()
 
         const text = generateCopyText(
-            settings.templates[fmt],
+            resolvedTemplates[fmt],
             pDateObj,
             lDateObj,
             result.rdd,

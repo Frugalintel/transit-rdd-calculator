@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { ScanlineOverlay } from '@/components/fallout/ScanlineOverlay'
+import { hasAdminPermission } from '@/utils/adminPermissions'
 
 const RETRY_DELAYS_MS = [120, 250]
 
@@ -51,30 +52,32 @@ export default async function AdminLayout({
         redirect('/')
     }
 
-    // First choice: SQL helper tied to auth.uid(). Retry on transient errors.
-    let isAdmin: boolean | null = null
+    // Permission-first gate for admin panel access.
+    let hasPanelAccess: boolean | null = null
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
-        const { data: isAdminFn, error: isAdminFnError } = await supabase.rpc('is_admin')
-        if (!isAdminFnError) {
-            isAdmin = isAdminFn === true
+        try {
+            const hasAccess = await hasAdminPermission(supabase, 'admin.panel.access')
+            hasPanelAccess = hasAccess
             break
+        } catch {
+            // Retry below.
         }
         if (attempt < RETRY_DELAYS_MS.length) {
             await sleep(RETRY_DELAYS_MS[attempt])
         }
     }
 
-    // Fallback path: direct profile role lookup if RPC is unavailable.
-    if (isAdmin === null) {
+    // Legacy fallback if permission function is unavailable.
+    if (hasPanelAccess === null) {
         for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select('role')
+                .select('role, status')
                 .eq('id', user.id)
                 .maybeSingle()
 
             if (!profileError) {
-                isAdmin = profile?.role === 'admin'
+                hasPanelAccess = profile?.role === 'admin' && (profile?.status ?? 'active') === 'active'
                 break
             }
             if (attempt < RETRY_DELAYS_MS.length) {
@@ -84,7 +87,7 @@ export default async function AdminLayout({
     }
 
     // If checks remain indeterminate, deny by default.
-    if (isAdmin !== true) {
+    if (hasPanelAccess !== true) {
         redirect('/')
     }
 
