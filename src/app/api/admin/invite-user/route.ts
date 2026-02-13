@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/server'
+import { getSupabasePublicConfig } from '@/utils/supabase/publicConfig'
 
 const USER_WINDOW_MINUTES = 10
 const USER_INVITE_LIMIT = 10
@@ -128,7 +129,7 @@ export async function POST(request: Request) {
         )
     }
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const { url } = getSupabasePublicConfig()
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!url || !serviceRoleKey) {
         return NextResponse.json(

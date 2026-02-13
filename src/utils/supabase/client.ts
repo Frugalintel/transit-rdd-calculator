@@ -1,14 +1,16 @@
 import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { getSupabasePublicConfig } from './publicConfig'
 
 let client: SupabaseClient | null = null
 
 export function createClient() {
   // Always create a fresh client for now to avoid singleton state issues
   if (!client) {
+    const { url, anonKey } = getSupabasePublicConfig()
     client = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      url,
+      anonKey,
       {
         cookieOptions: {
           sameSite: 'lax',

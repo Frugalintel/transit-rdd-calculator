@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { TransitGuideData } from '@/types'
+import { getSupabasePublicConfig } from '@/utils/supabase/publicConfig'
 
 const REQUEST_TIMEOUT_MS = 12000
 
 // Use raw fetch for data queries - more reliable than @supabase/ssr client
 async function fetchFromSupabase(table: string, options?: { order?: string }) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase client config is missing (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).')
-  }
+  const { url: supabaseUrl, anonKey: supabaseKey } = getSupabasePublicConfig()
 
   let url = `${supabaseUrl}/rest/v1/${table}?select=*`
   if (options?.order) {
