@@ -8,6 +8,14 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'W95FA';
+  src: url('/fonts/chicago95/W95FA.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: 'Monofonto', monospace;
   --font-mono: 'Monofonto', monospace;
@@ -223,10 +231,14 @@
 
   .theme-chicago95 body,
   .theme-chicago95 {
-    font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, sans-serif;
+    font-family: var(--chi95-font-stack);
     image-rendering: auto;
     color: var(--chi95-text);
-    background: var(--chi95-desktop-bg);
+    background-color: var(--chi95-desktop-bg);
+    background-image: var(--chi95-desktop-overlay, none), var(--chi95-desktop-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 }
 
@@ -2051,6 +2063,7 @@
    so pages get a third full visual style.
    ============================================ */
 .theme-chicago95 {
+  --chi95-font-stack: "W95FA", "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, sans-serif;
   --mc-bg: var(--chi95-window-bg);
   --mc-dark-border: var(--chi95-border-dark);
   --mc-light-border: var(--chi95-border-light);
@@ -2064,6 +2077,10 @@
   --mc-text-gray: var(--chi95-text-dim);
   --mc-slot-bg: #ffffff;
   --mc-success: #0f6f0f;
+}
+
+.theme-chicago95 *:not(code):not(pre):not(kbd):not(samp) {
+  font-family: var(--chi95-font-stack) !important;
 }
 
 .theme-chicago95 .mc-panel,
@@ -2150,11 +2167,12 @@
 }
 
 .theme-chicago95 .chi95-titlebar {
-  background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  background: #000080;
   color: #ffffff;
   font-weight: 700;
-  font-size: 13px;
-  padding: 4px 8px;
+  font-size: 11px;
+  line-height: 1.2;
+  padding: 2px 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2179,15 +2197,17 @@
 
 .theme-chicago95 .chi95-label {
   color: #000000;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
+  line-height: 1.2;
 }
 
 .theme-chicago95 .chi95-text {
   color: #000000;
-  font-size: 13px;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 .theme-chicago95 .chi95-input {
@@ -2199,9 +2219,53 @@
   box-shadow:
     inset 1px 1px 0 #000000,
     inset -1px -1px 0 #ffffff;
-  font-size: 13px;
-  min-height: 34px;
-  padding: 6px 8px;
+  font-size: 11px;
+  min-height: 23px;
+  height: 23px;
+  padding: 1px 4px;
+  line-height: 1.2;
+}
+
+.theme-chicago95 .chi95-select-trigger {
+  padding-right: 0;
+  font-family: var(--chi95-font-stack);
+  font-size: 11px;
+}
+
+.theme-chicago95 .chi95-select-icon {
+  width: 16px;
+  height: 100%;
+  min-height: 100%;
+  border-left: 1px solid #808080;
+  background: #c0c0c0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #000000;
+  flex-shrink: 0;
+}
+
+.theme-chicago95 .chi95-select-trigger[data-state="open"] .chi95-select-icon {
+  box-shadow:
+    inset 1px 1px 0 #000000,
+    inset -1px -1px 0 #ffffff;
+}
+
+.theme-chicago95 .chi95-select-caret {
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #000000;
+  margin-top: 0;
+}
+
+.theme-chicago95 [data-radix-select-content],
+.theme-chicago95 [data-radix-select-item] {
+  font-family: var(--chi95-font-stack);
+  font-size: 11px;
 }
 
 .theme-chicago95 .chi95-button {
@@ -2211,8 +2275,11 @@
   box-shadow:
     inset 1px 1px 0 #ffffff,
     inset -1px -1px 0 #000000;
-  font-size: 13px;
-  min-height: 30px;
+  font-size: 11px;
+  min-height: 23px;
+  height: 23px;
+  padding: 0 10px;
+  line-height: 1.1;
 }
 
 .theme-chicago95 .chi95-button:hover {
@@ -2223,6 +2290,10 @@
   box-shadow:
     inset 1px 1px 0 #000000,
     inset -1px -1px 0 #ffffff;
+}
+
+.theme-chicago95 .chi95-button:active > * {
+  transform: translate(1px, 1px);
 }
 
 .theme-chicago95 .chi95-button-primary {
@@ -2260,15 +2331,35 @@
 }
 
 .theme-chicago95 .chi95-control-btn {
-  width: 18px;
-  height: 16px;
-  min-height: 16px;
+  width: 16px;
+  height: 14px;
+  min-height: 14px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-family: var(--chi95-font-stack);
+  font-size: 10px;
+  font-weight: 700;
   line-height: 1;
+}
+
+.theme-chicago95 .chi95-control-btn-min {
+  padding-bottom: 1px;
+}
+
+.theme-chicago95 .chi95-control-btn-max {
+  font-size: 9px;
+  padding-bottom: 1px;
+}
+
+.theme-chicago95 .chi95-control-btn-close {
+  font-size: 10px;
+  padding-bottom: 1px;
+}
+
+.theme-chicago95 .chi95-control-btn:active {
+  transform: translate(1px, 1px);
 }
 
 .theme-chicago95 .chi95-menubar {
@@ -2280,7 +2371,7 @@
   border-top: 1px solid #ffffff;
   border-bottom: 1px solid #808080;
   background: #c0c0c0;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .theme-chicago95 .chi95-menubar-left,
@@ -2293,10 +2384,10 @@
 .theme-chicago95 .chi95-menubar button {
   border: none;
   background: transparent;
-  padding: 1px 4px;
+  padding: 0 3px;
   min-height: auto;
   box-shadow: none;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .theme-chicago95 .chi95-menubar button:hover {

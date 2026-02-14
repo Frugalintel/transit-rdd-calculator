@@ -529,11 +529,7 @@ export function Calculator({
                             <div aria-hidden="true" className="fo-sgs-mark h-26 w-44 sm:h-30 sm:w-48 md:h-34 md:w-56 pointer-events-none" />
                         </div>
                     </div>
-                ) : isChicago95 ? (
-                    <div className="chi95-text text-left px-1">
-                        <span>Desktop: SUDCO Calculator Workspace</span>
-                    </div>
-                ) : (
+                ) : isChicago95 ? null : (
                     <div className="relative w-fit mx-auto">
                         <Image
                             src="/backgrounds/minecraft/DATE-CHANGE-TOOL-V3.svg"
@@ -555,10 +551,10 @@ export function Calculator({
                         <>
                             <div className="chi95-titlebar">
                                 <span>Date Change Tool V3</span>
-                                <div className="flex items-center gap-1">
-                                    <button type="button" className="chi95-button chi95-control-btn" aria-label="Minimize">_</button>
-                                    <button type="button" className="chi95-button chi95-control-btn" aria-label="Maximize">□</button>
-                                    <button type="button" className="chi95-button chi95-control-btn" aria-label="Close">x</button>
+                                <div className="flex items-center gap-[2px]">
+                                    <button type="button" className="chi95-button chi95-control-btn chi95-control-btn-min" aria-label="Minimize">-</button>
+                                    <button type="button" className="chi95-button chi95-control-btn chi95-control-btn-max" aria-label="Maximize">□</button>
+                                    <button type="button" className="chi95-button chi95-control-btn chi95-control-btn-close" aria-label="Close">×</button>
                                 </div>
                             </div>
                             <div className="chi95-menubar">
@@ -967,7 +963,7 @@ export function Calculator({
                                                                     value={copyFormat} 
                                                                     onValueChange={(val) => setCopyFormat(val as CopyFormat)}
                                                                 >
-                                                                    <SelectTrigger className={cn("text-sm", isChicago95 ? 'h-9 px-2 py-0 leading-none [&>span]:leading-none [&>span]:text-left' : 'h-10')}>
+                                                                    <SelectTrigger className={cn("text-sm", isChicago95 ? 'h-[23px] px-1 py-0 leading-none [&>span]:leading-none [&>span]:text-left' : 'h-10')}>
                                                                         <SelectValue />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
@@ -1019,13 +1015,6 @@ export function Calculator({
                         </div>
                     </div>
                 </div>
-
-                {isChicago95 && (
-                    <div className="chi95-statusbar">
-                        <span>Date Change Tool V3 v3.0.0</span>
-                        <span>{result ? 'Ready' : 'Waiting for input'}</span>
-                    </div>
-                )}
 
                 {/* Footer */}
                 {isMinecraft && (

@@ -108,18 +108,31 @@ const Chicago95Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
       aria-checked={checked}
       onClick={() => onCheckedChange?.(!checked)}
       className={cn(
-        "relative inline-flex h-4 w-4 min-h-0 shrink-0 cursor-pointer items-center justify-center border border-[#808080] bg-white align-middle focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        "relative inline-flex h-[13px] w-[13px] min-h-0 shrink-0 cursor-pointer items-center justify-center border border-[#808080] bg-white align-middle leading-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       style={{
-        boxShadow: "inset 1px 1px 0 #000000, inset -1px -1px 0 #ffffff",
+        backgroundColor: "#ffffff",
+        borderColor: "#808080",
+        boxShadow: "inset 1px 1px 0 #000000, inset -1px -1px 0 #dfdfdf",
       }}
     >
       {checked && (
-        <span
+        <svg
           aria-hidden="true"
-          className="pointer-events-none h-[7px] w-[4px] -mt-px rotate-[-45deg] border-b-2 border-l-2 border-black"
-        />
+          viewBox="0 0 8 8"
+          className="pointer-events-none block h-[8px] w-[8px]"
+          shapeRendering="crispEdges"
+        >
+          <path
+            d="M0.5 4.5L2.5 6.5L7 2"
+            fill="none"
+            stroke="#000000"
+            strokeWidth="2"
+            strokeLinecap="square"
+            strokeLinejoin="miter"
+          />
+        </svg>
       )}
     </button>
   )

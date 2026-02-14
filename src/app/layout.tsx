@@ -102,6 +102,9 @@ export default async function RootLayout({
       '--chi95-input-bg': colors.inputBg,
       '--chi95-input-text': colors.inputText,
       '--chi95-accent': colors.accent,
+      '--chi95-grid-alpha': presetName === 'sgs' ? '0' : '0.06',
+      '--chi95-desktop-image': presetName === 'sgs' ? 'url("/backgrounds/IMG_0864.webp")' : 'none',
+      '--chi95-desktop-overlay': presetName === 'sgs' ? 'linear-gradient(rgba(9, 16, 35, 0.24), rgba(9, 16, 35, 0.24))' : 'none',
       backgroundColor: colors.desktopBg,
     } as React.CSSProperties
   } else {

@@ -218,6 +218,14 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             root.style.setProperty('--chi95-input-bg', chicagoColors.inputBg)
             root.style.setProperty('--chi95-input-text', chicagoColors.inputText)
             root.style.setProperty('--chi95-accent', chicagoColors.accent)
+            root.style.setProperty('--chi95-grid-alpha', settings.chicago95Theme === 'sgs' ? '0' : '0.06')
+            if (settings.chicago95Theme === 'sgs') {
+                root.style.setProperty('--chi95-desktop-image', 'url("/backgrounds/IMG_0864.webp")')
+                root.style.setProperty('--chi95-desktop-overlay', 'linear-gradient(rgba(9, 16, 35, 0.24), rgba(9, 16, 35, 0.24))')
+            } else {
+                root.style.removeProperty('--chi95-desktop-image')
+                root.style.removeProperty('--chi95-desktop-overlay')
+            }
 
             root.classList.remove('theme-minecraft', 'theme-fallout')
             root.classList.add('theme-chicago95')
@@ -230,7 +238,8 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             const chiVars = [
                 '--chi95-desktop-bg', '--chi95-window-bg', '--chi95-titlebar-bg', '--chi95-titlebar-text',
                 '--chi95-border-light', '--chi95-border-dark', '--chi95-text', '--chi95-text-dim',
-                '--chi95-button-face', '--chi95-button-text', '--chi95-input-bg', '--chi95-input-text', '--chi95-accent'
+                '--chi95-button-face', '--chi95-button-text', '--chi95-input-bg', '--chi95-input-text', '--chi95-accent',
+                '--chi95-desktop-image', '--chi95-grid-alpha', '--chi95-desktop-overlay'
             ]
             foVars.forEach(v => root.style.removeProperty(v))
             chiVars.forEach(v => root.style.removeProperty(v))

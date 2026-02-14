@@ -45,7 +45,7 @@ export interface Chicago95Colors {
     accent: string
 }
 
-export type Chicago95Preset = 'default' | 'classic-blue' | 'olive' | 'custom'
+export type Chicago95Preset = 'default' | 'classic-blue' | 'olive' | 'sgs' | 'custom'
 
 export const THEMES: Record<ThemePreset, ThemeColors> = {
     default: {
@@ -283,6 +283,21 @@ export const CHICAGO95_THEMES: Record<Chicago95Preset, Chicago95Colors> = {
         inputBg: '#ffffff',
         inputText: '#141a10',
         accent: '#3d5d29',
+    },
+    sgs: {
+        desktopBg: '#1f3f73',
+        windowBg: '#c3c3c7',
+        titleBarBg: '#0c2a78',
+        titleBarText: '#ffffff',
+        borderLight: '#ffffff',
+        borderDark: '#767676',
+        text: '#101010',
+        textDim: '#4a4a4a',
+        buttonFace: '#c9c9ce',
+        buttonText: '#000000',
+        inputBg: '#ffffff',
+        inputText: '#000000',
+        accent: '#8f1d1d',
     },
     custom: {
         desktopBg: '#008080',

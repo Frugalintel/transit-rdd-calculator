@@ -554,6 +554,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                     <SelectItem value="default" className="chi95-text text-sm cursor-pointer">Windows 95 Default</SelectItem>
                                                     <SelectItem value="classic-blue" className="chi95-text text-sm cursor-pointer">Classic Blue</SelectItem>
                                                     <SelectItem value="olive" className="chi95-text text-sm cursor-pointer">Olive</SelectItem>
+                                                    <SelectItem value="sgs" className="chi95-text text-sm cursor-pointer">SGS</SelectItem>
                                                     <SelectItem value="custom" className="chi95-text text-sm cursor-pointer">Custom</SelectItem>
                                                 </SelectContent>
                                             </Select>
@@ -921,7 +922,10 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                     <Button
                                                         size="icon"
                                                         onClick={() => setExpandedTemplate(isExpanded ? null : format)}
-                                                        className="h-10 w-10"
+                                                        className={cn(
+                                                            "p-0 inline-flex items-center justify-center leading-none",
+                                                            isChicago95 ? "h-9 w-9" : "h-10 w-10"
+                                                        )}
                                                         title="Edit template"
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" className="shrink-0">
