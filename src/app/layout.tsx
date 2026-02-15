@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { cookies } from 'next/headers'
 import { VT323 } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import { ThemeProvider as AppSettingsProvider } from '@/context/ThemeContext'
 import type { ThemeMode } from '@/context/ThemeContext'
@@ -176,6 +177,7 @@ export default async function RootLayout({
                   {children}
                   <TrainingMode />
                   <Toaster position="top-center" />
+                  <Analytics />
               </TrainingProvider>
             </AppSettingsProvider>
           </ThemeProvider>
