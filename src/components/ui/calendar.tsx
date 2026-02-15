@@ -100,11 +100,21 @@ function Calendar({
     setYearOpen(false)
   }
 
+  const incrementYear = () => {
+    if (currentYear >= YEARS[YEARS.length - 1]) return
+    handleMonthChange(new Date(currentYear + 1, currentMonth, 1))
+  }
+
+  const decrementYear = () => {
+    if (currentYear <= YEARS[0]) return
+    handleMonthChange(new Date(currentYear - 1, currentMonth, 1))
+  }
+
   // Theme-specific dropdown styles
   const dropdownContainerClass = isFallout
     ? "bg-black border border-[var(--fo-primary)] p-1 max-h-[180px] overflow-y-auto"
     : isChicago95
-      ? "bg-white p-1 border-2 border-[#808080] shadow-[inset_1px_1px_0_0_#ffffff,inset_-1px_-1px_0_0_#000000] max-h-[180px] overflow-y-auto"
+      ? "chi95-calendar-dropdown bg-white p-0 border-0 max-h-[132px] overflow-y-auto"
       : "bg-[var(--mc-bg)] p-1 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),0_0_0_2px_#000000] max-h-[180px] overflow-y-auto"
 
   const dropdownItemClass = (isSelected: boolean) => isFallout
@@ -115,9 +125,8 @@ function Calendar({
       )
     : isChicago95
       ? cn(
-          "w-full px-2 py-1 text-left text-sm text-black",
-          "hover:bg-[#000080] hover:text-white",
-          isSelected && "bg-[#000080] text-white"
+          "chi95-calendar-dropdown-item",
+          isSelected && "is-selected"
         )
     : cn(
         "w-full px-2 py-0.5 text-left text-xs font-mono",
@@ -126,93 +135,168 @@ function Calendar({
       )
 
   return (
-    <div className={cn("p-2", !isChicago95 && "font-mono", className)}>
+    <div className={cn(isChicago95 ? "p-0 chi95-calendar" : "p-2", !isChicago95 && "font-mono", className)}>
       {/* Custom Header */}
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <Button
-          type="button"
-          onClick={goToPrevMonth}
-          className="h-8 w-8 flex items-center justify-center text-sm p-0"
-          aria-label="Previous month"
-        >
-          «
-        </Button>
-        
-        {/* Month Dropdown */}
-        <Popover open={monthOpen} onOpenChange={setMonthOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              className="h-8 px-3 flex items-center justify-center gap-1 text-sm min-w-[100px]"
+      {isChicago95 ? (
+        <div className="chi95-calendar-header">
+          <Popover open={monthOpen} onOpenChange={setMonthOpen}>
+            <PopoverTrigger asChild>
+              <button type="button" className="chi95-calendar-month-trigger">
+                <span className="truncate">{MONTHS[currentMonth]}</span>
+                <span className="chi95-calendar-trigger-caret" aria-hidden="true">
+                  <span className="chi95-calendar-trigger-caret-shape" />
+                </span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-[118px] p-0 border-0 z-[100]"
+              align="start"
+              sideOffset={2}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              style={{ animationDuration: '0s' }}
             >
-              {MONTHS[currentMonth]} <span className="text-[10px]">▼</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-[120px] p-0 border-0 z-[100]" 
-            align="center"
-            sideOffset={4}
-            onOpenAutoFocus={(e) => e.preventDefault()}
-            style={{ animationDuration: '0s' }}
-          >
-            <div ref={monthListRef} className={dropdownContainerClass}>
-              {MONTHS.map((month, index) => (
-                <button
-                  key={month}
-                  type="button"
-                  onClick={() => selectMonth(index)}
-                  data-selected={index === currentMonth}
-                  className={dropdownItemClass(index === currentMonth)}
-                >
-                  {month}
-                </button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+              <div ref={monthListRef} className={dropdownContainerClass}>
+                {MONTHS.map((month, index) => (
+                  <button
+                    key={month}
+                    type="button"
+                    onClick={() => selectMonth(index)}
+                    data-selected={index === currentMonth}
+                    className={dropdownItemClass(index === currentMonth)}
+                  >
+                    {month}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
-        {/* Year Dropdown */}
-        <Popover open={yearOpen} onOpenChange={setYearOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              className="h-8 px-3 flex items-center justify-center gap-1 text-sm min-w-[70px]"
+          <Popover open={yearOpen} onOpenChange={setYearOpen}>
+            <div className="chi95-calendar-year-spin">
+              <PopoverTrigger asChild>
+                <button type="button" className="chi95-calendar-year-display">
+                  {currentYear}
+                </button>
+              </PopoverTrigger>
+              <div className="chi95-calendar-spin-buttons">
+                <button type="button" className="chi95-calendar-spin-btn" aria-label="Increase year" onClick={incrementYear}>
+                  <span className="chi95-calendar-spin-arrow chi95-calendar-spin-arrow-up" />
+                </button>
+                <button type="button" className="chi95-calendar-spin-btn" aria-label="Decrease year" onClick={decrementYear}>
+                  <span className="chi95-calendar-spin-arrow chi95-calendar-spin-arrow-down" />
+                </button>
+              </div>
+            </div>
+            <PopoverContent
+              className="w-[64px] p-0 border-0 z-[100]"
+              align="end"
+              sideOffset={2}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              style={{ animationDuration: '0s' }}
             >
-              {currentYear} <span className="text-[10px]">▼</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-[70px] p-0 border-0 z-[100]" 
-            align="center"
-            sideOffset={4}
-            onOpenAutoFocus={(e) => e.preventDefault()}
-            style={{ animationDuration: '0s' }}
+              <div ref={yearListRef} className={dropdownContainerClass}>
+                {YEARS.map((year) => (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => selectYear(year)}
+                    data-selected={year === currentYear}
+                    className={dropdownItemClass(year === currentYear)}
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Button
+            type="button"
+            onClick={goToPrevMonth}
+            className="h-8 w-8 flex items-center justify-center text-sm p-0"
+            aria-label="Previous month"
           >
-            <div ref={yearListRef} className={dropdownContainerClass}>
-              {YEARS.map((year) => (
-                <button
-                  key={year}
-                  type="button"
-                  onClick={() => selectYear(year)}
-                  data-selected={year === currentYear}
-                  className={dropdownItemClass(year === currentYear)}
-                >
-                  {year}
-                </button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+            «
+          </Button>
+          
+          {/* Month Dropdown */}
+          <Popover open={monthOpen} onOpenChange={setMonthOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                className="h-8 px-3 flex items-center justify-center gap-1 text-sm min-w-[100px]"
+              >
+                {MONTHS[currentMonth]} <span className="text-[10px]">▼</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-[120px] p-0 border-0 z-[100]" 
+              align="center"
+              sideOffset={4}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              style={{ animationDuration: '0s' }}
+            >
+              <div ref={monthListRef} className={dropdownContainerClass}>
+                {MONTHS.map((month, index) => (
+                  <button
+                    key={month}
+                    type="button"
+                    onClick={() => selectMonth(index)}
+                    data-selected={index === currentMonth}
+                    className={dropdownItemClass(index === currentMonth)}
+                  >
+                    {month}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
-        <Button
-          type="button"
-          onClick={goToNextMonth}
-          className="h-8 w-8 flex items-center justify-center text-sm p-0"
-          aria-label="Next month"
-        >
-          »
-        </Button>
-      </div>
+          {/* Year Dropdown */}
+          <Popover open={yearOpen} onOpenChange={setYearOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                className="h-8 px-3 flex items-center justify-center gap-1 text-sm min-w-[70px]"
+              >
+                {currentYear} <span className="text-[10px]">▼</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-[70px] p-0 border-0 z-[100]" 
+              align="center"
+              sideOffset={4}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              style={{ animationDuration: '0s' }}
+            >
+              <div ref={yearListRef} className={dropdownContainerClass}>
+                {YEARS.map((year) => (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => selectYear(year)}
+                    data-selected={year === currentYear}
+                    className={dropdownItemClass(year === currentYear)}
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Button
+            type="button"
+            onClick={goToNextMonth}
+            className="h-8 w-8 flex items-center justify-center text-sm p-0"
+            aria-label="Next month"
+          >
+            »
+          </Button>
+        </div>
+      )}
 
       <DayPicker
         showOutsideDays={showOutsideDays}
@@ -235,7 +319,7 @@ function Calendar({
           weekday: isFallout
             ? "fo-text w-8 h-6 font-normal text-[11px] text-center opacity-60"
             : isChicago95
-            ? "chi95-text w-8 h-6 font-normal text-[11px] text-center"
+            ? "chi95-calendar-weekday w-8 h-6 font-normal text-[11px] text-center"
             : "mc-text-dark w-8 h-6 font-normal text-[11px] text-center",
           week: "",
           day: "h-8 w-8 text-center p-0.5 relative",
@@ -248,9 +332,9 @@ function Calendar({
               )
             : isChicago95
             ? cn(
-                "h-full w-full p-0 font-normal bg-[#c0c0c0] text-black border border-[#808080]",
-                "hover:bg-[#000080] hover:text-white",
-                "flex items-center justify-center text-xs relative transition-none"
+                "!h-full !w-full !min-h-0 !p-0 !font-normal !bg-transparent !text-black !border-0 !shadow-none",
+                "hover:!bg-[#000080] hover:!text-white",
+                "flex items-center justify-center !text-[11px] !leading-none relative transition-none"
               )
             : cn(
                 "h-full w-full p-0 font-normal bg-[var(--mc-button-bg)] text-white",
@@ -266,7 +350,7 @@ function Calendar({
           today: isFallout
             ? "!border !border-[var(--fo-primary-dim)] !text-[var(--fo-primary)] !bg-[rgba(26,255,128,0.08)]"
             : isChicago95
-            ? "!border !border-[#000080] !bg-[#dfe8ff]"
+            ? "!bg-[#eef3ff] !text-black !border !border-[#000080] !shadow-none"
             : "!bg-[var(--mc-destructive)] !text-white !shadow-[inset_2px_2px_0_0_#cc7777,inset_-2px_-2px_0_0_#662222]",
           outside: isFallout
             ? "!text-[var(--fo-primary-dim)] opacity-30"
@@ -327,6 +411,10 @@ function Calendar({
                 }
             } else if (isToday && !isFallout && !isChicago95) {
                 extraClasses = "!bg-[var(--mc-destructive)] !shadow-[inset_2px_2px_0_0_#662222,inset_-2px_-2px_0_0_#cc7777] hover:!shadow-[inset_0_0_0_2px_#ffffff]"
+            }
+
+            if (isChicago95 && isSelected) {
+                extraClasses = cn(extraClasses, "!text-white")
             }
             
             return (

@@ -555,6 +555,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                     <SelectItem value="classic-blue" className="chi95-text text-sm cursor-pointer">Classic Blue</SelectItem>
                                                     <SelectItem value="olive" className="chi95-text text-sm cursor-pointer">Olive</SelectItem>
                                                     <SelectItem value="sgs" className="chi95-text text-sm cursor-pointer">SGS</SelectItem>
+                                                    <SelectItem value="sgs-sky" className="chi95-text text-sm cursor-pointer">Sky</SelectItem>
                                                     <SelectItem value="custom" className="chi95-text text-sm cursor-pointer">Custom</SelectItem>
                                                 </SelectContent>
                                             </Select>
@@ -924,11 +925,16 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                         onClick={() => setExpandedTemplate(isExpanded ? null : format)}
                                                         className={cn(
                                                             "p-0 inline-flex items-center justify-center leading-none",
-                                                            isChicago95 ? "h-9 w-9" : "h-10 w-10"
+                                                            isChicago95 ? "h-[23px] w-[23px]" : "h-10 w-10"
                                                         )}
                                                         title="Edit template"
                                                     >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" className="shrink-0">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="currentColor"
+                                                            viewBox="0 0 16 16"
+                                                            className={cn("shrink-0", isChicago95 ? "h-3.5 w-3.5" : "h-5 w-5")}
+                                                        >
                                                             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                                                             <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
                                                         </svg>

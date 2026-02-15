@@ -218,10 +218,14 @@ export function ThemeProvider({ children, serverThemeMode }: ThemeProviderProps)
             root.style.setProperty('--chi95-input-bg', chicagoColors.inputBg)
             root.style.setProperty('--chi95-input-text', chicagoColors.inputText)
             root.style.setProperty('--chi95-accent', chicagoColors.accent)
-            root.style.setProperty('--chi95-grid-alpha', settings.chicago95Theme === 'sgs' ? '0' : '0.06')
+            const isSgsFamily = settings.chicago95Theme === 'sgs' || settings.chicago95Theme === 'sgs-sky'
+            root.style.setProperty('--chi95-grid-alpha', isSgsFamily ? '0' : '0.06')
             if (settings.chicago95Theme === 'sgs') {
                 root.style.setProperty('--chi95-desktop-image', 'url("/backgrounds/IMG_0864.webp")')
                 root.style.setProperty('--chi95-desktop-overlay', 'linear-gradient(rgba(9, 16, 35, 0.24), rgba(9, 16, 35, 0.24))')
+            } else if (settings.chicago95Theme === 'sgs-sky') {
+                root.style.setProperty('--chi95-desktop-image', 'url("/backgrounds/SKY.webp")')
+                root.style.setProperty('--chi95-desktop-overlay', 'linear-gradient(rgba(8, 20, 48, 0.16), rgba(8, 20, 48, 0.16))')
             } else {
                 root.style.removeProperty('--chi95-desktop-image')
                 root.style.removeProperty('--chi95-desktop-overlay')

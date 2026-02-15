@@ -268,6 +268,43 @@ export function DatePicker({
     </div>
   )
 
+  const chicagoCalendarFooter = (
+    <div className="chi95-calendar-footer">
+      <Button
+        type="button"
+        className="chi95-calendar-footer-btn"
+        onClick={() => setOpen(false)}
+      >
+        Cancel
+      </Button>
+      <Button
+        type="button"
+        className="chi95-calendar-footer-btn"
+        onClick={() => {
+          const today = new Date()
+          setDate(today)
+          setCalendarMonth(toMonthStart(today))
+          setOpen(false)
+        }}
+      >
+        Today
+      </Button>
+      <Button
+        type="button"
+        className="chi95-calendar-footer-btn"
+        onClick={() => {
+          const tmrw = new Date()
+          tmrw.setDate(tmrw.getDate() + 1)
+          setDate(tmrw)
+          setCalendarMonth(toMonthStart(tmrw))
+          setOpen(false)
+        }}
+      >
+        Tomorrow
+      </Button>
+    </div>
+  )
+
   // ─── Fallout Theme ───────────────────────────────────────
   if (isFallout) {
     return (
@@ -361,16 +398,23 @@ export function DatePicker({
               disabled={disabled}
               className={cn(
                 "absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center",
-                isChicago95 && "chi95-button !h-auto !min-h-0 top-[1px] right-[1px] bottom-[1px] w-9 p-0"
+                isChicago95 && "chi95-button !h-auto !min-h-0 top-[1px] right-[1px] bottom-[1px] w-6 p-0 text-[9px]"
               )}
               aria-label="Open calendar"
               tabIndex={-1}
             >
-              <CalendarIcon className={cn("h-5 w-5 transition-colors", isChicago95 ? "text-black hover:text-[#000080]" : "text-[#707070] hover:text-white")} />
+              {isChicago95 ? (
+                <span aria-hidden="true">▼</span>
+              ) : (
+                <CalendarIcon className="h-5 w-5 transition-colors text-[#707070] hover:text-white" />
+              )}
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-auto p-0 border-0"
+            className={cn(
+              "p-0 border-0",
+              isChicago95 ? "w-[282px] bg-transparent shadow-none" : "w-auto"
+            )}
             align="start"
             side="bottom"
             sideOffset={isChicago95 ? 2 : 8}
@@ -378,19 +422,27 @@ export function DatePicker({
           >
             <div className={cn(
               isChicago95
-                ? "bg-[#c0c0c0] p-2 border-2 border-[#808080] shadow-[inset_1px_1px_0_0_#ffffff,inset_-1px_-1px_0_0_#000000]"
+                ? "chi95-window p-1.5"
                 : "bg-[var(--mc-bg)] p-2 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),inset_-4px_-4px_0_0_var(--mc-shadow),0_0_0_2px_#000000,4px_4px_0_0_rgba(0,0,0,0.25)]"
             )}>
-              <Calendar
-                mode="single"
-                selected={date}
-                month={calendarMonth}
-                onMonthChange={setCalendarMonth}
-                onSelect={handleCalendarSelect}
-                initialFocus
-                className="!border-0 !shadow-none !bg-transparent"
-                footer={calendarFooter}
-              />
+              {isChicago95 && (
+                <div className="chi95-titlebar mb-1">
+                  <span>Date</span>
+                </div>
+              )}
+              <div className={cn(isChicago95 && "chi95-calendar-content")}>
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  month={calendarMonth}
+                  onMonthChange={setCalendarMonth}
+                  onSelect={handleCalendarSelect}
+                  initialFocus
+                  className="!border-0 !shadow-none !bg-transparent"
+                  footer={isChicago95 ? undefined : calendarFooter}
+                />
+              </div>
+              {isChicago95 && chicagoCalendarFooter}
             </div>
           </PopoverContent>
         </Popover>

@@ -125,12 +125,8 @@ const Chicago95Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
           shapeRendering="crispEdges"
         >
           <path
-            d="M0.5 4.5L2.5 6.5L7 2"
-            fill="none"
-            stroke="#000000"
-            strokeWidth="2"
-            strokeLinecap="square"
-            strokeLinejoin="miter"
+            fill="#000000"
+            d="M0 4h2v1H0zM1 5h2v1H1zM2 6h2v1H2zM2 5h2v1H2zM3 4h2v1H3zM4 3h2v1H4zM5 2h2v1H5zM6 1h2v1H6z"
           />
         </svg>
       )}

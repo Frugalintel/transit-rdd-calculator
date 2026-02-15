@@ -88,6 +88,17 @@ export default async function RootLayout({
   } else if (themeMode === 'chicago95') {
     const presetName = chicago95ThemeCookie && CHICAGO95_THEMES[chicago95ThemeCookie] ? chicago95ThemeCookie : 'default'
     const colors = CHICAGO95_THEMES[presetName]
+    const isSgsFamily = presetName === 'sgs' || presetName === 'sgs-sky'
+    const desktopImage = presetName === 'sgs'
+      ? 'url("/backgrounds/IMG_0864.webp")'
+      : presetName === 'sgs-sky'
+        ? 'url("/backgrounds/SKY.webp")'
+        : 'none'
+    const desktopOverlay = presetName === 'sgs'
+      ? 'linear-gradient(rgba(9, 16, 35, 0.24), rgba(9, 16, 35, 0.24))'
+      : presetName === 'sgs-sky'
+        ? 'linear-gradient(rgba(8, 20, 48, 0.16), rgba(8, 20, 48, 0.16))'
+        : 'none'
     initialStyle = {
       '--chi95-desktop-bg': colors.desktopBg,
       '--chi95-window-bg': colors.windowBg,
@@ -102,9 +113,9 @@ export default async function RootLayout({
       '--chi95-input-bg': colors.inputBg,
       '--chi95-input-text': colors.inputText,
       '--chi95-accent': colors.accent,
-      '--chi95-grid-alpha': presetName === 'sgs' ? '0' : '0.06',
-      '--chi95-desktop-image': presetName === 'sgs' ? 'url("/backgrounds/IMG_0864.webp")' : 'none',
-      '--chi95-desktop-overlay': presetName === 'sgs' ? 'linear-gradient(rgba(9, 16, 35, 0.24), rgba(9, 16, 35, 0.24))' : 'none',
+      '--chi95-grid-alpha': isSgsFamily ? '0' : '0.06',
+      '--chi95-desktop-image': desktopImage,
+      '--chi95-desktop-overlay': desktopOverlay,
       backgroundColor: colors.desktopBg,
     } as React.CSSProperties
   } else {
