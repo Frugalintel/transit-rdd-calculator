@@ -96,10 +96,16 @@ export function DatePicker({
   const [calendarMonth, setCalendarMonth] = React.useState<Date>(() =>
     date ? new Date(date.getFullYear(), date.getMonth(), 1) : new Date()
   )
+  const [isCompactViewport, setIsCompactViewport] = React.useState(false)
   const [isFocused, setIsFocused] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
-  const cursorPosRef = React.useRef<{ start: number | null; end: number | null }>({ start: null, end: null })
-  const moveCursorToEndRef = React.useRef(false)
+  const triggerButtonRef = React.useRef<HTMLButtonElement>(null)
+  const calendarPanelRef = React.useRef<HTMLDivElement>(null)
+  // NOTE: cursor-position restoration (useLayoutEffect + setSelectionRange) was
+  // intentionally removed.  setSelectionRange implicitly focuses the element,
+  // which stole focus from whatever the user clicked on next.  The minor cursor
+  // jump on controlled-input re-renders is an acceptable trade-off for reliable
+  // field-to-field navigation.
   const { settings } = useTheme()
   const isFallout = settings.themeMode === "fallout"
   const isChicago95 = settings.themeMode === "chicago95"
@@ -122,33 +128,43 @@ export function DatePicker({
     }
   }, [date, open, toMonthStart])
 
-  // Restore cursor position after React re-renders the controlled input.
-  // useLayoutEffect fires synchronously after DOM update but before paint,
-  // so the cursor never visibly jumps.
-  React.useLayoutEffect(() => {
-    const el = inputRef.current
-    if (!el) return
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+    const media = window.matchMedia("(max-width: 900px)")
+    const update = () => setIsCompactViewport(media.matches)
+    update()
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
 
-    if (moveCursorToEndRef.current) {
-      // After commit/format, move cursor to end
-      moveCursorToEndRef.current = false
-      const len = el.value.length
-      el.setSelectionRange(len, len)
-    } else if (cursorPosRef.current.start !== null) {
-      // After normal typing, restore saved cursor position
-      el.setSelectionRange(cursorPosRef.current.start, cursorPosRef.current.end)
-      cursorPosRef.current = { start: null, end: null }
+  React.useEffect(() => {
+    if (!isCompactViewport || !open) return
+
+    const handleDocumentClick = (event: MouseEvent) => {
+      const target = event.target as Node | null
+      if (!target) return
+      if (calendarPanelRef.current?.contains(target)) return
+      if (triggerButtonRef.current?.contains(target)) return
+      setOpen(false)
     }
-  }, [inputValue])
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener("click", handleDocumentClick)
+    document.addEventListener("keydown", handleEscape)
+    return () => {
+      document.removeEventListener("click", handleDocumentClick)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [isCompactViewport, open])
 
   // Let the user type freely — no parsing mid-keystroke
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
-    // Save cursor position BEFORE the state update triggers a re-render
-    cursorPosRef.current = {
-      start: e.target.selectionStart,
-      end: e.target.selectionEnd,
-    }
     setInputValue(val)
 
     // Allow clearing
@@ -179,12 +195,10 @@ export function DatePicker({
     const parsed = parseSmartDate(trimmed)
     if (parsed) {
       setDate(parsed)
-      moveCursorToEndRef.current = true
       setInputValue(format(parsed, "MM/dd/yyyy"))
     } else {
       // Invalid — revert to last valid date or clear
       if (date) {
-        moveCursorToEndRef.current = true
         setInputValue(format(date, "MM/dd/yyyy"))
       } else {
         setInputValue("")
@@ -192,7 +206,14 @@ export function DatePicker({
     }
   }
 
-  const handleBlur = () => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Check if the new focus target is inside the same container (e.g. the calendar trigger button)
+    // If so, don't clear the focus state immediately to avoid UI flicker
+    const relatedTarget = e.relatedTarget as Node | null
+    if (triggerButtonRef.current && relatedTarget && triggerButtonRef.current.contains(relatedTarget)) {
+      return
+    }
+
     setIsFocused(false)
     commitValue()
   }
@@ -326,38 +347,75 @@ export function DatePicker({
             style={{ caretColor: 'var(--fo-primary)' }}
             autoComplete="off"
           />
-          <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
-            <PopoverTrigger asChild>
+          {isCompactViewport ? (
+            <>
               <button
                 type="button"
                 disabled={disabled}
+                onClick={() => handlePopoverOpenChange(true)}
+                ref={triggerButtonRef}
                 className="absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center fo-text opacity-50 hover:opacity-100 transition-opacity"
                 aria-label="Open calendar"
                 tabIndex={-1}
               >
                 <CalendarIcon className="h-5 w-5" />
               </button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto p-0 border-2 border-[var(--fo-primary)] bg-black shadow-none"
-              align="start"
-              side="bottom"
-              sideOffset={4}
-            >
-              <div className="bg-black p-4">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  month={calendarMonth}
-                  onMonthChange={setCalendarMonth}
-                  onSelect={handleCalendarSelect}
-                  initialFocus
-                  className="!border-0 !shadow-none !bg-transparent !m-0"
-                  footer={calendarFooter}
-                />
-              </div>
-            </PopoverContent>
-          </Popover>
+              {!disabled && open && (
+                <div className="fixed inset-0 z-[120] bg-black/60 p-2 flex items-center justify-center pointer-events-none">
+                  <div
+                    ref={calendarPanelRef}
+                    className="w-full max-w-[min(560px,calc(100vw-16px))] border-2 border-[var(--fo-primary)] bg-black pointer-events-auto"
+                  >
+                    <div className="bg-black p-4">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        month={calendarMonth}
+                        onMonthChange={setCalendarMonth}
+                        onSelect={handleCalendarSelect}
+                        initialFocus
+                        className="!border-0 !shadow-none !bg-transparent !m-0"
+                        footer={calendarFooter}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  disabled={disabled}
+                  className="absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center fo-text opacity-50 hover:opacity-100 transition-opacity"
+                  aria-label="Open calendar"
+                  tabIndex={-1}
+                >
+                  <CalendarIcon className="h-5 w-5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto max-w-[calc(100vw-16px)] p-0 border-2 border-[var(--fo-primary)] bg-black shadow-none"
+                align="start"
+                side="bottom"
+                sideOffset={4}
+              >
+                <div className="bg-black p-4">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                    onSelect={handleCalendarSelect}
+                    initialFocus
+                    className="!border-0 !shadow-none !bg-transparent !m-0"
+                    footer={calendarFooter}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
         {/* Hint text when focused and empty */}
         <div className="mt-1 min-h-[12px] pl-1">
@@ -391,11 +449,13 @@ export function DatePicker({
           style={{ caretColor: isChicago95 ? "#000000" : 'var(--mc-input-text, #ffffff)' }}
           autoComplete="off"
         />
-        <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
-          <PopoverTrigger asChild>
+        {isCompactViewport ? (
+          <>
             <button
               type="button"
               disabled={disabled}
+              onClick={() => handlePopoverOpenChange(true)}
+              ref={triggerButtonRef}
               className={cn(
                 "absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center",
                 isChicago95 && "chi95-button !h-auto !min-h-0 top-[1px] right-[1px] bottom-[1px] w-6 p-0 text-[9px]"
@@ -409,43 +469,96 @@ export function DatePicker({
                 <CalendarIcon className="h-5 w-5 transition-colors text-[#707070] hover:text-white" />
               )}
             </button>
-          </PopoverTrigger>
-          <PopoverContent
-            className={cn(
-              "p-0 border-0",
-              isChicago95 ? "w-[282px] bg-transparent shadow-none" : "w-auto"
-            )}
-            align="start"
-            side="bottom"
-            sideOffset={isChicago95 ? 2 : 8}
-            collisionPadding={20}
-          >
-            <div className={cn(
-              isChicago95
-                ? "chi95-window p-1.5"
-                : "bg-[var(--mc-bg)] p-2 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),inset_-4px_-4px_0_0_var(--mc-shadow),0_0_0_2px_#000000,4px_4px_0_0_rgba(0,0,0,0.25)]"
-            )}>
-              {isChicago95 && (
-                <div className="chi95-titlebar mb-1">
-                  <span>Date</span>
+            {!disabled && open && (
+              <div className="fixed inset-0 z-[120] bg-black/60 p-2 flex items-center justify-center pointer-events-none">
+                <div
+                  ref={calendarPanelRef}
+                  className={cn(
+                    "w-full max-w-[min(560px,calc(100vw-16px))] pointer-events-auto",
+                    isChicago95
+                      ? "chi95-window p-1.5"
+                      : "bg-[var(--mc-bg)] p-2 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),inset_-4px_-4px_0_0_var(--mc-shadow),0_0_0_2px_#000000,4px_4px_0_0_rgba(0,0,0,0.25)]"
+                  )}
+                >
+                  {isChicago95 && (
+                    <div className="chi95-titlebar mb-1">
+                      <span>Date</span>
+                    </div>
+                  )}
+                  <div className={cn(isChicago95 && "chi95-calendar-content")}>
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      month={calendarMonth}
+                      onMonthChange={setCalendarMonth}
+                      onSelect={handleCalendarSelect}
+                      initialFocus
+                      className="!border-0 !shadow-none !bg-transparent"
+                      footer={isChicago95 ? undefined : calendarFooter}
+                    />
+                  </div>
+                  {isChicago95 && chicagoCalendarFooter}
                 </div>
-              )}
-              <div className={cn(isChicago95 && "chi95-calendar-content")}>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  month={calendarMonth}
-                  onMonthChange={setCalendarMonth}
-                  onSelect={handleCalendarSelect}
-                  initialFocus
-                  className="!border-0 !shadow-none !bg-transparent"
-                  footer={isChicago95 ? undefined : calendarFooter}
-                />
               </div>
-              {isChicago95 && chicagoCalendarFooter}
-            </div>
-          </PopoverContent>
-        </Popover>
+            )}
+          </>
+        ) : (
+          <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handlePopoverOpenChange}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                disabled={disabled}
+                className={cn(
+                  "absolute right-0 top-0 bottom-0 w-10 flex items-center justify-center",
+                  isChicago95 && "chi95-button !h-auto !min-h-0 top-[1px] right-[1px] bottom-[1px] w-6 p-0 text-[9px]"
+                )}
+                aria-label="Open calendar"
+                tabIndex={-1}
+              >
+                {isChicago95 ? (
+                  <span aria-hidden="true">▼</span>
+                ) : (
+                  <CalendarIcon className="h-5 w-5 transition-colors text-[#707070] hover:text-white" />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className={cn(
+                "p-0 border-0",
+                isChicago95 ? "w-[282px] max-w-[calc(100vw-16px)] bg-transparent shadow-none" : "w-auto max-w-[calc(100vw-16px)]"
+              )}
+              align={isChicago95 ? "center" : "start"}
+              side="bottom"
+              sideOffset={isChicago95 ? 2 : 8}
+              collisionPadding={isChicago95 ? 8 : 20}
+            >
+              <div className={cn(
+                isChicago95
+                  ? "chi95-window p-1.5"
+                  : "bg-[var(--mc-bg)] p-2 shadow-[inset_2px_2px_0_0_var(--mc-light-border),inset_-2px_-2px_0_0_var(--mc-dark-border),inset_-4px_-4px_0_0_var(--mc-shadow),0_0_0_2px_#000000,4px_4px_0_0_rgba(0,0,0,0.25)]"
+              )}>
+                {isChicago95 && (
+                  <div className="chi95-titlebar mb-1">
+                    <span>Date</span>
+                  </div>
+                )}
+                <div className={cn(isChicago95 && "chi95-calendar-content")}>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                    onSelect={handleCalendarSelect}
+                    initialFocus
+                    className="!border-0 !shadow-none !bg-transparent"
+                    footer={isChicago95 ? undefined : calendarFooter}
+                  />
+                </div>
+                {isChicago95 && chicagoCalendarFooter}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
       {/* Hint text when focused and empty */}
       <div className="mt-1 min-h-[12px] pl-1">

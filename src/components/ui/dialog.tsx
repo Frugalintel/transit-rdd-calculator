@@ -76,11 +76,11 @@ const DialogContent = React.forwardRef<
   return (
     <DialogPortal>
       <DialogOverlay />
-      <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 pointer-events-none">
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
-            "relative z-[100] grid w-full max-w-lg gap-4 p-6 duration-200 pointer-events-auto data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "relative z-[100] grid w-full max-w-lg max-h-[calc(100vh-16px)] overflow-y-auto gap-4 p-4 sm:p-6 duration-200 pointer-events-auto data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
             isFallout ? "fo-panel" : isChicago95 ? "chi95-panel" : "mc-panel",
             className
           )}

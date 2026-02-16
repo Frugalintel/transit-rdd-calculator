@@ -512,21 +512,21 @@ export function Calculator({
 
     return (
         <div 
-            className={`min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative ${isFallout ? 'fo-scanlines' : ''}`} 
-            style={{ touchAction: 'pan-y' }}
+            className={`min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative`} 
+            style={{ touchAction: 'auto' }}
         >
             {/* Title */}
-            <div className={`mb-8 relative text-center z-10 w-full max-w-4xl pb-4 ${isFallout ? 'border-b-2 border-[var(--fo-primary)]' : ''}`}>
+            <div className={`relative text-center z-10 w-full max-w-4xl ${isFallout ? 'mb-4 md:mb-8 pb-2 md:pb-4 border-b-2 border-[var(--fo-primary)]' : 'mb-8 pb-4'}`}>
                 {isFallout ? (
-                    <div className="w-full font-mono flex items-start justify-between gap-4 sm:gap-6">
+                    <div className="w-full font-mono flex items-start justify-between gap-2 md:gap-6">
                         <div className="min-w-0 text-left">
-                            <div className="fo-text text-sm mb-2 whitespace-nowrap">STATUS: ONLINE SETTINGS VER 3.0.0</div>
-                            <div className="fo-text text-sm mb-2 whitespace-nowrap">SUDCO INDUSTRIES UNIFIED OPERATING SYSTEM</div>
-                            <div className="fo-text text-sm mb-4 whitespace-nowrap">COPYRIGHT 2075-2077 SUDCO INDUSTRIES</div>
-                            <h1 className="text-4xl fo-title mt-8 mb-4">DATE CHANGE TOOL V3</h1>
+                            <div className="fo-text text-[11px] md:text-sm mb-1">STATUS: ONLINE SETTINGS VER 3.0.0</div>
+                            <div className="fo-text text-[11px] md:text-sm mb-1 hidden min-[460px]:block">SUDCO INDUSTRIES UNIFIED OPERATING SYSTEM</div>
+                            <div className="fo-text text-[11px] md:text-sm mb-2 md:mb-4 hidden min-[540px]:block">COPYRIGHT 2075-2077 SUDCO INDUSTRIES</div>
+                            <h1 className="text-3xl md:text-4xl fo-title mt-3 md:mt-8 mb-2 md:mb-4 leading-tight">DATE CHANGE TOOL V3</h1>
                         </div>
-                        <div className="shrink-0 pt-1 sm:pt-0 relative z-20">
-                            <div aria-hidden="true" className="fo-sgs-mark h-26 w-44 sm:h-30 sm:w-48 md:h-34 md:w-56 pointer-events-none" />
+                        <div className="shrink-0 pt-1 md:pt-0 relative z-20">
+                            <div aria-hidden="true" className="fo-sgs-mark h-16 w-28 md:h-34 md:w-56 pointer-events-none" />
                         </div>
                     </div>
                 ) : isChicago95 ? null : (
@@ -599,11 +599,11 @@ export function Calculator({
                             <div className="w-full overflow-x-auto overflow-y-hidden whitespace-nowrap no-scrollbar">
                                 <div className="flex items-center gap-1 sm:gap-2 w-max min-w-full">
                                     <div className="flex items-center gap-1 sm:gap-2">
-                                    <Button size="sm" variant="primary" onClick={() => router.push('/training')} className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                    <Button size="sm" variant="primary" onClick={() => router.push('/training')} className="text-xs sm:text-sm min-w-[84px] sm:min-w-[104px] shrink-0">
                                         <ItemIcon type="book" className="mr-1 sm:mr-2" />
                                         Training
                                     </Button>
-                                    <Button size="sm" onClick={openSettings} title="Settings" className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                    <Button size="sm" onClick={openSettings} title="Settings" className="text-xs sm:text-sm min-w-[84px] sm:min-w-[104px] shrink-0">
                                         <ItemIcon type="sign" className="mr-1 sm:mr-2" />
                                         Options
                                     </Button>
@@ -614,7 +614,7 @@ export function Calculator({
                                                 if (user) setIsHistoryOpen(true)
                                             }}
                                             title="History"
-                                            className="text-xs sm:text-sm min-w-[104px] shrink-0"
+                                            className="text-xs sm:text-sm min-w-[84px] sm:min-w-[104px] shrink-0"
                                         >
                                             <ItemIcon type="clock" className="mr-1 sm:mr-2" />
                                             History
@@ -624,7 +624,7 @@ export function Calculator({
                                             size="sm"
                                             disabled
                                             aria-hidden="true"
-                                            className="text-xs sm:text-sm min-w-[104px] shrink-0 invisible pointer-events-none"
+                                            className="text-xs sm:text-sm min-w-[84px] sm:min-w-[104px] shrink-0 invisible pointer-events-none"
                                         >
                                             <ItemIcon type="clock" className="mr-1 sm:mr-2" />
                                             History
@@ -633,11 +633,11 @@ export function Calculator({
                                     </div>
                                     <div className="ml-auto">
                                     {showAuthenticatedControls ? (
-                                        <Button size="sm" onClick={handleLogout} className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                        <Button size="sm" onClick={handleLogout} className="text-xs sm:text-sm min-w-[84px] sm:min-w-[104px] shrink-0">
                                             Disconnect
                                         </Button>
                                     ) : (
-                                        <Button size="sm" onClick={openAuth} className="text-xs sm:text-sm min-w-[104px] shrink-0">
+                                        <Button size="sm" onClick={openAuth} className="text-xs sm:text-sm min-w-[84px] sm:min-w-[104px] shrink-0">
                                             Login
                                         </Button>
                                     )}
@@ -649,25 +649,25 @@ export function Calculator({
 
                     {/* Fallout Header / Menu */}
                     {isFallout && (
-                        <div className="w-full mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
+                        <div className="w-full mb-4 md:mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
                             <div className="w-full overflow-x-auto overflow-y-hidden whitespace-nowrap no-scrollbar">
                                 <div className="flex items-center gap-1 sm:gap-3 w-max min-w-full">
-                                    <button onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0">[ SETTINGS ]</button>
-                                    <button onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0">[ GUIDE ]</button>
+                                    <button onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0">[ SETTINGS ]</button>
+                                    <button onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0">[ GUIDE ]</button>
                                     {showAuthenticatedControls && (
                                         <button
                                             onClick={() => {
                                                 if (user) setIsHistoryOpen(true)
                                             }}
-                                            className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0"
+                                            className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0"
                                         >
                                             [ LOGS ]
                                         </button>
                                     )}
                                     {showAuthenticatedControls ? (
-                                        <button onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0 ml-auto">[ LOGOUT ]</button>
+                                        <button onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0 ml-auto">[ LOGOUT ]</button>
                                     ) : (
-                                        <button onClick={openAuth} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-xs sm:text-base justify-center whitespace-nowrap min-w-[104px] shrink-0 ml-auto">[ LOGIN ]</button>
+                                        <button onClick={openAuth} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0 ml-auto">[ LOGIN ]</button>
                                     )}
                                 </div>
                             </div>
@@ -677,7 +677,7 @@ export function Calculator({
                     <div className={`flex flex-col gap-2 sm:gap-4 p-0 ${isMinecraft ? 'lg:flex-row p-2 items-start' : isChicago95 ? 'items-center w-full p-2' : 'items-center w-full p-3'}`}>
                         {/* Input Section */}
                         <div className={`w-full flex flex-col ${isMinecraft ? 'flex-1' : isChicago95 ? 'max-w-none' : 'max-w-2xl'}`}>
-                            <div className={`${isChicago95 ? 'space-y-2' : 'space-y-6'} h-full ${
+                            <div className={`${isChicago95 ? 'space-y-2' : isFallout ? 'space-y-3 md:space-y-6' : 'space-y-6'} h-full ${
                                 isFallout 
                                     ? 'bg-transparent border-none p-0' 
                                     : isChicago95
@@ -695,9 +695,20 @@ export function Calculator({
                                     </div>
                                 )}
                                 
-                                <div className={`grid grid-cols-1 ${isChicago95 ? 'gap-2 sm:gap-x-4 sm:gap-y-2' : 'gap-6'} ${isFallout || isChicago95 ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
+                                <div
+                                    className={`grid grid-cols-2 ${isChicago95 ? 'gap-2 sm:gap-x-4 sm:gap-y-2' : isFallout ? 'gap-2 sm:gap-3 md:gap-6' : 'gap-3 sm:gap-4 md:gap-6'} md:grid-cols-2`}
+                                >
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>PACK DATE (OPTIONAL):</Label>
+                                        <Label className={`${isFallout ? 'fo-label text-xs sm:text-sm md:text-lg mb-1 md:mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'text-base sm:text-lg mc-label'}`}>
+                                            {isFallout ? (
+                                                <>
+                                                    <span className="sm:hidden">PACK (OPT):</span>
+                                                    <span className="hidden sm:inline">PACK DATE (OPTIONAL):</span>
+                                                </>
+                                            ) : (
+                                                "PACK DATE (OPTIONAL):"
+                                            )}
+                                        </Label>
                                         <DatePicker 
                                             date={packDate}
                                             setDate={setPackDate}
@@ -706,7 +717,16 @@ export function Calculator({
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>PICKUP DATE:</Label>
+                                        <Label className={`${isFallout ? 'fo-label text-xs sm:text-sm md:text-lg mb-1 md:mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'text-base sm:text-lg mc-label'}`}>
+                                            {isFallout ? (
+                                                <>
+                                                    <span className="sm:hidden">PICKUP:</span>
+                                                    <span className="hidden sm:inline">PICKUP DATE:</span>
+                                                </>
+                                            ) : (
+                                                "PICKUP DATE:"
+                                            )}
+                                        </Label>
                                         <DatePicker 
                                             date={loadDate}
                                             setDate={setLoadDate}
@@ -714,11 +734,17 @@ export function Calculator({
                                             fallbackDate={packDate}
                                         />
                                     </div>
-                                </div>
-
-                                <div className={`grid grid-cols-1 ${isChicago95 ? 'gap-2 sm:gap-x-4 sm:gap-y-2' : 'gap-6'} ${isFallout || isChicago95 ? 'sm:grid-cols-2' : 'md:grid-cols-2'}`}>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>SHIPMENT WEIGHT (LBS):</Label>
+                                        <Label className={`${isFallout ? 'fo-label text-xs sm:text-sm md:text-lg mb-1 md:mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'text-base sm:text-lg mc-label'}`}>
+                                            {isFallout ? (
+                                                <>
+                                                    <span className="sm:hidden">WEIGHT (LBS):</span>
+                                                    <span className="hidden sm:inline">SHIPMENT WEIGHT (LBS):</span>
+                                                </>
+                                            ) : (
+                                                "SHIPMENT WEIGHT (LBS):"
+                                            )}
+                                        </Label>
                                         <div className="relative">
                                             <Input 
                                                 type="number" 
@@ -726,7 +752,7 @@ export function Calculator({
                                                 placeholder={isFallout ? "_" : "..."}
                                                 value={weight}
                                                 onChange={(e) => setWeight(e.target.value)}
-                                                className={`relative z-20 ${isChicago95 ? 'text-sm h-9' : 'text-lg'} ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
+                                                className={`relative z-20 ${isChicago95 ? 'text-sm h-9' : isFallout ? 'text-base md:text-lg' : 'text-lg'} ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
                                             />
                                             {isMinecraft && (
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -736,7 +762,16 @@ export function Calculator({
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className={`text-base sm:text-lg ${isFallout ? 'fo-label mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'mc-label'}`}>DISTANCE (MILES):</Label>
+                                        <Label className={`${isFallout ? 'fo-label text-xs sm:text-sm md:text-lg mb-1 md:mb-2' : isChicago95 ? 'chi95-label block text-xs mb-1' : 'text-base sm:text-lg mc-label'}`}>
+                                            {isFallout ? (
+                                                <>
+                                                    <span className="sm:hidden">MILES:</span>
+                                                    <span className="hidden sm:inline">DISTANCE (MILES):</span>
+                                                </>
+                                            ) : (
+                                                "DISTANCE (MILES):"
+                                            )}
+                                        </Label>
                                         <div className="relative">
                                             <Input 
                                                 type="number" 
@@ -744,7 +779,7 @@ export function Calculator({
                                                 placeholder={isFallout ? "_" : "..."}
                                                 value={distance}
                                                 onChange={(e) => setDistance(e.target.value)}
-                                                className={`relative z-20 ${isChicago95 ? 'text-sm h-9' : 'text-lg'} ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
+                                                className={`relative z-20 ${isChicago95 ? 'text-sm h-9' : isFallout ? 'text-base md:text-lg' : 'text-lg'} ${isFallout ? 'fo-input pl-0' : 'pr-10'}`}
                                             />
                                             {isMinecraft && (
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -758,12 +793,15 @@ export function Calculator({
                                 <div className={isChicago95 ? "mt-0.5" : "mt-4"}>
                                     {isFallout ? (
                                         <div className="space-y-1">
-                                            <Label className="fo-label text-base sm:text-lg mb-2">IDENTIFIER (OPTIONAL):</Label>
+                                            <Label className="fo-label text-xs sm:text-sm md:text-lg mb-1 md:mb-2">
+                                                <span className="sm:hidden">IDENTIFIER (OPT):</span>
+                                                <span className="hidden sm:inline">IDENTIFIER (OPTIONAL):</span>
+                                            </Label>
                                             <Input 
                                                 value={calculationName}
                                                 onChange={(e) => setCalculationName(e.target.value)}
                                                 placeholder="_"
-                                                className="text-lg fo-input pl-0"
+                                                className="text-base md:text-lg fo-input pl-0"
                                             />
                                         </div>
                                     ) : isChicago95 ? (
@@ -789,7 +827,7 @@ export function Calculator({
                                     <Button 
                                         onClick={handleCalculate} 
                                         disabled={loading || !loadDate || !packDate}
-                                        className={`flex-1 ${isChicago95 ? 'text-sm h-9' : 'text-xl h-12'}`}
+                                        className={`flex-1 ${isChicago95 ? 'text-sm h-9' : isFallout ? 'text-base md:text-xl h-10 md:h-12' : 'text-xl h-12'}`}
                                         variant={isFallout ? "ghost" : "default"}
                                     >
                                         {isFallout ? (loading ? '[ LOADING DATA... ]' : (
@@ -813,7 +851,7 @@ export function Calculator({
                                          <Button
                                             onClick={handleReset}
                                             variant="ghost"
-                                            className="text-xl h-12"
+                                            className="text-base md:text-xl h-10 md:h-12"
                                         >
                                             [ RESET ]
                                         </Button>
@@ -832,7 +870,7 @@ export function Calculator({
                         )}
 
                         {/* Results Section */}
-                        <div className={`w-full flex flex-col ${isMinecraft ? 'lg:w-72 xl:w-80 shrink-0' : isFallout ? 'mt-8 border-t-2 border-[var(--fo-primary)] pt-8 max-w-2xl' : isChicago95 ? 'mt-2 max-w-none' : 'mt-4 max-w-2xl'}`}>
+                        <div className={`w-full flex flex-col ${isMinecraft ? 'lg:w-72 xl:w-80 shrink-0' : isFallout ? 'mt-4 md:mt-8 border-t-2 border-[var(--fo-primary)] pt-4 md:pt-8 max-w-2xl' : isChicago95 ? 'mt-2 max-w-none' : 'mt-4 max-w-2xl'}`}>
                              <div className={`flex flex-col h-full ${
                                  isFallout 
                                      ? 'bg-transparent border-none p-0' 
@@ -856,7 +894,7 @@ export function Calculator({
                                         <div className={isChicago95 ? "space-y-3" : "space-y-6"}>
                                             {/* Main Result */}
                                             {isFallout ? (
-                                                <div className="space-y-6 pt-2">
+                                                <div className="space-y-4 md:space-y-6 pt-1 md:pt-2">
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                         <div className="border border-[var(--fo-primary)] p-4 relative">
                                                             <div className="absolute -top-2.5 left-3 bg-[var(--fo-bg)] px-2">
@@ -878,7 +916,7 @@ export function Calculator({
                                                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--fo-bg)] px-2">
                                                             <h3 className="fo-label text-sm tracking-widest text-center min-w-0 opacity-100 mb-0">REQUIRED DELIVERY DATE</h3>
                                                         </div>
-                                                        <div className="text-3xl sm:text-4xl fo-title text-center py-2 tracking-widest fo-text-glow">
+                                                        <div className="text-2xl md:text-4xl fo-title text-center py-2 tracking-widest fo-text-glow">
                                                             {result.rddDisplay}
                                                         </div>
                                                     </div>

@@ -148,7 +148,7 @@
   body {
     background-color: transparent;
     font-size: clamp(14px, 0.9vw + 12px, 20px);
-    touch-action: pan-y;
+    touch-action: auto;
     overscroll-behavior-y: contain;
     overflow-x: hidden;
     line-height: 1.5;
@@ -800,9 +800,29 @@
 /* Mobile Optimizations */
 @media (max-width: 640px) {
   /* Ensure touch targets are at least 44x44px */
-  button, [role="button"] {
+  .theme-minecraft button,
+  .theme-minecraft [role="button"],
+  .theme-fallout button,
+  .theme-fallout [role="button"] {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Keep calendar controls compact in small windows while still tappable. */
+  .theme-minecraft .calendar-control-btn,
+  .theme-fallout .calendar-control-btn {
+    min-height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .theme-minecraft .rdp button,
+  .theme-fallout .rdp button {
+    min-height: 28px !important;
+    min-width: 28px !important;
+  }
+
+  .theme-minecraft .rdp {
+    --rdp-cell-size: 28px;
   }
   
   /* Prevent text from being too small */
@@ -822,9 +842,9 @@
   }
   
   .theme-minecraft main, .theme-minecraft .mc-panel, .theme-minecraft .mc-slot {
-    touch-action: pan-y;
-    -webkit-user-select: none;
-    user-select: none;
+    touch-action: auto;
+    -webkit-user-select: auto;
+    user-select: auto;
   }
   
   /* Fallout-specific mobile spacing */
@@ -833,16 +853,19 @@
   }
   
   .theme-fallout main, .theme-fallout .fo-panel, .theme-fallout .fo-slot {
-    touch-action: pan-y;
-    -webkit-user-select: none;
-    user-select: none;
+    touch-action: auto;
+    -webkit-user-select: auto;
+    user-select: auto;
   }
   
-  /* Allow text selection in inputs */
-  input, textarea {
+  /* Allow text selection and free clicking in inputs */
+  input, textarea, select {
     -webkit-user-select: text;
     user-select: text;
     touch-action: auto;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
   }
   
   /* Prevent pull-to-refresh on mobile */
@@ -1483,9 +1506,9 @@
   .theme-fallout main, 
   .theme-fallout .fo-panel, 
   .theme-fallout .fo-slot {
-    touch-action: pan-y;
-    -webkit-user-select: none;
-    user-select: none;
+    touch-action: auto;
+    -webkit-user-select: auto;
+    user-select: auto;
   }
   
   .theme-fallout input, 
@@ -1493,6 +1516,7 @@
     -webkit-user-select: text;
     user-select: text;
     touch-action: auto;
+    pointer-events: auto !important;
   }
 
   .theme-fallout .rdp {
@@ -2277,16 +2301,16 @@
   padding: 6px;
 }
 
-.theme-chicago95 .chi95-calendar-header {
+.theme-chicago95 .chi95-calendar-header,
+[data-chi95-calendar] .chi95-calendar-header {
   display: flex;
   align-items: stretch;
-  gap: 4px;
+  gap: 2px;
   margin-bottom: 5px;
 }
 
-.theme-chicago95 .chi95-calendar-month-trigger {
-  min-width: 106px;
-  height: 24px;
+.theme-chicago95 .chi95-calendar-month-trigger,
+[data-chi95-calendar] .chi95-calendar-month-trigger {
   border: 2px solid #808080;
   box-shadow:
     inset 1px 1px 0 #ffffff,
@@ -2297,12 +2321,13 @@
   align-items: center;
   justify-content: space-between;
   font-family: var(--chi95-font-stack);
-  font-size: 11px;
-  padding: 0 0 0 6px;
+  font-size: 10px;
+  padding: 0 0 0 4px;
 }
 
-.theme-chicago95 .chi95-calendar-trigger-caret {
-  width: 15px;
+.theme-chicago95 .chi95-calendar-trigger-caret,
+[data-chi95-calendar] .chi95-calendar-trigger-caret {
+  width: 11px;
   height: 100%;
   border-left: 1px solid #808080;
   background: #c0c0c0;
@@ -2314,7 +2339,8 @@
     inset -1px -1px 0 #000000;
 }
 
-.theme-chicago95 .chi95-calendar-trigger-caret-shape {
+.theme-chicago95 .chi95-calendar-trigger-caret-shape,
+[data-chi95-calendar] .chi95-calendar-trigger-caret-shape {
   width: 0;
   height: 0;
   border-left: 3px solid transparent;
@@ -2323,14 +2349,14 @@
   margin-top: 1px;
 }
 
-.theme-chicago95 .chi95-calendar-year-spin {
+.theme-chicago95 .chi95-calendar-year-spin,
+[data-chi95-calendar] .chi95-calendar-year-spin {
   display: inline-flex;
   align-items: stretch;
-  height: 24px;
 }
 
-.theme-chicago95 .chi95-calendar-year-display {
-  width: 52px;
+.theme-chicago95 .chi95-calendar-year-display,
+[data-chi95-calendar] .chi95-calendar-year-display {
   border: 2px solid #808080;
   border-right: 0;
   box-shadow:
@@ -2339,50 +2365,64 @@
   background: #ffffff;
   color: #000;
   text-align: left;
-  padding: 0 6px;
+  padding: 0 4px;
   font-family: var(--chi95-font-stack);
-  font-size: 11px;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-.theme-chicago95 .chi95-calendar-spin-buttons {
+.theme-chicago95 .chi95-calendar-spin-buttons,
+[data-chi95-calendar] .chi95-calendar-spin-buttons {
   display: inline-flex;
   flex-direction: column;
-  width: 14px;
 }
 
-.theme-chicago95 .chi95-calendar-spin-btn {
-  flex: 1;
-  border: 2px solid #808080;
+.theme-chicago95 .chi95-calendar-spin-btn,
+[data-chi95-calendar] .chi95-calendar-spin-btn {
+  border: 1px solid #808080;
   background: #c0c0c0;
   color: #000;
-  line-height: 1;
+  line-height: 0;
   padding: 0;
   box-shadow:
     inset 1px 1px 0 #ffffff,
     inset -1px -1px 0 #000000;
+  display: block;
+  box-sizing: border-box;
+  position: relative;
 }
 
-.theme-chicago95 .chi95-calendar-spin-btn + .chi95-calendar-spin-btn {
-  margin-top: -1px;
+.theme-chicago95 .chi95-calendar-spin-btn + .chi95-calendar-spin-btn,
+[data-chi95-calendar] .chi95-calendar-spin-btn + .chi95-calendar-spin-btn {
+  margin-top: 0;
+  border-top: 0;
 }
 
-.theme-chicago95 .chi95-calendar-spin-arrow {
+.theme-chicago95 .chi95-calendar-spin-arrow,
+[data-chi95-calendar] .chi95-calendar-spin-arrow {
   display: block;
   width: 0;
   height: 0;
-  margin: 0 auto;
+  margin: 0;
   border-left: 2px solid transparent;
   border-right: 2px solid transparent;
+  position: absolute;
+  left: 50%;
+  margin-left: -2px;
 }
 
-.theme-chicago95 .chi95-calendar-spin-arrow-up {
-  border-bottom: 3px solid #000000;
-  margin-top: 1px;
+.theme-chicago95 .chi95-calendar-spin-arrow-up,
+[data-chi95-calendar] .chi95-calendar-spin-arrow-up {
+  border-bottom: 2px solid #000000;
+  top: 2px;
 }
 
-.theme-chicago95 .chi95-calendar-spin-arrow-down {
-  border-top: 3px solid #000000;
-  margin-bottom: 1px;
+.theme-chicago95 .chi95-calendar-spin-arrow-down,
+[data-chi95-calendar] .chi95-calendar-spin-arrow-down {
+  border-top: 2px solid #000000;
+  top: 3px;
 }
 
 .theme-chicago95 .chi95-calendar-dropdown {
@@ -2420,6 +2460,8 @@
   background: #9f9f9f;
   color: #f0f0f0;
   border: 0;
+  width: 26px;
+  height: 24px;
 }
 
 .theme-chicago95 .chi95-calendar .rdp-month_grid {
@@ -2488,6 +2530,93 @@
   height: 23px;
   font-size: 11px;
   padding: 0 8px;
+}
+
+@media (max-width: 640px) {
+  .theme-chicago95 .chi95-calendar-content,
+  [data-chi95-calendar] .chi95-calendar-content {
+    padding: 4px;
+  }
+
+  .theme-chicago95 .chi95-calendar-header,
+  [data-chi95-calendar] .chi95-calendar-header {
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .theme-chicago95 .chi95-calendar-month-trigger,
+  [data-chi95-calendar] .chi95-calendar-month-trigger {
+    min-width: 80px;
+    height: 18px !important;
+    font-size: 10px;
+    padding-left: 4px;
+  }
+
+  .theme-chicago95 .chi95-calendar-year-display,
+  [data-chi95-calendar] .chi95-calendar-year-display {
+    width: 40px;
+    height: 18px !important;
+    font-size: 10px;
+    padding: 0 4px;
+  }
+
+  .theme-chicago95 .chi95-calendar-year-spin,
+  [data-chi95-calendar] .chi95-calendar-year-spin {
+    height: 18px !important;
+  }
+
+  .theme-chicago95 .chi95-calendar-spin-buttons,
+  [data-chi95-calendar] .chi95-calendar-spin-buttons {
+    width: 12px !important;
+    height: 18px !important;
+    flex-shrink: 0;
+  }
+
+  .theme-chicago95 .chi95-calendar-spin-btn,
+  [data-chi95-calendar] .chi95-calendar-spin-btn {
+    flex: none !important;
+    height: 9px !important;
+    min-height: 9px !important;
+  }
+
+  .theme-chicago95 .chi95-calendar-spin-arrow-up,
+  [data-chi95-calendar] .chi95-calendar-spin-arrow-up {
+    border-bottom-width: 2px;
+    top: 2px;
+  }
+
+  .theme-chicago95 .chi95-calendar-spin-arrow-down,
+  [data-chi95-calendar] .chi95-calendar-spin-arrow-down {
+    border-top-width: 2px;
+    top: 3px;
+  }
+
+  .theme-chicago95 .chi95-calendar-weekday,
+  [data-chi95-calendar] .chi95-calendar-weekday {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .theme-chicago95 .chi95-calendar .rdp-day,
+  [data-chi95-calendar] .chi95-calendar .rdp-day {
+    width: 22px;
+    height: 22px;
+  }
+
+  .theme-chicago95 .chi95-calendar-footer,
+  [data-chi95-calendar] .chi95-calendar-footer {
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  .theme-chicago95 .chi95-calendar-footer-btn,
+  [data-chi95-calendar] .chi95-calendar-footer-btn {
+    min-width: 56px;
+    height: 21px;
+    font-size: 10px;
+    padding: 0 6px;
+  }
 }
 
 .theme-chicago95 .chi95-button {

@@ -135,13 +135,16 @@ function Calendar({
       )
 
   return (
-    <div className={cn(isChicago95 ? "p-0 chi95-calendar" : "p-2", !isChicago95 && "font-mono", className)}>
+    <div
+      className={cn(isChicago95 ? "p-0 chi95-calendar" : "p-2", !isChicago95 && "font-mono", className)}
+      {...(isChicago95 ? { 'data-chi95-calendar': 'true' } : {})}
+    >
       {/* Custom Header */}
       {isChicago95 ? (
         <div className="chi95-calendar-header">
           <Popover open={monthOpen} onOpenChange={setMonthOpen}>
             <PopoverTrigger asChild>
-              <button type="button" className="chi95-calendar-month-trigger">
+              <button type="button" className="chi95-calendar-month-trigger" style={{ minWidth: '82px', height: '18px' }}>
                 <span className="truncate">{MONTHS[currentMonth]}</span>
                 <span className="chi95-calendar-trigger-caret" aria-hidden="true">
                   <span className="chi95-calendar-trigger-caret-shape" />
@@ -172,17 +175,17 @@ function Calendar({
           </Popover>
 
           <Popover open={yearOpen} onOpenChange={setYearOpen}>
-            <div className="chi95-calendar-year-spin">
+            <div className="chi95-calendar-year-spin" style={{ height: '22px', display: 'inline-flex', alignItems: 'stretch' }}>
               <PopoverTrigger asChild>
-                <button type="button" className="chi95-calendar-year-display">
+                <button type="button" className="chi95-calendar-year-display" style={{ width: '44px', height: '22px', flexShrink: 0 }}>
                   {currentYear}
                 </button>
               </PopoverTrigger>
-              <div className="chi95-calendar-spin-buttons">
-                <button type="button" className="chi95-calendar-spin-btn" aria-label="Increase year" onClick={incrementYear}>
+              <div className="chi95-calendar-spin-buttons" style={{ width: '14px', height: '22px', flexShrink: 0, display: 'inline-flex', flexDirection: 'column' }}>
+                <button type="button" className="chi95-calendar-spin-btn" style={{ flex: '0 0 11px', width: '100%', minWidth: 0, height: '11px', minHeight: '11px', maxHeight: '11px', padding: 0 }} aria-label="Increase year" onClick={incrementYear}>
                   <span className="chi95-calendar-spin-arrow chi95-calendar-spin-arrow-up" />
                 </button>
-                <button type="button" className="chi95-calendar-spin-btn" aria-label="Decrease year" onClick={decrementYear}>
+                <button type="button" className="chi95-calendar-spin-btn" style={{ flex: '0 0 11px', width: '100%', minWidth: 0, height: '11px', minHeight: '11px', maxHeight: '11px', padding: 0 }} aria-label="Decrease year" onClick={decrementYear}>
                   <span className="chi95-calendar-spin-arrow chi95-calendar-spin-arrow-down" />
                 </button>
               </div>
@@ -211,11 +214,11 @@ function Calendar({
           </Popover>
         </div>
       ) : (
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
           <Button
             type="button"
             onClick={goToPrevMonth}
-            className="h-8 w-8 flex items-center justify-center text-sm p-0"
+            className="calendar-control-btn h-7 w-7 sm:h-8 sm:w-8 min-w-0 flex items-center justify-center text-xs sm:text-sm p-0"
             aria-label="Previous month"
           >
             «
@@ -226,7 +229,7 @@ function Calendar({
             <PopoverTrigger asChild>
               <Button
                 type="button"
-                className="h-8 px-3 flex items-center justify-center gap-1 text-sm min-w-[100px]"
+                className="calendar-control-btn h-7 sm:h-8 px-2 sm:px-3 min-w-[84px] sm:min-w-[100px] flex items-center justify-center gap-1 text-xs sm:text-sm"
               >
                 {MONTHS[currentMonth]} <span className="text-[10px]">▼</span>
               </Button>
@@ -259,7 +262,7 @@ function Calendar({
             <PopoverTrigger asChild>
               <Button
                 type="button"
-                className="h-8 px-3 flex items-center justify-center gap-1 text-sm min-w-[70px]"
+                className="calendar-control-btn h-7 sm:h-8 px-2 sm:px-3 min-w-[62px] sm:min-w-[70px] flex items-center justify-center gap-1 text-xs sm:text-sm"
               >
                 {currentYear} <span className="text-[10px]">▼</span>
               </Button>
@@ -290,7 +293,7 @@ function Calendar({
           <Button
             type="button"
             onClick={goToNextMonth}
-            className="h-8 w-8 flex items-center justify-center text-sm p-0"
+            className="calendar-control-btn h-7 w-7 sm:h-8 sm:w-8 min-w-0 flex items-center justify-center text-xs sm:text-sm p-0"
             aria-label="Next month"
           >
             »
@@ -314,15 +317,17 @@ function Calendar({
           button_previous: "hidden",
           button_next: "hidden",
           
-          month_grid: "w-full border-collapse",
+          month_grid: isChicago95 ? "w-full border-collapse table-fixed" : "w-full border-collapse",
           weekdays: "",
           weekday: isFallout
             ? "fo-text w-8 h-6 font-normal text-[11px] text-center opacity-60"
             : isChicago95
-            ? "chi95-calendar-weekday w-8 h-6 font-normal text-[11px] text-center"
+            ? "chi95-calendar-weekday font-normal text-[11px] text-center"
             : "mc-text-dark w-8 h-6 font-normal text-[11px] text-center",
           week: "",
-          day: "h-8 w-8 text-center p-0.5 relative",
+          day: isChicago95
+            ? "h-[26px] w-[26px] text-center p-0 relative"
+            : "h-8 w-8 text-center p-0.5 relative",
           day_button: isFallout
             ? cn(
                 "h-full w-full p-0 font-normal bg-transparent text-[var(--fo-primary)]",

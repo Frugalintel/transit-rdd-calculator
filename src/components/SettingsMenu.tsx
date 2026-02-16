@@ -193,7 +193,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                 <button
                     onClick={() => setActiveTab(id)}
                     className={cn(
-                        "fo-button min-w-[120px] border-b-0 px-6 py-2 transition-all duration-200",
+                        "fo-button min-w-[92px] sm:min-w-[120px] border-b-0 px-3 sm:px-6 py-2 transition-all duration-200",
                         isActive && "fo-button-primary"
                     )}
                     style={!isActive ? { borderColor: 'var(--fo-primary-dim)' } : undefined}
@@ -208,7 +208,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                 <button
                     onClick={() => setActiveTab(id)}
                     className={cn(
-                        "chi95-button min-w-[110px] px-3 py-1 text-sm",
+                        "chi95-button min-w-[86px] sm:min-w-[110px] px-2 sm:px-3 py-1 text-sm",
                         isActive && "chi95-button-primary"
                     )}
                 >
@@ -317,7 +317,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent 
                 className={cn(
-                    "!max-w-4xl w-[95vw] sm:w-[85vw] max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 shadow-xl",
+                    "!max-w-4xl w-[96vw] sm:w-[85vw] max-h-[92vh] sm:max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 shadow-xl",
                     isFallout 
                         ? "fo-panel border-2 bg-black shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
                         : isChicago95
@@ -417,25 +417,34 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                 {/* Theme Mode Selector */}
                                 <div className={`p-4 ${isFallout ? 'border-b-4 border-[var(--fo-primary-dim)]' : isChicago95 ? 'border-b border-[#808080]' : 'border-b-4 border-[var(--mc-dark-border)]'}`}>
                                     <Label className={`block text-center mb-3 ${isFallout ? 'fo-label' : isChicago95 ? 'chi95-label' : 'mc-label'}`}>Theme Style</Label>
-                                    <div className="flex gap-4 justify-center">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 justify-center">
                                         <Button 
                                             variant={settings.themeMode === 'minecraft' ? 'primary' : 'ghost'}
                                             onClick={() => setThemeMode('minecraft')}
-                                            className="flex-1 max-w-[180px]"
+                                            className={cn(
+                                                "w-full max-w-none sm:max-w-[180px] mx-auto h-10 sm:h-12 text-sm sm:text-base min-h-0",
+                                                isFallout && "tracking-normal px-2 sm:px-3"
+                                            )}
                                         >
                                             Minecraft
                                         </Button>
                                         <Button 
                                             variant={settings.themeMode === 'fallout' ? 'primary' : 'ghost'}
                                             onClick={() => setThemeMode('fallout')}
-                                            className="flex-1 max-w-[180px]"
+                                            className={cn(
+                                                "w-full max-w-none sm:max-w-[180px] mx-auto h-10 sm:h-12 text-sm sm:text-base min-h-0",
+                                                isFallout && "tracking-normal px-2 sm:px-3"
+                                            )}
                                         >
                                             Fallout
                                         </Button>
                                         <Button
                                             variant={settings.themeMode === 'chicago95' ? 'primary' : 'ghost'}
                                             onClick={() => setThemeMode('chicago95')}
-                                            className="flex-1 max-w-[180px]"
+                                            className={cn(
+                                                "w-full max-w-none sm:max-w-[180px] mx-auto h-10 sm:h-12 text-sm sm:text-base min-h-0",
+                                                isFallout && "tracking-normal px-2 sm:px-3"
+                                            )}
                                         >
                                             Chicago95
                                         </Button>
@@ -858,7 +867,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                  )}>
                                      <div className="flex items-center gap-3">
                                         <ThemeIcon type="book" scale={1.5} />
-                                        <h3 className={isFallout ? "fo-heading text-xl sm:text-2xl" : isChicago95 ? "chi95-text text-lg sm:text-xl font-bold" : "mc-heading text-xl sm:text-2xl"}>
+                                        <h3 className={isFallout ? "fo-heading text-xl sm:text-2xl" : isChicago95 ? "chi95-text text-xl sm:text-2xl font-bold" : "mc-heading text-xl sm:text-2xl"}>
                                             {isFallout ? 'OUTPUT TEMPLATES' : isChicago95 ? 'Template Editor' : 'Template Editor'}
                                         </h3>
                                      </div>
@@ -884,12 +893,12 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                         : "bg-[var(--mc-slot-bg)] border-[var(--mc-dark-border)] shadow-[inset_2px_2px_0_0_var(--mc-text-gray)]")
                                             )}>
                                                 {/* Header Row */}
-                                                <div className="flex items-center justify-between p-3 sm:p-4 gap-4">
+                                                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between p-2.5 sm:p-4 gap-2 sm:gap-4">
                                                     {/* Toggle Visibility Switch */}
-                                                    <div onClick={(e) => e.stopPropagation()}>
+                                                    <div className="order-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                                                         {isFallout ? (
                                                             <span 
-                                                                className="fo-text text-xl cursor-pointer select-none" 
+                                                                className="fo-text text-lg sm:text-xl cursor-pointer select-none" 
                                                                 onClick={() => handleVisibilityChange(format, !isVisible)}
                                                                 title={isVisible ? "Format Enabled" : "Format Disabled"}
                                                             >
@@ -906,14 +915,16 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
 
                                                     {/* Title */}
                                                     <div 
-                                                        className="flex-1 flex items-center gap-3 cursor-pointer"
+                                                        className="order-3 basis-full sm:order-2 sm:basis-auto flex-1 flex items-center gap-2 sm:gap-3 cursor-pointer"
                                                         onClick={() => setExpandedTemplate(isExpanded ? null : format)}
                                                     >
                                                         <Label className={cn(
-                                                            "text-lg sm:text-xl cursor-pointer pointer-events-none select-none",
+                                                            "text-base sm:text-lg leading-tight cursor-pointer pointer-events-none select-none break-words",
                                                             isFallout 
                                                                 ? "fo-heading" 
-                                                                : cn("mc-heading", isExpanded ? "mc-text-dark" : "mc-text-white")
+                                                                : isChicago95
+                                                                    ? "chi95-text font-bold"
+                                                                    : cn("mc-heading", isExpanded ? "mc-text-dark" : "mc-text-white")
                                                         )}>
                                                             {label}
                                                         </Label>
@@ -924,7 +935,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                         size="icon"
                                                         onClick={() => setExpandedTemplate(isExpanded ? null : format)}
                                                         className={cn(
-                                                            "p-0 inline-flex items-center justify-center leading-none",
+                                                            "order-2 sm:order-3 p-0 inline-flex items-center justify-center leading-none shrink-0",
                                                             isChicago95 ? "h-[23px] w-[23px]" : "h-10 w-10"
                                                         )}
                                                         title="Edit template"
@@ -959,7 +970,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                                 : "mc-slot border-2 border-[var(--mc-dark-border)] shadow-[inset_2px_2px_0_0_var(--mc-text-gray)]"
                                                         )}>
                                                             <div className="flex items-center gap-2 mb-3">
-                                                                <span className={cn("text-sm sm:text-base", isFallout ? "fo-heading" : isChicago95 ? "chi95-label" : "mc-heading")}>Insert Variable:</span>
+                                                                <span className={cn("text-sm sm:text-base", isFallout ? "fo-heading" : isChicago95 ? "chi95-label text-sm sm:text-base" : "mc-heading")}>Insert Variable:</span>
                                                             </div>
                                                             <div className="flex flex-wrap gap-2">
                                                                 {VARIABLES.map(v => (
@@ -1009,7 +1020,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                                 )}>How to use variables</span>
                                                                 <p className={cn(
                                                                     "text-xs sm:text-sm leading-relaxed",
-                                                                    isFallout ? "fo-small" : isChicago95 ? "chi95-text opacity-90" : "mc-small drop-shadow-md"
+                                                                    isFallout ? "fo-small" : isChicago95 ? "chi95-text text-sm opacity-90" : "mc-small drop-shadow-md"
                                                                 )}>
                                                                     Click the buttons above to insert at cursor, or type manually like <code className={cn(
                                                                         "px-1.5 py-0.5 mx-0.5 font-mono text-xs inline-block align-middle",
@@ -1037,7 +1048,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                         isFallout 
                                                             ? "fo-small border-[var(--fo-primary-dim)]" 
                                                             : isChicago95
-                                                                ? "chi95-text border-[#808080]"
+                                                                ? "chi95-text text-sm border-[#808080]"
                                                             : "mc-small bg-[#555555] border-[#373737]"
                                                     )}>
                                                         Enable this format to edit its template

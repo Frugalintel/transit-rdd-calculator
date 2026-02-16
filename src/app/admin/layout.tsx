@@ -96,8 +96,8 @@ export default async function AdminLayout({
             <ScanlineOverlay />
             <AdminSidebar />
             {/* Main content area */}
-            <div className="ml-56 min-h-screen overflow-x-hidden">
-                <div className="min-h-screen p-6 max-w-7xl">
+            <div className="md:ml-56 min-h-screen overflow-x-hidden">
+                <div className="min-h-screen p-3 sm:p-4 md:p-6 max-w-7xl">
                     {children}
                 </div>
             </div>

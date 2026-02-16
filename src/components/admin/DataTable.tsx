@@ -24,14 +24,15 @@ export function DataTable<T extends { id: string | number }>({ columns, data, on
     return (
         <div className={isFallout ? "fo-panel p-1" : isChicago95 ? "chi95-window p-1" : "mc-panel p-1"}>
             <div className={isFallout ? "fo-panel" : isChicago95 ? "chi95-panel" : "mc-slot"}>
-                <Table>
+                <div className="w-full overflow-x-auto">
+                <Table className="min-w-[640px]">
                     <TableHeader className="admin-table-header">
                         <TableRow className="hover:bg-transparent">
                             {columns.map((col, i) => (
                                 <TableHead 
                                     key={i} 
                                     className={`
-                                        text-lg py-3 font-normal tracking-wide
+                                        text-sm sm:text-lg py-2.5 sm:py-3 font-normal tracking-wide
                                         ${isFallout 
                                             ? 'text-[var(--fo-primary)] font-mono border-b border-[var(--fo-primary-dim)]' 
                                             : isChicago95
@@ -68,7 +69,7 @@ export function DataTable<T extends { id: string | number }>({ columns, data, on
                                     className={isChicago95 ? "transition-colors cursor-pointer hover:bg-[#d4d0c8]" : "admin-table-row transition-colors cursor-pointer"}
                                 >
                                     {columns.map((col, i) => (
-                                        <TableCell key={i} className={isFallout ? "fo-text text-lg py-3" : isChicago95 ? "chi95-text text-sm py-3" : "mc-admin-text text-lg py-3"}>
+                                        <TableCell key={i} className={isFallout ? "fo-text text-sm sm:text-lg py-2.5 sm:py-3" : isChicago95 ? "chi95-text text-sm py-2.5 sm:py-3" : "mc-admin-text text-sm sm:text-lg py-2.5 sm:py-3"}>
                                             {typeof col.accessor === 'function' ? col.accessor(row) : (row[col.accessor] as React.ReactNode)}
                                         </TableCell>
                                     ))}
@@ -82,6 +83,7 @@ export function DataTable<T extends { id: string | number }>({ columns, data, on
                         )}
                     </TableBody>
                 </Table>
+                </div>
             </div>
         </div>
     )

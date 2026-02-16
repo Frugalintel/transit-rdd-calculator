@@ -111,7 +111,7 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
 
             {/* Sidebar */}
             <div className={cn(
-                "fixed top-0 right-0 h-full w-[min(320px,85vw)] z-50 transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl",
+                "fixed top-0 right-0 h-full w-[min(360px,92vw)] sm:w-[min(380px,88vw)] z-50 transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl",
                 isFallout 
                     ? "bg-[var(--fo-panel-bg)] border-l-2 border-[var(--fo-primary)] shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
                     : isChicago95
@@ -137,7 +137,7 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                     <button 
                         onClick={onClose}
                         className={cn(
-                            "h-9 w-9 flex items-center justify-center cursor-pointer group",
+                            "h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center cursor-pointer group",
                             isFallout 
                                 ? "fo-button p-0"
                                 : isChicago95
@@ -193,13 +193,13 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                     {/* Header: Name + Time */}
                                     <div className="flex justify-between items-center mb-2">
                                         <div className={cn(
-                                            "font-bold truncate pr-2 text-xl",
+                                            "font-bold truncate pr-2 text-base sm:text-xl",
                                             isFallout ? "fo-text" : isChicago95 ? "chi95-text text-black" : "mc-text-dark"
                                         )}>
                                             {record.name || (isFallout ? "UNKNOWN_ENTRY" : "Untitled")}
                                         </div>
                                         <div className={cn(
-                                            "text-base whitespace-nowrap",
+                                            "text-sm sm:text-base whitespace-nowrap",
                                             isFallout ? "fo-text-dim opacity-70" : isChicago95 ? "chi95-text text-black text-sm font-medium" : "mc-text-dark opacity-70"
                                         )}>
                                             {getRelativeTime(record.created_at)}
@@ -212,18 +212,18 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                         isFallout ? "border-[var(--fo-primary-dim)] border-dashed" : isChicago95 ? "border-[#808080]" : "border-[var(--mc-dark-border)] border-y-2"
                                         )}
                                     >
-                                        <div className={cn("flex justify-between items-center text-lg", isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-dark")}>
+                                        <div className={cn("flex justify-between items-center text-sm sm:text-lg", isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-dark")}>
                                             <span className={isChicago95 ? "font-medium text-black" : "opacity-70"}>Pack:</span>
                                             <span className="font-bold">{record.input_data.packDate ? new Date(record.input_data.packDate).toLocaleDateString() : 'N/A'}</span>
                                         </div>
-                                        <div className={cn("flex justify-between items-center text-lg", isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-dark")}>
+                                        <div className={cn("flex justify-between items-center text-sm sm:text-lg", isFallout ? "fo-text" : isChicago95 ? "chi95-text" : "mc-text-dark")}>
                                             <span className={isChicago95 ? "font-medium text-black" : "opacity-70"}>Pickup:</span>
                                             <span className="font-bold">{record.input_data.loadDate ? new Date(record.input_data.loadDate).toLocaleDateString() : 'N/A'}</span>
                                         </div>
                                         <div className="flex justify-between items-center mt-1 pt-1">
-                                            <span className={cn("text-lg", isFallout ? "fo-text opacity-70" : isChicago95 ? "chi95-text text-black font-medium" : "mc-text-dark opacity-70")}>RDD:</span>
+                                            <span className={cn("text-sm sm:text-lg", isFallout ? "fo-text opacity-70" : isChicago95 ? "chi95-text text-black font-medium" : "mc-text-dark opacity-70")}>RDD:</span>
                                             <span className={cn(
-                                                "font-bold text-lg",
+                                                "font-bold text-sm sm:text-lg",
                                                 isFallout ? "fo-text-glow" : isChicago95 ? "chi95-text text-black" : "mc-text-yellow"
                                             )}>
                                                 {record.result_data?.rddDisplay || "N/A"}
@@ -235,7 +235,7 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                     <div className={cn("flex justify-between", isChicago95 ? "items-center" : "items-end")}>
                                         {/* Weight & Distance - Secondary */}
                                         <div className={cn(
-                                            "flex flex-col text-base pb-1",
+                                            "flex flex-col text-xs sm:text-base pb-1",
                                             isFallout ? "fo-text-dim opacity-80" : isChicago95 ? "chi95-text text-black" : "mc-text-dark opacity-80"
                                         )}>
                                             <span>{record.input_data.weight} lbs</span>
@@ -263,7 +263,7 @@ export function HistorySidebar({ isOpen, onClose, user, refreshTrigger }: Histor
                                                     onClick={() => handleCopy(record)}
                                                     className={cn(
                                                         "h-8 px-2 flex items-center justify-center gap-1 text-sm leading-none",
-                                                        isChicago95 ? "min-w-[80px]" : "min-w-[60px]"
+                                                        isChicago95 ? "min-w-[72px] sm:min-w-[80px]" : "min-w-[54px] sm:min-w-[60px]"
                                                     )}
                                                     variant={isFallout ? 'outline' : 'default'}
                                                 >

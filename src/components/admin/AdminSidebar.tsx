@@ -24,10 +24,10 @@ export function AdminSidebar() {
         const isActive = pathname === item.path
         
         return (
-            <Link href={item.path} className="block w-full mb-2">
+            <Link href={item.path} className="block w-auto md:w-full mb-0 md:mb-2 shrink-0">
                 <div
                     className={cn(
-                        "relative flex items-center gap-3 px-4 py-3 transition-all duration-75 select-none cursor-pointer w-full",
+                        "relative flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 transition-all duration-75 select-none cursor-pointer w-full",
                         // Base borders
                         isFallout
                             ? "border border-[var(--fo-primary-dim)] hover:bg-[rgba(26,255,128,0.1)]"
@@ -60,7 +60,7 @@ export function AdminSidebar() {
                     <ThemeIcon type={item.icon} scale={1} className={isActive ? "" : "opacity-80"} />
                     <span 
                         className={cn(
-                            "text-lg sm:text-xl",
+                            "text-sm sm:text-lg md:text-xl",
                             isFallout ? "fo-text font-mono tracking-wider" : isChicago95 ? "chi95-text" : "mc-body",
                             isActive 
                                 ? isFallout ? "text-[var(--fo-primary)]" : isChicago95 ? "text-white" : "text-[var(--mc-text-dark)]"
@@ -76,12 +76,12 @@ export function AdminSidebar() {
 
     return (
         <div className={cn(
-            "w-56 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto",
+            "w-full md:w-56 flex flex-col md:h-screen h-auto md:fixed left-0 top-0 overflow-x-auto md:overflow-y-auto",
             isFallout ? "bg-[var(--fo-panel-bg)] border-r border-[var(--fo-primary-dim)]" : isChicago95 ? "chi95-window bg-[#c0c0c0]" : "bg-[var(--mc-bg)]"
         )}>
             {/* Header */}
             <div className={cn(
-                "p-4 border-b-4",
+                "p-3 md:p-4 border-b-2 md:border-b-4",
                 isFallout 
                     ? "bg-[var(--fo-panel-bg)] border-[var(--fo-primary-dim)]" 
                     : isChicago95
@@ -91,7 +91,7 @@ export function AdminSidebar() {
                 <div className="flex items-center gap-3 mb-1">
                     <ThemeIcon type="golden_helmet" scale={1.5} />
                     <span className={cn(
-                        "text-2xl font-bold",
+                        "text-xl md:text-2xl font-bold",
                         isFallout ? "text-[var(--fo-primary)] font-mono tracking-widest uppercase" : isChicago95 ? "chi95-text" : "mc-admin-heading"
                     )}>
                         Admin
@@ -104,22 +104,22 @@ export function AdminSidebar() {
             </div>
 
             {/* Navigation Tabs - Vertical */}
-            <div className="flex-1 pt-4 pr-0 pl-2 flex flex-col">
+            <div className="flex-1 pt-2 md:pt-4 pr-0 pl-0 md:pl-2 flex flex-col">
                 {/* Tabs with vertical line */}
                 <div className="relative">
                     {/* Vertical line on right side of tabs */}
                     <div className={cn(
-                        "absolute right-0 top-0 bottom-0 z-10",
+                        "hidden md:block absolute right-0 top-0 bottom-0 z-10",
                         isFallout ? "w-px bg-[var(--fo-primary-dim)]" : isChicago95 ? "w-px bg-[#808080]" : "w-[4px] bg-[var(--mc-dark-border)]"
                     )} />
-                    <nav className="space-y-1 relative z-20">
+                    <nav className="flex md:block gap-2 md:space-y-1 relative z-20 overflow-x-auto md:overflow-visible pb-2 md:pb-0 px-2 md:px-0 no-scrollbar">
                         {NAV_ITEMS.map((item) => (
                             <TabButton key={item.path} item={item} />
                         ))}
                     </nav>
                 </div>
                 {/* Closing area - fills remaining space with vertical line */}
-                <div className="flex-1 relative min-h-8">
+                <div className="hidden md:block flex-1 relative min-h-8">
                     <div className={cn(
                         "absolute right-0 top-0 bottom-0",
                         isFallout ? "w-px bg-[var(--fo-primary-dim)]" : isChicago95 ? "w-px bg-[#808080]" : "w-[4px] bg-[var(--mc-dark-border)]"
@@ -134,13 +134,13 @@ export function AdminSidebar() {
 
             {/* Footer with Back Button */}
             <div className={cn(
-                "p-4",
+                "p-3 md:p-4",
                 isFallout ? "bg-[var(--fo-panel-bg)]" : isChicago95 ? "bg-[#c0c0c0]" : "bg-[var(--mc-bg)]"
             )}>
                 <Link 
                     href="/" 
                     className={cn(
-                        "w-full h-12 flex items-center justify-center gap-2 whitespace-nowrap text-base",
+                        "w-full h-10 md:h-12 flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base",
                         isFallout ? "fo-button" : isChicago95 ? "chi95-button" : "mc-button"
                     )}
                 >
