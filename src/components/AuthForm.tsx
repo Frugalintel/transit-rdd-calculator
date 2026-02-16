@@ -75,7 +75,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
                                 value={email} 
                                 onChange={e => setEmail(e.target.value)} 
                                 required 
-                                placeholder={isFallout ? "user@vault-tec.com" : isChicago95 ? "user@example.com" : "player@minecraft.net"}
+                                placeholder={isFallout ? "user@vault-tec.com" : isChicago95 ? "user@example.com" : "player@suddcraft.net"}
                                 className={isFallout ? "fo-input" : ""}
                             />
                         </div>

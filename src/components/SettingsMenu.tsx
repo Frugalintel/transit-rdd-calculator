@@ -426,7 +426,7 @@ export function SettingsMenu({ isOpen, onClose, user, isAdmin = false }: Setting
                                                 isFallout && "tracking-normal px-2 sm:px-3"
                                             )}
                                         >
-                                            Minecraft
+                                            Suddcraft
                                         </Button>
                                         <Button 
                                             variant={settings.themeMode === 'fallout' ? 'primary' : 'ghost'}

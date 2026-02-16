@@ -512,8 +512,8 @@ export function Calculator({
 
     return (
         <div 
-            className={`flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative`} 
-            style={{ touchAction: 'auto', minHeight: 'var(--app-viewport-height)' }}
+            className={`min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative`} 
+            style={{ touchAction: 'auto', minHeight: '100dvh' }}
         >
             {/* Title */}
             <div className={`relative text-center z-10 w-full max-w-4xl ${isFallout ? 'mb-4 md:mb-8 pb-2 md:pb-4 border-b-2 border-[var(--fo-primary)]' : 'mb-8 pb-4'}`}>
@@ -649,13 +649,14 @@ export function Calculator({
 
                     {/* Fallout Header / Menu */}
                     {isFallout && (
-                        <div className="w-full mb-4 md:mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
+                        <div className="relative z-30 w-full mb-4 md:mb-8 border-b border-[var(--fo-primary-dim)] pb-2">
                             <div className="w-full overflow-x-auto overflow-y-hidden whitespace-nowrap no-scrollbar">
-                                <div className="flex items-center gap-1 sm:gap-3 w-max min-w-full">
-                                    <button onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0">[ SETTINGS ]</button>
-                                    <button onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0">[ GUIDE ]</button>
+                                <div className="relative z-30 flex items-center gap-1 sm:gap-3 w-max min-w-full">
+                                    <button type="button" onClick={openSettings} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0">[ SETTINGS ]</button>
+                                    <button type="button" onClick={() => router.push('/training')} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0">[ GUIDE ]</button>
                                     {showAuthenticatedControls && (
                                         <button
+                                            type="button"
                                             onClick={() => {
                                                 if (user) setIsHistoryOpen(true)
                                             }}
@@ -665,9 +666,9 @@ export function Calculator({
                                         </button>
                                     )}
                                     {showAuthenticatedControls ? (
-                                        <button onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0 ml-auto">[ LOGOUT ]</button>
+                                        <button type="button" onClick={handleLogout} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0 ml-auto">[ LOGOUT ]</button>
                                     ) : (
-                                        <button onClick={openAuth} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0 ml-auto">[ LOGIN ]</button>
+                                        <button type="button" onClick={openAuth} className="fo-button fo-button-ghost px-1.5 sm:px-4 py-1 h-auto min-h-0 text-[11px] md:text-base justify-center whitespace-nowrap min-w-[84px] sm:min-w-[104px] shrink-0 ml-auto">[ LOGIN ]</button>
                                     )}
                                 </div>
                             </div>
@@ -1058,7 +1059,7 @@ export function Calculator({
                 {isMinecraft && (
                     <div className="mt-8 text-center">
                         <div className="text-sm drop-shadow-sm mc-small">
-                            Date Change Tool V3 v3.0.0 (Minecraft Edition)
+                            Date Change Tool V3 v3.0.0 (Suddcraft Edition)
                         </div>
                     </div>
                 )}

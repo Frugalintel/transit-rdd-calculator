@@ -110,17 +110,17 @@ export function TrainingSettings({ onUpdate }: TrainingSettingsProps) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    {/* Minecraft Message Editor */}
+                    {/* Suddcraft Message Editor */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <ThemeIcon type="chest" scale={1} />
-                            <Label className="mc-label">Minecraft Message</Label>
+                            <Label className="mc-label">Suddcraft Message</Label>
                         </div>
                         <Textarea
                             value={minecraftMessage}
                             onChange={(e) => setMinecraftMessage(e.target.value)}
                             className="mc-input min-h-[120px] font-sans"
-                            placeholder="Enter message for Minecraft theme..."
+                            placeholder="Enter message for Suddcraft theme..."
                         />
                         <div className="mc-panel p-4 bg-[var(--mc-slot-bg)] text-center">
                             <h4 className="mc-heading text-sm mb-2 opacity-70">Preview</h4>
