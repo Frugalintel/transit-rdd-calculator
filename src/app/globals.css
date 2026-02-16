@@ -136,8 +136,19 @@
      minecraft = dark brown, fallout = black.
      Only on html — NOT body — because ThemeBackground uses
      position:fixed z-[-1] which sits behind body's paint layer. */
+  :root {
+    --app-viewport-height: 100vh;
+  }
+
+  @supports (height: 100dvh) {
+    :root {
+      --app-viewport-height: 100dvh;
+    }
+  }
+
   html {
     background-color: hsl(var(--background));
+    min-height: var(--app-viewport-height);
   }
 
   /* Hide body briefly until critical Minecraft assets are ready. */
@@ -149,11 +160,11 @@
     background-color: transparent;
     font-size: clamp(14px, 0.9vw + 12px, 20px);
     touch-action: auto;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: none;
     overflow-x: hidden;
     line-height: 1.5;
     color: white;
-    min-height: 100vh;
+    min-height: var(--app-viewport-height);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -175,8 +186,8 @@
 
 .mc-pan-bg {
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   left: 0;
   top: 0;
   background-repeat: no-repeat;

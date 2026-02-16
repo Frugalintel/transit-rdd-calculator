@@ -512,8 +512,8 @@ export function Calculator({
 
     return (
         <div 
-            className={`min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative`} 
-            style={{ touchAction: 'auto' }}
+            className={`flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 relative`} 
+            style={{ touchAction: 'auto', minHeight: 'var(--app-viewport-height)' }}
         >
             {/* Title */}
             <div className={`relative text-center z-10 w-full max-w-4xl ${isFallout ? 'mb-4 md:mb-8 pb-2 md:pb-4 border-b-2 border-[var(--fo-primary)]' : 'mb-8 pb-4'}`}>
